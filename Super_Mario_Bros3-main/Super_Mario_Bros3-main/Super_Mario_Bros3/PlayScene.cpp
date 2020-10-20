@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-
+#include "NoCollisionObject.h"
 #include "PlayScene.h"
 #include "Utils.h"
 #include "Textures.h"
@@ -31,7 +31,7 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath) :
 #define OBJECT_TYPE_BRICK	1
 #define OBJECT_TYPE_GOOMBA	2
 #define OBJECT_TYPE_KOOPAS	3
-
+#define OBJECT_TYPE_NoCollisionObject	4
 #define OBJECT_TYPE_PORTAL	50
 
 #define MAX_SCENE_LINE 1024
@@ -153,6 +153,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 
 		DebugOut(L"[INFO] Player object created!\n");
 		break;
+	case OBJECT_TYPE_NoCollisionObject: obj = new CNoCollitionObject(); break;
 	case OBJECT_TYPE_GOOMBA: obj = new CGoomba(); break;
 	case OBJECT_TYPE_BRICK: obj = new CBrick(); break;
 	case OBJECT_TYPE_KOOPAS: obj = new CKoopas(); break;
@@ -252,12 +253,11 @@ void CPlayScene::Update(DWORD dt)
 	// Update camera to follow mario
 	float cx, cy;
 	player->GetPosition(cx, cy);
-
 	CGame* game = CGame::GetInstance();
 	cx -= game->GetScreenWidth() / 2;
 	cy -= game->GetScreenHeight() / 2;
-
-	CGame::GetInstance()->SetCamPos(cx, 0.0f /*cy*/);
+	//if(player->x>(game->GetScreenWidth()/2) /*|| player->y > (game->GetScreenHeight() / 2)*/)
+	CGame::GetInstance()->SetCamPos(cx, cy);
 }
 
 void CPlayScene::Render()
@@ -288,15 +288,10 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 	switch (KeyCode)
 	{
 	case DIK_F:
-		if (mario->GetState() == MARIO_STATE_ON_FIRE)
-		{
-			mario->SetLevel(MARIO_LEVEL_BIG);
-		}
-		else
 		mario->SetState(MARIO_STATE_ON_FIRE);
 		break;
 	case DIK_B:
-			mario->SetLevel(MARIO_LEVEL_BIG);
+		mario->SetLevel(MARIO_LEVEL_BIG);
 		break;
 	case DIK_SPACE:
 		mario->SetState(MARIO_STATE_JUMP);
@@ -323,7 +318,13 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 		}
 	}
 	else if (game->IsKeyDown(DIK_LEFT))
+	{
 		mario->SetState(MARIO_STATE_WALKING_LEFT);
+		if (game->IsKeyDown(DIK_LSHIFT))
+		{
+			mario->SetState(MARIO_STATE_RUNNING_LEFT);
+		}
+	}
 	else
 		mario->SetState(MARIO_STATE_IDLE);
 }
