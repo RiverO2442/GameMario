@@ -287,6 +287,17 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 	CMario* mario = ((CPlayScene*)scence)->GetPlayer();
 	switch (KeyCode)
 	{
+	case DIK_F:
+		if (mario->GetState() == MARIO_STATE_ON_FIRE)
+		{
+			mario->SetLevel(MARIO_LEVEL_BIG);
+		}
+		else
+		mario->SetState(MARIO_STATE_ON_FIRE);
+		break;
+	case DIK_B:
+			mario->SetLevel(MARIO_LEVEL_BIG);
+		break;
 	case DIK_SPACE:
 		mario->SetState(MARIO_STATE_JUMP);
 		break;
@@ -304,7 +315,13 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 	// disable control key when Mario die 
 	if (mario->GetState() == MARIO_STATE_DIE) return;
 	if (game->IsKeyDown(DIK_RIGHT))
+	{
 		mario->SetState(MARIO_STATE_WALKING_RIGHT);
+		if (game->IsKeyDown(DIK_LSHIFT))
+		{
+			mario->SetState(MARIO_STATE_RUNNING_RIGHT);
+		}
+	}
 	else if (game->IsKeyDown(DIK_LEFT))
 		mario->SetState(MARIO_STATE_WALKING_LEFT);
 	else
