@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include "RECT.h"
+#include "PIPE.h"
 #include "NoCollisionObject.h"
 #include "PlayScene.h"
 #include "Utils.h"
@@ -32,8 +34,9 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath) :
 #define OBJECT_TYPE_GOOMBA	2
 #define OBJECT_TYPE_KOOPAS	3
 #define OBJECT_TYPE_NoCollisionObject	4
+#define OBJECT_TYPE_RECT	5
 #define OBJECT_TYPE_PORTAL	50
-
+#define OBJECT_TYPE_PIPE	6
 #define MAX_SCENE_LINE 1024
 
 
@@ -153,6 +156,8 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 
 		DebugOut(L"[INFO] Player object created!\n");
 		break;
+	case OBJECT_TYPE_PIPE: obj = new PIPE(); break;
+	case OBJECT_TYPE_RECT: obj = new CRECT(); break;
 	case OBJECT_TYPE_NoCollisionObject: obj = new CNoCollitionObject(); break;
 	case OBJECT_TYPE_GOOMBA: obj = new CGoomba(); break;
 	case OBJECT_TYPE_BRICK: obj = new CBrick(); break;
@@ -253,11 +258,30 @@ void CPlayScene::Update(DWORD dt)
 	// Update camera to follow mario
 	float cx, cy;
 	player->GetPosition(cx, cy);
+	if (cx < 0)
+	{
+		player->SetPosition(0, cy);
+	}
+	int Sx = 0, Sy = 0;
 	CGame* game = CGame::GetInstance();
 	cx -= game->GetScreenWidth() / 2;
 	cy -= game->GetScreenHeight() / 2;
+	if (player->x > game->GetScreenWidth()/2)
+	{
+		Sx = cx;
+	}
+	if (player->y < game->GetScreenHeight()/2)
+	{
+		/*if(player->GetState() == "Mario_State_Flying")*/
+		Sy = cy;
+	}
+	if (player->x < game->GetScreenWidth() / 2)
+	{
+		Sx = 0;
+		Sy = 0;
+	}
 	//if(player->x>(game->GetScreenWidth()/2) /*|| player->y > (game->GetScreenHeight() / 2)*/)
-	CGame::GetInstance()->SetCamPos(cx, cy);
+	CGame::GetInstance()->SetCamPos(Sx, Sy);
 }
 
 void CPlayScene::Render()

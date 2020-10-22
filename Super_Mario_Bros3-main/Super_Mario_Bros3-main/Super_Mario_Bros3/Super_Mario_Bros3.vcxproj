@@ -148,6 +148,8 @@
     <ClInclude Include="Animations.h" />
     <ClInclude Include="Brick.h" />
     <ClInclude Include="NoCollisionObject.h" />
+    <ClInclude Include="PIPE.h" />
+    <ClInclude Include="RECT.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
@@ -166,8 +168,10 @@
     <ClCompile Include="Goomba.cpp" />
     <ClCompile Include="Koopas.cpp" />
     <ClCompile Include="NoCollisionObject.cpp" />
+    <ClCompile Include="PIPE.cpp" />
     <ClCompile Include="PlayScene.cpp" />
     <ClCompile Include="Portal.cpp" />
+    <ClCompile Include="RECT.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Game.cpp" />
