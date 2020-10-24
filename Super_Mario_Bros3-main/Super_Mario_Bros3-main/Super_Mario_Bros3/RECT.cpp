@@ -10,5 +10,5 @@ void CRECT::GetBoundingBox(float& l, float& t, float& r, float& b)
 	l = x;
 	t = y;
 	r = x + RECT_BBOX_WIDTH;
-	b = y + RECT_BBOX_HEIGHT;
+	b = y;
 }

@@ -240,9 +240,8 @@ void CPlayScene::Update(DWORD dt)
 {
 	// We know that Mario is the first object in the list hence we won't add him into the colliable object list
 	// TO-DO: This is a "dirty" way, need a more organized way 
-
 	vector<LPGAMEOBJECT> coObjects;
-	for (size_t i = 1; i < objects.size(); i++)
+	for (size_t i = 0; i < objects.size() -1; i++)
 	{
 		coObjects.push_back(objects[i]);
 	}
@@ -261,6 +260,10 @@ void CPlayScene::Update(DWORD dt)
 	if (cx < 0)
 	{
 		player->SetPosition(0, cy);
+	}
+	if (player->GetState() == MARIO_STATE_LEVEL_CHANGING)
+	{
+		player->SetPosition(cx, cy + 0.2);
 	}
 	int Sx = 0, Sy = 0;
 	CGame* game = CGame::GetInstance();
@@ -281,7 +284,7 @@ void CPlayScene::Update(DWORD dt)
 		Sy = 0;
 	}
 	//if(player->x>(game->GetScreenWidth()/2) /*|| player->y > (game->GetScreenHeight() / 2)*/)
-	CGame::GetInstance()->SetCamPos(Sx, Sy);
+	CGame::GetInstance()->SetCamPos(Sx, Sy + 0.02);
 }
 
 void CPlayScene::Render()
@@ -311,13 +314,20 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 	CMario* mario = ((CPlayScene*)scence)->GetPlayer();
 	switch (KeyCode)
 	{
-	case DIK_F:
-		mario->SetState(MARIO_STATE_ON_FIRE);
-		break;
 	case DIK_B:
 		mario->SetLevel(MARIO_LEVEL_BIG);
 		break;
+	case DIK_S:
+		mario->SetLevel(MARIO_LEVEL_SMALL);
+		break;
+	case DIK_F:
+		mario->SetLevel(MARIO_LEVEL_FIRE);
+		break;
+	case DIK_T:
+		mario->SetLevel(MARIO_LEVEL_TAIL);
+		break;
 	case DIK_SPACE:
+		mario->SetIsJumping(true);
 		mario->SetState(MARIO_STATE_JUMP);
 		break;
 	case DIK_A:
@@ -333,7 +343,7 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 
 	// disable control key when Mario die 
 	if (mario->GetState() == MARIO_STATE_DIE) return;
-	if (game->IsKeyDown(DIK_RIGHT))
+	else if (game->IsKeyDown(DIK_RIGHT))
 	{
 		mario->SetState(MARIO_STATE_WALKING_RIGHT);
 		if (game->IsKeyDown(DIK_LSHIFT))
@@ -348,6 +358,10 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 		{
 			mario->SetState(MARIO_STATE_RUNNING_LEFT);
 		}
+	}
+	else if (game->IsKeyDown(DIK_DOWN))
+	{
+		mario->SetState(MARIO_STATE_SITDOWN);
 	}
 	else
 		mario->SetState(MARIO_STATE_IDLE);

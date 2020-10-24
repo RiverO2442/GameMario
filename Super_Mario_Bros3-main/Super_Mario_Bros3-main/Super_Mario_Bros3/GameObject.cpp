@@ -1,10 +1,11 @@
 #include <d3dx9.h>
 #include <algorithm>
-
-
+#include "RECT.h"
+#include "Mario.h"
+#include "Game.h"
+#include "PlayScene.h"
 #include "Utils.h"
 #include "Textures.h"
-#include "Game.h"
 #include "GameObject.h"
 #include "Sprites.h"
 
@@ -70,7 +71,12 @@ void CGameObject::CalcPotentialCollisions(
 	for (UINT i = 0; i < coObjects->size(); i++)
 	{
 		LPCOLLISIONEVENT e = SweptAABBEx(coObjects->at(i));
-
+		if(dynamic_cast<CRECT*>(e->obj))
+		{
+			CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
+			if (mario->dy < 0)
+				continue;
+		}
 		if (e->t > 0 && e->t <= 1.0f)
 			coEvents.push_back(e);
 		else
