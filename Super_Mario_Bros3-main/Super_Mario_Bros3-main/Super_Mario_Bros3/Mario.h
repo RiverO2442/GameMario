@@ -2,7 +2,7 @@
 #include "GameObject.h"
 
 #define MARIO_WALKING_SPEED		0.2f 
-#define MARIO_WALKING_GIATOC	0.0005f 
+#define MARIO_WALKING_GIATOC	0.0005f
 
 #define MARIO_JUMP_SPEED_Y		0.5f
 #define MARIO_JUMP_DEFLECT_SPEED 0.2f
@@ -133,7 +133,7 @@ class CMario : public CGameObject
 	float start_y;
 public:
 	CMario(float x = 0.0f, float y = 0.0f);
-
+	void CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents);
 	bool GetIsJumping() { return ISJumping; }
 	void SetIsJumping(bool value) { ISJumping = value; }
 

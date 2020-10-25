@@ -7,6 +7,8 @@
 
 #include "Goomba.h"
 #include "Portal.h"
+#include "PlayScene.h"
+#include "RECT.h"
 
 CMario::CMario(float x, float y) : CGameObject()
 {
@@ -122,6 +124,27 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	for (UINT i = 0; i < coEvents.size(); i++) delete coEvents[i];
 }
 
+void CMario::CalcPotentialCollisions(
+	vector<LPGAMEOBJECT>* coObjects,
+	vector<LPCOLLISIONEVENT>& coEvents)
+{
+	for (UINT i = 0; i < coObjects->size(); i++)
+	{
+		LPCOLLISIONEVENT e = SweptAABBEx(coObjects->at(i));
+		if (dynamic_cast<CRECT*>(e->obj))
+		{
+			CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
+			if (mario->dy < 0)
+				continue;
+		}
+		if (e->t > 0 && e->t <= 1.0f)
+			coEvents.push_back(e);
+		else
+			delete e;
+	}
+
+	std::sort(coEvents.begin(), coEvents.end(), CCollisionEvent::compare);
+}
 void CMario::Render()
 {
 	int ani = -1;
@@ -345,7 +368,8 @@ void CMario::SetState(int state)
 		SetLevel(MARIO_LEVEL_FIRE);
 		break;*/
 	case MARIO_STATE_WALKING_RIGHT:
-		vx = MARIO_WALKING_SPEED;
+		if(vx < 0.2)
+		vx = vx + MARIO_WALKING_GIATOC * dt;
 		nx = 1;
 		break;
 	case MARIO_STATE_RUNNING_RIGHT:
