@@ -121,6 +121,8 @@
 #define MARIO_SMALL_BBOX_WIDTH  13
 #define MARIO_SMALL_BBOX_HEIGHT 15
 
+#define MARIO_BBOX_HEIGHT_DIFF 12
+
 #define MARIO_UNTOUCHABLE_TIME 5000
 
 class CMario : public CGameObject
@@ -137,14 +139,24 @@ public:
 	bool GetIsJumping() { return ISJumping; }
 	void SetIsJumping(bool value) { ISJumping = value; }
 
+	void RenderBoundingBox();
+
 	virtual void Update(DWORD dt, vector<LPGAMEOBJECT>* colliable_objects = NULL);
 	virtual void Render();
 
 	void SetState(int state);
-	void SetLevel(int l) { level = l; }
+	void SetLevel(int l) 
+	{
+		 LvChanging();
+			level = l; 
+	}
 	void StartUntouchable() { untouchable = 1; untouchable_start = GetTickCount(); }
 
 	void Reset();
+
+	void FIXPS(int PSx, int PSy);
+
+	void LvChanging();
 
 	virtual void GetBoundingBox(float& left, float& top, float& right, float& bottom);
 };

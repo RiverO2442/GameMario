@@ -314,6 +314,9 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 	CMario* mario = ((CPlayScene*)scence)->GetPlayer();
 	switch (KeyCode)
 	{
+	/*case DIK_DOWN:
+		mario->FIXPS(0, 9);
+		break;*/
 	case DIK_B:
 		mario->SetLevel(MARIO_LEVEL_BIG);
 		break;

@@ -72,6 +72,11 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				vx = -vx;
 				goomba->vx = -goomba->vx;
 			}
+			else //Colli with any thing else then Goomba will change direction
+				if (nx != 0 && ny == 0)
+				{
+					vx = -vx;
+				}
 		}
 
 		// clean up collision events
