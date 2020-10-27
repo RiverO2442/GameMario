@@ -61,7 +61,7 @@
 #define MARIO_ANI_SMALL_BRAKING_LEFT		29
 #define MARIO_ANI_SMALL_HOLDING_RIGHT		30	
 #define MARIO_ANI_SMALL_HOLDING_LEFT		31
-#define MARIO_ANI_SMALL_KICKING_RIGHT		32	
+#define MARIO_ANI_SMALL_KICKING_RIGHT		32
 #define MARIO_ANI_SMALL_KICKING_LEFT		33
 #define MARIO_ANI_SMALL_RUNNING_RIGHT		34	
 #define MARIO_ANI_SMALL_RUNNING_LEFT		35
@@ -125,12 +125,16 @@
 
 #define MARIO_UNTOUCHABLE_TIME 5000
 
+#define MARIO_KICKING_TIME 200
+
 class CMario : public CGameObject
 {
 	int level;
 	int untouchable;
 	DWORD untouchable_start;
+	DWORD kicking_start;
 	bool ISJumping = 0;
+	bool ISKicking = 0;
 	float start_x;			// initial position of Mario at scene
 	float start_y;
 public:
@@ -138,6 +142,9 @@ public:
 	void CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents);
 	bool GetIsJumping() { return ISJumping; }
 	void SetIsJumping(bool value) { ISJumping = value; }
+
+	bool GetIsKicking() { return ISKicking; }
+	void SetIsKicking(bool value) { ISKicking = value; }
 
 	void RenderBoundingBox();
 
@@ -151,6 +158,8 @@ public:
 			level = l; 
 	}
 	void StartUntouchable() { untouchable = 1; untouchable_start = GetTickCount(); }
+
+	void StartKicking() { untouchable = 1; kicking_start = GetTickCount(); }
 
 	void Reset();
 
