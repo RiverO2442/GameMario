@@ -8,6 +8,7 @@
 #include "Textures.h"
 #include "Sprites.h"
 #include "Portal.h"
+#include "FIREBALL.h"
 
 using namespace std;
 
@@ -29,14 +30,20 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath) :
 #define SCENE_SECTION_ANIMATION_SETS	5
 #define SCENE_SECTION_OBJECTS	6
 
-#define OBJECT_TYPE_MARIO	0
-#define OBJECT_TYPE_BRICK	1
-#define OBJECT_TYPE_GOOMBA	2
-#define OBJECT_TYPE_KOOPAS	3
-#define OBJECT_TYPE_NoCollisionObject	4
-#define OBJECT_TYPE_RECT	5
+#define OBJECT_TYPE_MARIO				 0
+#define OBJECT_TYPE_BRICK				 1
+#define OBJECT_TYPE_GOOMBA_NORMAL		 2
+#define OBJECT_TYPE_KOOPAS_XANH_WALK	 3
+#define OBJECT_TYPE_NO_COLLISION_OBJECTS 4
+#define OBJECT_TYPE_RECTANGLE			 5
+#define OBJECT_TYPE_PIPE				 6
+#define OBJECT_TYPE_KOOPAS_XANH_BAY	7 
+#define OBJECT_TYPE_KOOPAS_RED_WALK	8
+#define OBJECT_TYPE_KOOPAS_RED_FLY	9
+#define OBJECT_TYPE_COIN			10
+#define OBJECT_TYPE_GOOMBA_RED_FLY   11 
+#define OBJECT_TYPE_FIREBALL   12
 #define OBJECT_TYPE_PORTAL	50
-#define OBJECT_TYPE_PIPE	6
 #define MAX_SCENE_LINE 1024
 
 
@@ -153,15 +160,20 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		}
 		obj = new CMario(x, y);
 		player = (CMario*)obj;
-
 		DebugOut(L"[INFO] Player object created!\n");
 		break;
-	case OBJECT_TYPE_PIPE: obj = new PIPE(); break;
-	case OBJECT_TYPE_RECT: obj = new CRECT(); break;
-	case OBJECT_TYPE_NoCollisionObject: obj = new CNoCollitionObject(); break;
-	case OBJECT_TYPE_GOOMBA: obj = new CGoomba(); break;
+	case OBJECT_TYPE_GOOMBA_NORMAL: obj = new CGoomba(888); break;
+	case OBJECT_TYPE_GOOMBA_RED_FLY: obj = new CGoomba(999); break;
 	case OBJECT_TYPE_BRICK: obj = new CBrick(); break;
-	case OBJECT_TYPE_KOOPAS: obj = new CKoopas(); break;
+	case OBJECT_TYPE_KOOPAS_XANH_WALK: obj = new CKoopas(111); break;
+	case OBJECT_TYPE_RECTANGLE: obj = new CRECT(); break;
+	//case OBJECT_TYPE_COIN: obj = new CCoin(); break;
+	case OBJECT_TYPE_PIPE: obj = new PIPE(); break;
+	case OBJECT_TYPE_NO_COLLISION_OBJECTS:obj = new CNoCollitionObject(); break;
+	case OBJECT_TYPE_KOOPAS_XANH_BAY: obj = new CKoopas(222); break;
+	case OBJECT_TYPE_KOOPAS_RED_WALK: obj = new CKoopas(333); break;
+	case OBJECT_TYPE_KOOPAS_RED_FLY: obj = new CKoopas(444); break;
+	case OBJECT_TYPE_FIREBALL: obj = new FIREBALL(); break;
 	case OBJECT_TYPE_PORTAL:
 	{
 		float r = atof(tokens[4].c_str());
@@ -339,6 +351,24 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 	}
 }
 
+void CPlayScenceKeyHandler::OnKeyUp(int KeyCode)
+{
+	CMario* mario = ((CPlayScene*)scence)->GetPlayer();
+	switch (KeyCode)
+	{
+		/*case DIK_DOWN:
+			mario->FIXPS(0, 9);
+			break;*/
+	case DIK_C:
+		mario->SetisHolding(false);
+		break;
+	case DIK_D:
+		mario->SetisFiring(false);
+		mario->SetisAlreadyFired(false);
+		break;
+	}
+}
+
 void CPlayScenceKeyHandler::KeyState(BYTE* states)
 {
 	CGame* game = CGame::GetInstance();
@@ -368,4 +398,14 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 	}
 	else
 		mario->SetState(MARIO_STATE_IDLE);
+	if (game->IsKeyDown(DIK_C))
+	{
+		mario->SetisHolding(true);
+	}
+	if (game->IsKeyDown(DIK_D))
+	{
+		if (mario->GetLevel() == MARIO_LEVEL_FIRE)
+			mario->SetisFiring(true);
+	}
+
 }

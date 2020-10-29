@@ -4,6 +4,11 @@ CGoomba::CGoomba()
 {
 	SetState(GOOMBA_STATE_WALKING);
 }
+CGoomba::CGoomba(int ctype)
+{
+	type = ctype;
+	SetState(GOOMBA_STATE_WALKING);
+}
 
 void CGoomba::GetBoundingBox(float& left, float& top, float& right, float& bottom)
 {
@@ -54,10 +59,9 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 		// block every object first!
 		x += min_tx * dx + nx * 0.4f;
-		y += min_ty * dy + ny * 0.4f;
+		//y += min_ty * dy + ny * 0.4f;
 
 		if (ny != 0) vy = 0;
-
 
 		//
 		// Collision logic with other objects
@@ -103,9 +107,30 @@ void CGoomba::CalcPotentialCollisions(
 
 void CGoomba::Render()
 {
-	int ani = GOOMBA_ANI_WALKING;
-	if (state == GOOMBA_STATE_DIE) {
-		ani = GOOMBA_ANI_DIE;
+	int ani = -1;
+	switch (type)
+	{
+	case GOOMBA_NORMAL:
+		ani = GOOMBA_NORMAL_ANI_WALKING;
+		if (state == GOOMBA_STATE_DISAPPEAR)
+			return;
+		else if (state == GOOMBA_STATE_DIE) {
+			ani = GOOMBA_NORMAL_ANI_DIE;
+			state = GOOMBA_STATE_DISAPPEAR;
+		}
+		else if (state == GOOMBA_STATE_DIE_BY_KICK) {
+			ani = GOOMBA_NORMAL_ANI_WALKING;
+		}
+		break;
+	case GOOMBA_RED_FLY:
+		ani = GOOMBA_RED_FLY_ANI_WALKING;
+		if (state == GOOMBA_STATE_DISAPPEAR)
+			return;
+		else if (state == GOOMBA_STATE_DIE) {
+			ani = GOOMBA_RED_FLY_ANI_DIE;
+			state = GOOMBA_STATE_DISAPPEAR;
+		}
+		break;
 	}
 
 	animation_set->at(ani)->Render(x, y);

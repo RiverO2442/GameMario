@@ -1,0 +1,30 @@
+#pragma once
+#include "GameObject.h"
+#define FIREBALL_SPEED 0.15f;
+
+#define FIREBALL_BBOX_WIDTH	7
+#define FIREBALL_BBOX_HEIGHT 9
+
+#define	FIREBALL_STATE_DIE	90
+#define FIREBALL_STATE_FLYING 100
+
+
+#define FIREBALL_ANI_FLYING 0
+
+#define FIREBALL_GRAVITY	0.00032f
+class FIREBALL : public CGameObject
+{
+	bool isUsed = false;
+	virtual void GetBoundingBox(float& left, float& top, float& right, float& bottom);
+	virtual void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects);
+	virtual void Render();
+	void CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents);
+
+public:
+	float upBoudary = 120;
+	FIREBALL();
+	void GetisUsed(bool value) { isUsed = value; }
+	bool GetisUsed() { return isUsed; }
+	virtual void SetState(int state);
+};
+

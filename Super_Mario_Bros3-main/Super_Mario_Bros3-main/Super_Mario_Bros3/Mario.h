@@ -126,7 +126,7 @@
 
 #define MARIO_BBOX_HEIGHT_DIFF 12
 
-#define MARIO_UNTOUCHABLE_TIME 5000
+#define MARIO_UNTOUCHABLE_TIME 1000
 
 #define MARIO_KICKING_TIME 200
 
@@ -138,9 +138,21 @@ class CMario : public CGameObject
 	DWORD kicking_start;
 	bool isJumping = 0;
 	bool isKicking = 0;
+	bool isHolding = 0;
+	bool isFiring = 0;
+	bool isAlreadyFired = 0;
 	float start_x;			// initial position of Mario at scene
 	float start_y;
 public:
+	void SetisFiring(bool value) { isFiring = value; }
+	bool GetisFiring() { return isFiring; }
+
+	void SetisAlreadyFired(bool value) { isAlreadyFired = value; }
+	bool GetisAlreadyFired() { return isAlreadyFired; }
+
+	void SetisHolding(bool value) { isHolding = value; }
+	bool GetisHolding() { return isHolding; }
+
 	CMario(float x = 0.0f, float y = 0.0f);
 	void CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents);
 	bool GetIsJumping() { return isJumping; }
@@ -158,6 +170,9 @@ public:
 	virtual void Render();
 
 	void SetState(int state);
+	int GetLevel() {
+		return level;
+	};
 	void SetLevel(int l) 
 	{
 		 LvChanging();

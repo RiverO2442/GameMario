@@ -612,6 +612,11 @@
 
 
 #SECTION 1
+#FIRE BALL
+80011	305	78	312	87	50
+80012	313	79	322	87	50
+80013	323	79	332	87	50
+80014	333	78	340	87	50
 
 #==== GACH BU LẺ ====
 50010	324	171	340	187	30
@@ -761,6 +766,10 @@
 60057	443	137	459	153	30
 60058	460	137	476	153	30
 
+#GOOMBA
+600590	5	14	21	29	10
+60060	25	14	41	29	10
+
 #GOOMBA die
 60061	45	21	61	29	10
 #KOOPAS XANH_ ĐI BỘ 
@@ -810,6 +819,9 @@
 #GOOMBA ĐỎ CHẾT
 60090	204	115	220	124	50
 
+#GOOMBA ĐỎ ĐI BỘ					
+60091	170	108	186	124	50
+60092	187	108	203	124	50
 #END SECTION
 
 
@@ -972,6 +984,8 @@
 #sitdown left fire
 717	13001	100
 #SECTION 1
+#FIRE BALL
+3006	80011	100	80012	100	80013	100	80014	100
 
 # ==== KOOPAS XANH SHELL UP, DOWN, SPIN =========
 #3004	80002	100
@@ -1005,7 +1019,7 @@
 # ==== QUESTION BRICK =========
 6002	400001	1000	400001	100	400002	100	400003	100	400004	100
 
-
+	
 #SECTION 1 END
 
 
@@ -1129,7 +1143,7 @@
 
 # ==== GOOMBA  =========
 # walk
-1660	60059	100	60060	100
+1660	600590	100	60060	100
 # die
 1661	60061	100
 
@@ -1164,7 +1178,8 @@
 1673	80004	50	80005	50	80006	50
 #GOOMBA ĐỎ_XOAY
 1674	80008	50	80009	50	80010	50
-
+#GOOMBA ĐỎ ĐI BỘ				
+1675	60091	100	60092	100
 #END SECTION 3
 
 #
@@ -1250,6 +1265,9 @@
 #==== KOOPAS XANH
 #214	2016	2015	2017	3004	3005	3005
 
+#FIRE BALL
+
+215	3006
 
 #SECTION 2 END
 
@@ -1311,9 +1329,8 @@
 85	1656
 86	1657
 87	1658
-
-## GOOMBA  :THUONG ĐI BỘ(bthg- chết) , ĐỎ BAY
-88	1660	1661	1671	1672
+## GOOMBA  :CAM ĐI BỘ(bthg- chết) , ĐỎ BAY, đỏ chết, đỏ đi bộ,  					
+88	1660	1661	1671	1672	1675
 
 ## KOOOPAS
 ## Thứ tự :Xanh đi bộ (trái phải),xanh bay (trái), mai rùa xanh(úp,ngửa), đỏ đi bộ(trái) ,đỏ bay (trái),mai đỏ( úp)
@@ -1323,7 +1340,8 @@
 
 [OBJECTS]
 # type	x	y	ani_set_id	extra_settings per object type
-# type: 0 = Mario , 1 = Brick, 2 = Goomba, 3 = Koopas, 4 = NoCollisionObjects 5= RECT, 6=PIPE
+# type: 0 = Mario , 1 = Brick, 2 = Goomba Thuong, 3 = Koopas xanh đi bộ, 4 = NoCollisionObjects 5= RECT, 6=PIPE , 7= koopas xanh_bay, 8= koopas đỏ_bộ, 9= koopas đỏ_bay, 10=Coin, 11=Goomba red bay, 12=FIRE BALL
+
 
 #SECTION 1
 
@@ -2290,31 +2308,29 @@
 1	2272	38	402
 #ENDSECTION 3
 
-
-
 # MARIO ALWAY THE LAST TO BE DRAW
 0	17	115	1
 
 
-#==== GOOMBA
-#==== GOOMBA 1
-#2	224	119	88
-#==== GOOMBA 2
-#2	528	119	88
-#==== GOOMBA 3
-#2	832	119	88
-#==== GOOMBA 4
-#2	880	119	88
+# GOOMBA 
+3	224	114	89
+2	528	134	88
+2	832	115	88
+2	880	115	88
+#GOOMBA_ ĐỎ _BAY
+11	944	115	88	
+#KOOPA XANH_BAY
+7	1328	27	89
+7	1376	27	89
+7	1425	27	89
+#KOOPA XANH_BỘ
+3	1472	123	89
+#KOOPA ĐỎ_BỘ
+8	576	91	89
+8	2096	91	89
+12	1000	1000	215
+	
 
-#==== KOOPAS MAU XANH
-#==== KOOPAS 1
-3	527	119	89
-3	176	60	89
-
-#==== KOOPAS 2
-3	1472	125	89
-#==== KOOPAS 3
-3	2096	93	89
 
 # --- SCENE PORTAL ----
 # type	l	t	ani_set_id	r	b	scene_id

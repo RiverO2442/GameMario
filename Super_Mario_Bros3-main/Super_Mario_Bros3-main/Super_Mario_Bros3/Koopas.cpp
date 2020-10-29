@@ -8,7 +8,11 @@ CKoopas::CKoopas()
 	SetState(KOOPAS_STATE_WALKING);
 	nx = -1;
 }
-
+CKoopas::CKoopas(int ctype)
+{
+	type = ctype;
+	SetState(KOOPAS_STATE_WALKING);
+}
 void CKoopas::GetBoundingBox(float& left, float& top, float& right, float& bottom)
 {
 	left = x;
@@ -30,7 +34,6 @@ void CKoopas::GetBoundingBox(float& left, float& top, float& right, float& botto
 void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
 	CGameObject::Update(dt, coObjects);
-	
 	vy += KOOPAS_GRAVITY * dt;
 	//if (state == KOOPAS_STATE_SHELLING)
 		//vy = 0;
@@ -43,7 +46,17 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	// turn off collision when die 
 	if (state != KOOPAS_STATE_DIE)
 		CalcPotentialCollisions(coObjects, coEvents);
-
+	if (isBeingHold == true) {
+		CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
+		if (mario->GetisHolding() == false)
+		{
+			isBeingHold = false;
+			x += 1;
+		}
+		x = mario->x + KOOPAS_BBOX_WIDTH * mario->nx;
+		y = mario->y;
+		vy = 0;
+	}
 	// No collision occured, proceed normally
 	if (coEvents.size() == 0)
 	{
@@ -70,7 +83,6 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		//y += min_ty * dy + ny * 0.4f;
 
 		if (ny != 0) vy = 0;
-		
 
 		//
 		// Collision logic with other objects
@@ -127,33 +139,77 @@ void CKoopas::CalcPotentialCollisions(
 		else
 			delete e;
 	}
-
 	std::sort(coEvents.begin(), coEvents.end(), CCollisionEvent::compare);
 }
 
 void CKoopas::Render()
 {
-	int ani = KOOPAS_ANI_WALKING_LEFT;
-	if (state == KOOPAS_STATE_DIE) {
-		//ani = KOOPAS_ANI_DIE;
-		if (nx > 0) ani = KOOPAS_ANI_WALKING_RIGHT;
-		else ani = KOOPAS_ANI_WALKING_LEFT;
-	}
-	if (state == KOOPAS_STATE_SHELLING) {
-		ani = KOOPAS_ANI_SHELL_DOWN;
-	}
-	if (state == KOOPAS_STATE_SPINNING) {
-		ani = KOOPAS_ANI_SPINNING;
-	}
-	else if (state == KOOPAS_STATE_WALKING)
+	int ani = -1;
+	switch (type)
 	{
-		if(vx > 0) ani = KOOPAS_ANI_WALKING_RIGHT;
-	    else ani = KOOPAS_ANI_WALKING_LEFT;
+
+	case KOOPAS_XANH_WALK:
+		if (state == KOOPAS_STATE_DIE) {
+			if (nx > 0)
+				ani = KOOPAS_ANI_WALKING_RIGHT;
+			else
+				ani = KOOPAS_ANI_WALKING_LEFT;
+		}
+		else if (state == KOOPAS_STATE_SHELLING)
+		{
+			ani = KOOPAS_ANI_SHELL_DOWN;
+		}
+		else if (state == KOOPAS_STATE_DIE_BY_KICK)
+		{
+			ani = KOOPAS_ANI_SHELL_UP;
+		}
+		else if (state == KOOPAS_STATE_SPINNING)
+		{
+			ani = KOOPAS_ANI_SPINNING;
+		}
+		else if (vx > 0) ani = KOOPAS_ANI_WALKING_RIGHT;
+		else  ani = KOOPAS_ANI_WALKING_LEFT;
+		break;
+
+	case KOOPAS_XANH_FLY:
+		if (state == KOOPAS_STATE_DIE) {
+			if (nx > 0)
+				ani = KOOPAS_ANI_WALKING_RIGHT;
+			else
+				ani = KOOPAS_ANI_WALKING_LEFT;
+		}
+		else if (state == KOOPAS_STATE_SHELLING)
+		{
+			ani = KOOPAS_ANI_SHELL_UP;
+		}
+		else if (state == KOOPAS_STATE_SPINNING)
+		{
+			ani = KOOPAS_ANI_SPINNING;
+		}
+		else if (vx > 0) ani = KOOPAS_ANI_FLYING_LEFT;
+		else  ani = KOOPAS_ANI_FLYING_LEFT;
+		break;
+
+	case KOOPAS_RED_WALK:
+		if (state == KOOPAS_STATE_DIE) {
+			ani = RED_KOOPAS_ANI_SHELL_DOWN;
+		}
+		else if (vx > 0) ani = RED_KOOPAS_ANI_WALKING_LEFT;
+		else  ani = RED_KOOPAS_ANI_WALKING_LEFT;
+		break;
+
+	case KOOPAS_RED_FLY:
+		if (state == KOOPAS_STATE_DIE) {
+			ani = RED_KOOPAS_ANI_SHELL_DOWN;
+		}
+		else if (vx > 0) ani = RED_KOOPAS_ANI_FLYING_LEFT;
+		else  ani = RED_KOOPAS_ANI_FLYING_LEFT;
+		break;
 	}
 
 	animation_set->at(ani)->Render(x, y);
 
-	RenderBoundingBox();
+	//RenderBoundingBox();
 }
 
 void CKoopas::SetState(int state)

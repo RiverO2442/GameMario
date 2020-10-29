@@ -16,6 +16,7 @@
 #define KOOPAS_STATE_SHELL_UP 130
 #define KOOPAS_STATE_SHELL_DOWN 140
 #define KOOPAS_STATE_DIE 200
+#define KOOPAS_STATE_DIE_BY_KICK 400
 
 #define KOOPAS_ANI_WALKING_LEFT 0
 #define KOOPAS_ANI_WALKING_RIGHT 1
@@ -30,8 +31,15 @@
 
 #define KOOPAS_GRAVITY	0.002f
 
+#define KOOPAS_XANH_WALK	111
+#define KOOPAS_XANH_FLY		222
+#define KOOPAS_RED_WALK		333
+#define KOOPAS_RED_FLY		444
+
 class CKoopas : public CGameObject
 {
+	int type;
+	bool isBeingHold = false;
 	virtual void GetBoundingBox(float& left, float& top, float& right, float& bottom);
 	virtual void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects);
 	virtual void Render();
@@ -39,5 +47,8 @@ class CKoopas : public CGameObject
 
 public:
 	CKoopas();
+	void SetisBeingHold(bool value) { isBeingHold = value; }
+	bool GetisBeingHold() { return isBeingHold; }
+	CKoopas(int ctype);
 	virtual void SetState(int state);
 };

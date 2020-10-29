@@ -66,6 +66,9 @@
     <ClInclude Include="PIPE.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FIREBALL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -117,6 +120,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PIPE.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FIREBALL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

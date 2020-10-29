@@ -131,26 +131,33 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 						{
 							vy = -MARIO_JUMP_DEFLECT_SPEED;
 							koopas->SetState(KOOPAS_STATE_SHELLING);
+							vx = 0;
 						}
 					}
 				}
 				else
-				if (koopas->GetState() == KOOPAS_STATE_SHELLING)
+				if (koopas->GetState() == KOOPAS_STATE_SHELLING )// koopas->GetisBeingHold() == 0)
 				{
 					if (ny == 0)
 					{
-						isKicking = true;
-						StartKicking();
-						if (nx > 0)
+						if (isHolding == 0)
 						{
-							koopas->SetState(KOOPAS_STATE_SPINNING);
-							koopas->nx = 1;
+							isKicking = true;
+							StartKicking();
+							if (this->nx > 0)
+							{
+								koopas->SetState(KOOPAS_STATE_SPINNING);
+								koopas->nx = 1;
+								koopas->vx = KOOPAS_SPINNING_SPEED;
+							}
+							else if (this->nx < 0)
+							{
+								koopas->SetState(KOOPAS_STATE_SPINNING);
+								koopas->nx = -1;
+								koopas->vx = -KOOPAS_SPINNING_SPEED;
+							}
 						}
-						else if (nx < 0)
-						{
-							koopas->SetState(KOOPAS_STATE_SPINNING);
-							koopas->nx = -1;
-						}
+						koopas->SetisBeingHold(true);
 					}
 				}
 				if (e->nx != 0)
