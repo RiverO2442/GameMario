@@ -13,6 +13,10 @@
 
 #define GOOMBA_ANI_WALKING 0
 #define GOOMBA_ANI_DIE 1
+#define FLYING_GOOMBA_ANI_FLYING 2
+#define FLYING_GOOMBA_ANI_DIE 3
+
+
 #define GOOMBA_GRAVITY	0.002f
 
 class CGoomba : public CGameObject

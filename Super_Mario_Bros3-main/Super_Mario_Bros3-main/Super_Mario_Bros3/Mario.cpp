@@ -9,6 +9,7 @@
 #include "Portal.h"
 #include "PlayScene.h"
 #include "RECT.h"
+#include "Koopas.h"
 
 CMario::CMario(float x, float y) : CGameObject()
 {
@@ -48,7 +49,6 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 	if (GetTickCount() - kicking_start > MARIO_KICKING_TIME)
 	{
-		untouchable_start = 0;
 		SetIsKicking(false);
 	}
 
@@ -134,11 +134,12 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 						}
 					}
 				}
+				else
 				if (koopas->GetState() == KOOPAS_STATE_SHELLING)
 				{
 					if (ny == 0)
 					{
-						SetIsKicking(true);
+						isKicking = true;
 						StartKicking();
 						if (nx > 0)
 						{
@@ -149,6 +150,25 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 						{
 							koopas->SetState(KOOPAS_STATE_SPINNING);
 							koopas->nx = -1;
+						}
+					}
+				}
+				if (e->nx != 0)
+				{
+					if (untouchable == 0)
+					{
+						if (isKicking == 0)
+						{
+							if (koopas->GetState() != KOOPAS_STATE_SHELLING)
+							{
+								if (level != MARIO_LEVEL_SMALL)
+								{
+									level = MARIO_LEVEL_SMALL;
+									StartUntouchable();
+								}
+								else
+									SetState(MARIO_STATE_DIE);
+							}
 						}
 					}
 				}
@@ -171,6 +191,12 @@ void CMario::CalcPotentialCollisions(
 		{
 			CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
 			if (mario->dy < 0)
+				continue;
+		}
+		if (dynamic_cast<CKoopas*>(e->obj))
+		{
+			CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
+			if (mario->untouchable == 1)
 				continue;
 		}
 		if (e->t > 0 && e->t <= 1.0f)

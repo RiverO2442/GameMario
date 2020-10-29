@@ -86,6 +86,9 @@
 #define MARIO_ANI_TAIL_RUNNING_LEFT		55
 #define MARIO_ANI_TAIL_SITDOWN_RIGHT	56
 #define MARIO_ANI_TAIL_SITDOWN_LEFT		57
+#define MARIO_ANI_TAIL_TURNING_LEFT		58
+#define MARIO_ANI_TAIL_TURNING_RIGHT	59
+
 
 
 #define MARIO_ANI_FIRE_IDLE_RIGHT		60
@@ -133,18 +136,21 @@ class CMario : public CGameObject
 	int untouchable;
 	DWORD untouchable_start;
 	DWORD kicking_start;
-	bool ISJumping = 0;
-	bool ISKicking = 0;
+	bool isJumping = 0;
+	bool isKicking = 0;
 	float start_x;			// initial position of Mario at scene
 	float start_y;
 public:
 	CMario(float x = 0.0f, float y = 0.0f);
 	void CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents);
-	bool GetIsJumping() { return ISJumping; }
-	void SetIsJumping(bool value) { ISJumping = value; }
+	bool GetIsJumping() { return isJumping; }
+	void SetIsJumping(bool value) { isJumping = value; }
 
-	bool GetIsKicking() { return ISKicking; }
-	void SetIsKicking(bool value) { ISKicking = value; }
+	bool GetUnTounchable() { return untouchable; }
+	void SetUnTounchable(bool value) { untouchable = value; }
+
+	bool GetIsKicking() { return isKicking; }
+	void SetIsKicking(bool value) { isKicking = value; }
 
 	void RenderBoundingBox();
 
@@ -159,7 +165,7 @@ public:
 	}
 	void StartUntouchable() { untouchable = 1; untouchable_start = GetTickCount(); }
 
-	void StartKicking() { untouchable = 1; kicking_start = GetTickCount(); }
+	void StartKicking() { kicking_start = GetTickCount(); }
 
 	void Reset();
 

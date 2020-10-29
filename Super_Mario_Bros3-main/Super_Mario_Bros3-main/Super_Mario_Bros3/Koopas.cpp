@@ -1,6 +1,7 @@
 #include "Koopas.h"
 #include <algorithm>
 #include "Goomba.h"
+#include "PlayScene.h"
 
 CKoopas::CKoopas()
 {
@@ -64,8 +65,9 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 		// block every object first!
 		x += min_tx * dx + nx * 0.4f;
-		if(nx != 0 && ny != 0)
-		y += min_ty * dy + ny * 0.4f;
+		
+		//if(nx != 0 && ny != 0)
+		//y += min_ty * dy + ny * 0.4f;
 
 		if (ny != 0) vy = 0;
 		
@@ -99,9 +101,11 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 		// clean up collision events
 		for (UINT i = 0; i < coEvents.size(); i++) delete coEvents[i];
+
 		if (x <= 0)
 			if(vx < 0)
 			vx = -vx;
+
 	}
 }
 
@@ -112,6 +116,12 @@ void CKoopas::CalcPotentialCollisions(
 	for (UINT i = 0; i < coObjects->size(); i++)
 	{
 		LPCOLLISIONEVENT e = SweptAABBEx(coObjects->at(i));
+		if (dynamic_cast<CMario*>(e->obj))
+		{
+			CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
+			if (mario->GetUnTounchable() == 1)
+				continue;
+		}
 		if (e->t > 0 && e->t <= 1.0f)
 			coEvents.push_back(e);
 		else
@@ -125,7 +135,9 @@ void CKoopas::Render()
 {
 	int ani = KOOPAS_ANI_WALKING_LEFT;
 	if (state == KOOPAS_STATE_DIE) {
-		ani = KOOPAS_ANI_DIE;
+		//ani = KOOPAS_ANI_DIE;
+		if (nx > 0) ani = KOOPAS_ANI_WALKING_RIGHT;
+		else ani = KOOPAS_ANI_WALKING_LEFT;
 	}
 	if (state == KOOPAS_STATE_SHELLING) {
 		ani = KOOPAS_ANI_SHELL_DOWN;
@@ -152,7 +164,6 @@ void CKoopas::SetState(int state)
 	case KOOPAS_STATE_SPINNING:
 		if(nx < 0) vx = - KOOPAS_SPINNING_SPEED;
 		if(nx > 0) vx = KOOPAS_SPINNING_SPEED;
-		vy = 0;
 		break;
 	case KOOPAS_STATE_SHELLING:
 		vx = 0;
