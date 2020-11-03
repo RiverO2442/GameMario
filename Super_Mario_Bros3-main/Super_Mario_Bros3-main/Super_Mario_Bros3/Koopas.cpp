@@ -54,7 +54,7 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			x += 1;
 		}
 		x = mario->x + KOOPAS_BBOX_WIDTH * mario->nx;
-		y = mario->y;
+		y = mario->y - 7;
 		vy = 0;
 	}
 	// No collision occured, proceed normally

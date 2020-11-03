@@ -11,7 +11,7 @@
 
 #define FIREBALL_ANI_FLYING 0
 
-#define FIREBALL_GRAVITY	0.00032f
+#define FIREBALL_GRAVITY	0.0008f
 class FIREBALL : public CGameObject
 {
 	bool isUsed = false;
@@ -21,9 +21,9 @@ class FIREBALL : public CGameObject
 	void CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents);
 
 public:
-	float upBoudary = 120;
+	float upBoudary;
 	FIREBALL();
-	void GetisUsed(bool value) { isUsed = value; }
+	void SetisUsed(bool value) { isUsed = value; }
 	bool GetisUsed() { return isUsed; }
 	virtual void SetState(int state);
 };
