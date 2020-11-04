@@ -2,12 +2,14 @@
 #include <algorithm>
 #include "Goomba.h"
 #include "PlayScene.h"
+#include "RECT.h"
 
 FIREBALL::FIREBALL()
 {
 	SetState(FIREBALL_STATE_FLYING);
 	nx = 0;
 }
+
 void FIREBALL::GetBoundingBox(float& left, float& top, float& right, float& bottom)
 {
 	left = x;
@@ -21,7 +23,11 @@ void FIREBALL::GetBoundingBox(float& left, float& top, float& right, float& bott
 
 void FIREBALL::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
-	
+	if (GetTickCount() - reset_start > FIREBALL_RESET_TIME)
+	{
+		state = FIREBALL_STATE_DIE;
+		reset_start = 0;
+	}
 	CGameObject::Update(dt, coObjects);
 	//if (state == KOOPAS_STATE_SHELLING)
 		//vy = 0;
@@ -33,6 +39,13 @@ void FIREBALL::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	// turn off collision when die 
 	if (state != FIREBALL_STATE_DIE)
 		CalcPotentialCollisions(coObjects, coEvents);
+	else
+	{
+		isUsed = false;
+		x = 1000;
+		y = 1000;
+		SetState(FIREBALL_STATE_FLYING);
+	}
 	if (y <= upBoudary)
 		if (vy < 0)
 			vy = -vy;
@@ -41,14 +54,15 @@ void FIREBALL::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
 		if (mario->GetisFiring() == true)
 		{
-			if(isUsed == false)
 			if (mario->GetisAlreadyFired() == false)
 			{
+				isUsed = true;
 				x = mario->x;
 				y = mario->y;
 				SetSpeed(mario->nx*0.1f, 0.1f);
 				mario->SetisAlreadyFired(true);
 				upBoudary = mario->y;
+				StartReset();
 			}
 		}
 	}
@@ -85,34 +99,43 @@ void FIREBALL::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 		for (UINT i = 0; i < coEventsResult.size(); i++)
 		{
-			//LPCOLLISIONEVENT e = coEventsResult[i];
-			//if (dynamic_cast<CKoopas*>(e->obj)) // if e->obj is Koopas
-			//{
-			//	CKoopas* Koopas = dynamic_cast<CKoopas*>(e->obj);
-			//	vx = -vx;
-			//	Koopas->vx = -Koopas->vx;
-			//}
-			//else if (dynamic_cast<CGoomba*>(e->obj)) // if e->obj is Goomba
-			//{
-			//	CGoomba* Goomba = dynamic_cast<CGoomba*>(e->obj);
-			//	vx = -vx;
-			//	Goomba->vx = -Goomba->vx;
-			//}
-			//else //Colli with any thing else then Koopas will change direction
+			LPCOLLISIONEVENT e = coEventsResult[i];
+			if (dynamic_cast<CGoomba*>(e->obj)) // if e->obj is Goomba
+			{
+				CGoomba* Goomba = dynamic_cast<CGoomba*>(e->obj);
+				Goomba->SetState(GOOMBA_STATE_DIE_2);
+				Goomba->SetSpeed(vx, -0.4);
+				SetState(FIREBALL_STATE_DIE);
+			}
+			else if (dynamic_cast<CKoopas*>(e->obj)) // if e->obj is Koopas
+			{
+				CKoopas* Koopas = dynamic_cast<CKoopas*>(e->obj);
+				Koopas->SetState(KOOPAS_STATE_DIE);
+				Koopas->SetSpeed(vx, -0.4);
+				if (vx > 0)
+					Koopas->nx = 1;
+				else Koopas->nx = -1;
+				SetState(FIREBALL_STATE_DIE);
+			}
+			else if (dynamic_cast<CMario*>(e->obj)) // if e->obj is Koopas
+			{
+				continue;
+			}
+			else //Colli with any thing else then Koopas will change direction
 			if (ny != 0 )
 			{
 				if (ny > 0)
 					upBoudary = y;
 					vy = -vy;
 			}
+			if (nx != 0 )
+			{
+				SetState(FIREBALL_STATE_DIE);
+			}
+			
 		}
-
 		// clean up collision events
 		for (UINT i = 0; i < coEvents.size(); i++) delete coEvents[i];
-		/*if (ny <= )
-		{
-			vy = -0.7*vy;
-		}*/
 		if (x <= 0)
 			if (vx < 0)
 				vx = -vx;
@@ -130,6 +153,11 @@ void FIREBALL::CalcPotentialCollisions(
 		{
 				continue;
 		}
+		if (dynamic_cast<CRECT*>(e->obj))
+		{
+			if(dy < 0)
+			continue;
+		}
 		if (e->t > 0 && e->t <= 1.0f)
 			coEvents.push_back(e);
 		else
@@ -140,13 +168,14 @@ void FIREBALL::CalcPotentialCollisions(
 
 void FIREBALL::Render()
 {
-	int ani = -1;
+	if (state == FIREBALL_STATE_DIE)
+		return;
+	int ani;
 	switch (state)
 	{
-
 	case FIREBALL_STATE_FLYING:
 				ani = FIREBALL_ANI_FLYING;
-		
+				break;
 	}
 
 	animation_set->at(ani)->Render(x, y);
@@ -159,10 +188,10 @@ void FIREBALL::SetState(int state)
 	CGameObject::SetState(state);
 	switch (state)
 	{
-	//case FIREBALL_STATE_FLYING:
-	//	if (nx < 0) vx = -FIREBALL_SPEED;
-	//	if (nx > 0) vx = FIREBALL_SPEED;
-	//	break;
+	case FIREBALL_STATE_DIE:
+		vx = 0;
+		vy = 0;
+		break;
 
 	}
 

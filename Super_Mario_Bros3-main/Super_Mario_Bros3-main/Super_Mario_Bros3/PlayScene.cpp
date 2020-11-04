@@ -345,6 +345,11 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 		mario->SetIsJumping(true);
 		mario->SetState(MARIO_STATE_JUMP);
 		break;
+	case DIK_V:
+		if (mario->GetLevel() == MARIO_LEVEL_TAIL)
+		mario->SetIsSpining(true);
+		mario->StartSpining();
+		break;
 	case DIK_A:
 		mario->Reset();
 		break;
@@ -378,18 +383,30 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 	if (mario->GetState() == MARIO_STATE_DIE) return;
 	else if (game->IsKeyDown(DIK_RIGHT))
 	{
-		mario->SetState(MARIO_STATE_WALKING_RIGHT);
 		if (game->IsKeyDown(DIK_LSHIFT))
 		{
+			if (mario->Getspeedup_start() == 0)
+				mario->StartSpeedup();
 			mario->SetState(MARIO_STATE_RUNNING_RIGHT);
+		}
+		else
+		{
+			mario->SetspeedLevel(0);
+			mario->SetState(MARIO_STATE_WALKING_RIGHT);
 		}
 	}
 	else if (game->IsKeyDown(DIK_LEFT))
 	{
-		mario->SetState(MARIO_STATE_WALKING_LEFT);
 		if (game->IsKeyDown(DIK_LSHIFT))
 		{
+			if (mario->Getspeedup_start() == 0)
+				mario->StartSpeedup();
 			mario->SetState(MARIO_STATE_RUNNING_LEFT);
+		}
+		else
+		{
+			mario->SetspeedLevel(0);
+			mario->SetState(MARIO_STATE_WALKING_LEFT);
 		}
 	}
 	else if (game->IsKeyDown(DIK_DOWN))

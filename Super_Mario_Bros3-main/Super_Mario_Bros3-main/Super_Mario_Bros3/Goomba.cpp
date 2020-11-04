@@ -18,6 +18,7 @@ void CGoomba::GetBoundingBox(float& left, float& top, float& right, float& botto
 
 	if (state == GOOMBA_STATE_DIE)
 		bottom = y + GOOMBA_BBOX_HEIGHT_DIE;
+
 	else
 		bottom = y + GOOMBA_BBOX_HEIGHT;
 }
@@ -35,7 +36,7 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	coEvents.clear();
 
 	// turn off collision when die 
-	if (state != GOOMBA_STATE_DIE)
+	if (state != GOOMBA_STATE_DIE && state != GOOMBA_STATE_DIE_2)
 		CalcPotentialCollisions(coObjects, coEvents);
 
 	// No collision occured, proceed normally
@@ -117,6 +118,10 @@ void CGoomba::Render()
 		else if (state == GOOMBA_STATE_DIE) {
 			ani = GOOMBA_NORMAL_ANI_DIE;
 			state = GOOMBA_STATE_DISAPPEAR;
+		}
+		else if (state == GOOMBA_STATE_DIE_2) {
+			ani = GOOMBA_NORMAL_ANI_WALKING;
+			//state = GOOMBA_STATE_DISAPPEAR;
 		}
 		else if (state == GOOMBA_STATE_DIE_BY_KICK) {
 			ani = GOOMBA_NORMAL_ANI_WALKING;

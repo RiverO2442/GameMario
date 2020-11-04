@@ -2,6 +2,8 @@
 #include <algorithm>
 #include "Goomba.h"
 #include "PlayScene.h"
+#include "RECT.h"
+#include "FIREBALL.h"
 
 CKoopas::CKoopas()
 {
@@ -19,8 +21,8 @@ void CKoopas::GetBoundingBox(float& left, float& top, float& right, float& botto
 	top = y;
 	right = x + KOOPAS_BBOX_WIDTH;
 
-	if (state == KOOPAS_STATE_DIE)
-		y = y + KOOPAS_BBOX_HEIGHT_SHELL;
+	if (state == KOOPAS_STATE_DIE || state == KOOPAS_STATE_DIE_2)
+		return;
 	else if (state == KOOPAS_STATE_SHELLING)
 	{
 		bottom = y + KOOPAS_BBOX_HEIGHT_SHELL;
@@ -53,8 +55,14 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			isBeingHold = false;
 			x += 1;
 		}
-		x = mario->x + KOOPAS_BBOX_WIDTH * mario->nx;
-		y = mario->y - 7;
+		if(mario->GetLevel() == MARIO_LEVEL_TAIL)
+			if(mario->nx > 0)
+				x = mario->x + (MARIO_BIG_BBOX_WIDTH) * mario->nx;
+			else x = mario->x + (MARIO_BIG_BBOX_WIDTH - 4) * mario->nx;
+		else x = mario->x + (KOOPAS_BBOX_WIDTH - 3) * mario->nx;
+		if(mario->GetLevel() != MARIO_LEVEL_SMALL)
+		y = mario->y + 7;
+		else y = mario->y-2 ;
 		vy = 0;
 	}
 	// No collision occured, proceed normally
@@ -91,7 +99,10 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		for (UINT i = 0; i < coEventsResult.size(); i++)
 		{
 			LPCOLLISIONEVENT e = coEventsResult[i];
-			if (dynamic_cast<CKoopas*>(e->obj)) // if e->obj is Koopas
+			if (dynamic_cast<FIREBALL*>(e->obj))
+			{
+			}
+			else if (dynamic_cast<CKoopas*>(e->obj)) // if e->obj is Koopas
 			{
 				CKoopas* Koopas = dynamic_cast<CKoopas*>(e->obj);
 				vx = -vx;
@@ -103,21 +114,22 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				vx = -vx;
 				Goomba->vx = -Goomba->vx;
 			}
-			else //Colli with any thing else then Koopas will change direction
-				if (nx != 0 && ny == 0)
-				{
+			//Colli with any thing else then Koopas will change direction
+			else if (nx != 0 && ny == 0 )
+			{
 					nx = -nx;
 					vx = -vx;
-				}
+			}
 		}
 
 		// clean up collision events
 		for (UINT i = 0; i < coEvents.size(); i++) delete coEvents[i];
 
 		if (x <= 0)
+		{
 			if(vx < 0)
 			vx = -vx;
-
+		}
 	}
 }
 
@@ -132,6 +144,11 @@ void CKoopas::CalcPotentialCollisions(
 		{
 			CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
 			if (mario->GetUnTounchable() == 1)
+				continue;
+		}
+		if (dynamic_cast<CRECT*>(e->obj))
+		{
+			if( dx != 0 )
 				continue;
 		}
 		if (e->t > 0 && e->t <= 1.0f)
@@ -150,6 +167,7 @@ void CKoopas::Render()
 
 	case KOOPAS_XANH_WALK:
 		if (state == KOOPAS_STATE_DIE) {
+			ani = KOOPAS_ANI_SHELL_UP;
 			if (nx > 0)
 				ani = KOOPAS_ANI_WALKING_RIGHT;
 			else
@@ -159,7 +177,7 @@ void CKoopas::Render()
 		{
 			ani = KOOPAS_ANI_SHELL_DOWN;
 		}
-		else if (state == KOOPAS_STATE_DIE_BY_KICK)
+		else if (state == KOOPAS_STATE_DIE_2)
 		{
 			ani = KOOPAS_ANI_SHELL_UP;
 		}
@@ -173,6 +191,7 @@ void CKoopas::Render()
 
 	case KOOPAS_XANH_FLY:
 		if (state == KOOPAS_STATE_DIE) {
+			//ani = KOOPAS_ANI_SHELL_UP;
 			if (nx > 0)
 				ani = KOOPAS_ANI_WALKING_RIGHT;
 			else
@@ -191,15 +210,19 @@ void CKoopas::Render()
 		break;
 
 	case KOOPAS_RED_WALK:
-		if (state == KOOPAS_STATE_DIE) {
+		ani = RED_KOOPAS_ANI_WALKING_LEFT;
+		if (state == KOOPAS_STATE_SHELLING) {
 			ani = RED_KOOPAS_ANI_SHELL_DOWN;
 		}
 		else if (vx > 0) ani = RED_KOOPAS_ANI_WALKING_LEFT;
-		else  ani = RED_KOOPAS_ANI_WALKING_LEFT;
+		if (state == KOOPAS_STATE_SPINNING)
+		{
+			ani = RED_KOOPAS_ANI_SPINNING;
+		}
 		break;
 
 	case KOOPAS_RED_FLY:
-		if (state == KOOPAS_STATE_DIE) {
+		if (state == KOOPAS_STATE_SHELLING) {
 			ani = RED_KOOPAS_ANI_SHELL_DOWN;
 		}
 		else if (vx > 0) ani = RED_KOOPAS_ANI_FLYING_LEFT;

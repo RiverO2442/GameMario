@@ -10,6 +10,7 @@
 #include "PlayScene.h"
 #include "RECT.h"
 #include "Koopas.h"
+#include "FIREBALL.h"
 
 CMario::CMario(float x, float y) : CGameObject()
 {
@@ -50,6 +51,17 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	if (GetTickCount() - kicking_start > MARIO_KICKING_TIME)
 	{
 		SetIsKicking(false);
+	}
+
+	if (GetTickCount() - spining_start > MARIO_SPINING_TIME)
+	{
+		SetIsSpining(false);
+	}
+
+	if (GetTickCount() - speedup_start > MARIO_SPEEDUP_TIME && speedLevel <= 196 )
+	{
+		speedLevel = speedLevel + 1;
+		speedup_start = 0;
 	}
 
 	// No collision occured, proceed normally
@@ -94,6 +106,12 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				CGoomba* goomba = dynamic_cast<CGoomba*>(e->obj);
 
 				// jump on top >> kill Goomba and deflect a bit 
+				if (isSpining)
+				{
+					goomba->SetState(GOOMBA_STATE_DIE_2);
+					goomba->SetSpeed(nx*0.7, -0.4);
+				}
+				else
 				if (e->ny < 0)
 				{
 					if (goomba->GetState() != GOOMBA_STATE_DIE)
@@ -122,7 +140,20 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			else if (dynamic_cast<CKoopas*>(e->obj)) //  if KOOPAS
 			{
 				CKoopas* koopas = dynamic_cast<CKoopas*>(e->obj);
-
+				if (isSpining)
+				{
+					if (koopas->GetState() != KOOPAS_STATE_SHELLING)
+					{
+						koopas->SetState(KOOPAS_STATE_SHELLING);
+					}
+					else
+					if (koopas->GetState() == KOOPAS_STATE_SHELLING)
+						koopas->SetState(KOOPAS_STATE_DIE_2);
+					else
+					koopas->SetState(KOOPAS_STATE_DIE);
+					koopas->SetSpeed(0, -0.4);
+				}
+				else
 				if (e->ny < 0)
 				{
 					if (koopas->GetState() != KOOPAS_STATE_SHELLING)
@@ -176,6 +207,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 						koopas->SetisBeingHold(true);
 					}
 				}
+				else
 				if (e->nx != 0)
 				{
 					if (untouchable == 0)
@@ -214,6 +246,10 @@ void CMario::CalcPotentialCollisions(
 		{
 			CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
 			if (mario->dy < 0)
+				continue;
+		}
+		if (dynamic_cast<FIREBALL*>(e->obj))
+		{
 				continue;
 		}
 		if (dynamic_cast<CKoopas*>(e->obj))
@@ -343,7 +379,14 @@ void CMario::Render()
 
 		else if (level == MARIO_LEVEL_TAIL)
 		{
-			if (GetState() == MARIO_STATE_WALKING_LEFT)
+			if (GetIsSpining() == true)
+			{
+				DebugOut(L"da chay vo ham nay \n");
+				if (nx > 1)
+				ani = MARIO_ANI_TAIL_TURNING_RIGHT;
+				else ani = MARIO_ANI_TAIL_TURNING_LEFT;
+			}
+			else if (GetState() == MARIO_STATE_WALKING_LEFT)
 				ani = MARIO_ANI_TAIL_WALKING_LEFT;
 			else if (GetState() == MARIO_STATE_WALKING_RIGHT)
 				ani = MARIO_ANI_TAIL_WALKING_RIGHT;
@@ -374,16 +417,15 @@ void CMario::Render()
 				if (nx > 0) ani = MARIO_ANI_TAIL_IDLE_RIGHT;
 				else ani = MARIO_ANI_TAIL_IDLE_LEFT;
 			}
-			if (//GetState() == MARIO_STATE_JUMP)
-				GetIsJumping() == true)
-			{
-				if (nx > 0) ani = MARIO_ANI_TAIL_JUMPING_RIGHT;
-				else ani = MARIO_ANI_TAIL_JUMPING_LEFT;
-			}
 			else if (GetIsKicking() == true)
 			{
 				if (nx > 0) ani = MARIO_ANI_TAIL_KICKING_RIGHT;
 				else ani = MARIO_ANI_TAIL_KICKING_LEFT;
+			}
+			if(GetIsJumping() == true)
+			{
+				if (nx > 0) ani = MARIO_ANI_TAIL_JUMPING_RIGHT;
+				else ani = MARIO_ANI_TAIL_JUMPING_LEFT;
 			}
 		}
 
@@ -440,7 +482,7 @@ void CMario::Render()
 
 	animation_set->at(ani)->Render(x, y, alpha);
 
-	//RenderBoundingBox();
+	RenderBoundingBox();
 }
 
 void CMario::RenderBoundingBox()
@@ -471,20 +513,31 @@ void CMario::SetState(int state)
 		SetLevel(MARIO_LEVEL_FIRE);
 		break;*/
 	case MARIO_STATE_WALKING_RIGHT:
-		if(vx < 0.2)
-		vx = vx + MARIO_WALKING_GIATOC * dt;
+		vx = 0.1f*MARIO_WALKING_SPEED;
 		nx = 1;
 		break;
 	case MARIO_STATE_RUNNING_RIGHT:
-		vx = 5*MARIO_WALKING_SPEED;
+		if (vx <= -0.3)
+		{
+			speedLevel = 0;
+		}
+		vx = 0.015 * speedLevel;
+		if (vx > 0.3)
+			vx = 0.3;
 		nx = 1;
 		break;
 	case MARIO_STATE_RUNNING_LEFT:
-		vx = -5 * MARIO_WALKING_SPEED;
+		if (vx >= 0.3)
+		{
+			speedLevel = 0;
+		}
+		vx = -0.015 * speedLevel;
+		if(vx < -0.3)
+		vx = -0.3;
 		nx = -1;
 		break;
 	case MARIO_STATE_WALKING_LEFT:
-		vx = -MARIO_WALKING_SPEED;
+		vx = -0.1f*MARIO_WALKING_SPEED;
 		nx = -1;
 		break;
 	case MARIO_STATE_JUMP:
@@ -558,3 +611,30 @@ void CMario::LvChanging()
 		y = y - MARIO_BBOX_HEIGHT_DIFF;
 	}
 }
+//if (dynamic_cast<CGoomba*>(e->obj)) // if e->obj is Goomba
+//{
+//	CGoomba* Goomba = dynamic_cast<CGoomba*>(e->obj);
+//	CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
+//	if (mario->untouchable == 1)
+//		continue;
+//	else if (isSpining)
+//	{
+//		Goomba->SetState(GOOMBA_STATE_DIE_2);
+//		Goomba->SetSpeed(vx, -0.4);
+//	}
+//}
+//else if (dynamic_cast<CKoopas*>(e->obj)) // if e->obj is Koopas
+//{
+//	CKoopas* Koopas = dynamic_cast<CKoopas*>(e->obj);
+//	CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
+//	if (mario->untouchable == 1)
+//		continue;
+//	else if (isSpining)
+//	{
+//		Koopas->SetState(KOOPAS_STATE_DIE);
+//		Koopas->SetSpeed(vx, -0.4);
+//		if (vx > 0)
+//			Koopas->nx = 1;
+//		else Koopas->nx = -1;
+//	}
+//}

@@ -130,12 +130,20 @@
 
 #define MARIO_KICKING_TIME 200
 
+#define MARIO_SPINING_TIME 400
+
+#define MARIO_SPEEDUP_TIME 50
+
 class CMario : public CGameObject
 {
+	int speedLevel = 1;
 	int level;
 	int untouchable;
 	DWORD untouchable_start;
+	DWORD speedup_start;
 	DWORD kicking_start;
+	DWORD spining_start;
+	bool isSpining = true;
 	bool isJumping = 0;
 	bool isKicking = 0;
 	bool isHolding = 0;
@@ -164,6 +172,16 @@ public:
 	bool GetIsKicking() { return isKicking; }
 	void SetIsKicking(bool value) { isKicking = value; }
 
+	bool GetIsSpining() { return isSpining; }
+	void SetIsSpining(bool value) { isSpining = value; }
+
+	int GetspeedLevel() { return speedLevel; }
+	void SetspeedLevel(int value) { speedLevel = value; }
+
+	DWORD Getspeedup_start()
+	{
+		return speedup_start;
+	}
 	void RenderBoundingBox();
 
 	virtual void Update(DWORD dt, vector<LPGAMEOBJECT>* colliable_objects = NULL);
@@ -181,6 +199,10 @@ public:
 	void StartUntouchable() { untouchable = 1; untouchable_start = GetTickCount(); }
 
 	void StartKicking() { kicking_start = GetTickCount(); }
+
+	void StartSpining() { spining_start = GetTickCount(); }
+
+	void StartSpeedup() { speedup_start = GetTickCount(); }
 
 	void Reset();
 
