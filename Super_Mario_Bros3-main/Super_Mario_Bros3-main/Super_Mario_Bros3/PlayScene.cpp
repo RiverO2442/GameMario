@@ -371,6 +371,12 @@ void CPlayScenceKeyHandler::OnKeyUp(int KeyCode)
 		mario->SetisFiring(false);
 		mario->SetisAlreadyFired(false);
 		break;
+	case DIK_X:
+		mario->SetCanFly(false);
+		mario->SetIsFlying(false);
+		mario->SetIsFalling(false);
+		mario->SetIsJumping(true);
+		break;
 	}
 }
 
@@ -381,13 +387,50 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 
 	// disable control key when Mario die 
 	if (mario->GetState() == MARIO_STATE_DIE) return;
-	else if (game->IsKeyDown(DIK_RIGHT))
+	if (game->IsKeyDown(DIK_X))
+	{
+		if (abs(mario->vx) >= abs(MARIO_MAX_SPEED))
+			mario->SetCanFly(true);
+		if (mario->GetLevel() == MARIO_LEVEL_TAIL && (mario->GetCanFly() == true))
+		{
+			if (mario->nx > 0)
+			{
+				mario->SetState(MARIO_STATE_FLYING_RIGHT);
+			}
+			else
+			{
+				mario->SetState(MARIO_STATE_FLYING_LEFT);
+
+			}
+			if (mario->GetFlyingStart() == 0)
+			{
+				mario->StartFlying();
+			}
+			mario->SetIsFlying(true);
+		}
+		else
+		{
+			if (mario->GetCanFall() == true)
+			{
+				mario->SetState(MARIO_STATE_FALLING_DOWN);
+				mario->SetIsFalling(true);
+			}
+
+		}
+
+	}
+	if (game->IsKeyDown(DIK_RIGHT))
 	{
 		if (game->IsKeyDown(DIK_LSHIFT))
 		{
 			if (mario->Getspeedup_start() == 0)
 				mario->StartSpeedup();
 			mario->SetState(MARIO_STATE_RUNNING_RIGHT);
+			if (GetTickCount() - mario->Getspeedup_start() > MARIO_SPEEDUP_TIME)
+			{
+				mario->SetspeedLevel(mario->GetspeedLevel() + 1);
+				mario->Setspeedup_start(0);
+			}
 		}
 		else
 		{
@@ -402,6 +445,11 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 			if (mario->Getspeedup_start() == 0)
 				mario->StartSpeedup();
 			mario->SetState(MARIO_STATE_RUNNING_LEFT);
+			if (GetTickCount() - mario->Getspeedup_start() > MARIO_SPEEDUP_TIME && mario->GetspeedLevel() <= 100)
+			{
+				mario->SetspeedLevel(mario->GetspeedLevel() + 1);
+				mario->Setspeedup_start(0);
+			}
 		}
 		else
 		{
@@ -414,7 +462,18 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 		mario->SetState(MARIO_STATE_SITDOWN);
 	}
 	else
-		mario->SetState(MARIO_STATE_IDLE);
+	{
+		mario->SetspeedLevel(0);
+		if ((mario->nx > 0 && mario->vx < 0) || (mario->nx < 0 && mario->vx > 0))
+		{
+			mario->SetState(MARIO_STATE_IDLE);
+		}
+		if(mario->vx != 0)
+		{
+			mario->SetState(MARIO_STATE_SPEED_DOWN);
+		}
+		//mario->SetState(MARIO_STATE_IDLE);
+	}
 	if (game->IsKeyDown(DIK_C))
 	{
 		mario->SetisHolding(true);

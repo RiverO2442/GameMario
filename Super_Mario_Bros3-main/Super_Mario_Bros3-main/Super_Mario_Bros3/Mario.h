@@ -8,6 +8,8 @@
 #define MARIO_JUMP_DEFLECT_SPEED 0.2f
 #define MARIO_GRAVITY			0.002f
 #define MARIO_DIE_DEFLECT_SPEED	 0.5f
+#define MARIO_SPEED_DOWN		0.01f 
+#define MARIO_MAX_SPEED		0.4f 
 
 #define MARIO_STATE_IDLE			0
 #define MARIO_STATE_WALKING_RIGHT	100
@@ -26,6 +28,8 @@
 #define MARIO_STATE_RUNNING_LEFT	1400
 #define MARIO_STATE_SITDOWN			1500
 #define MARIO_STATE_LEVEL_CHANGING	1600
+#define MARIO_STATE_SPEED_DOWN		1700
+#define MARIO_STATE_FALLING_DOWN	1800
 
 
 
@@ -132,19 +136,28 @@
 
 #define MARIO_SPINING_TIME 400
 
-#define MARIO_SPEEDUP_TIME 50
+#define MARIO_SPEEDUP_TIME 30
+
+#define MARIO_MIN_BRAKING_TIME 400
 
 class CMario : public CGameObject
 {
+	bool isBraking;
 	int speedLevel = 1;
 	int level;
 	int untouchable;
+	DWORD flying_start = 0;
+	DWORD braking_start;
 	DWORD untouchable_start;
 	DWORD speedup_start;
 	DWORD kicking_start;
 	DWORD spining_start;
 	bool isSpining = true;
 	bool isJumping = 0;
+	bool isFlying = false;
+	bool isFalling = false;
+	bool canFall = false;
+	bool canFly = false;
 	bool isKicking = 0;
 	bool isHolding = 0;
 	bool isFiring = 0;
@@ -152,6 +165,43 @@ class CMario : public CGameObject
 	float start_x;			// initial position of Mario at scene
 	float start_y;
 public:
+	bool GetIsFlying()
+	{
+		return isFlying;
+	}
+	void SetIsFlying(bool isFallingBool)
+	{
+		this->isFlying = isFallingBool;
+	}
+	bool GetIsFalling()
+	{
+		return isFalling;
+	}
+	void SetIsFalling(bool isFallingBool)
+	{
+		this->isFalling = isFallingBool;
+	}
+	bool GetCanFly()
+	{
+		return canFly;
+	}
+	void SetCanFly(bool flyBool)
+	{
+		canFly = flyBool;
+		return;
+	}
+	bool GetCanFall()
+	{
+		return canFall;
+	}
+	void SetCanFall(bool fallBool)
+	{
+		canFall = fallBool;
+		return;
+	}
+	void SetisBraking(bool value) { isBraking = value; }
+	bool GetisBraking() { return isBraking; }
+
 	void SetisFiring(bool value) { isFiring = value; }
 	bool GetisFiring() { return isFiring; }
 
@@ -162,7 +212,9 @@ public:
 	bool GetisHolding() { return isHolding; }
 
 	CMario(float x = 0.0f, float y = 0.0f);
+
 	void CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents);
+
 	bool GetIsJumping() { return isJumping; }
 	void SetIsJumping(bool value) { isJumping = value; }
 
@@ -178,9 +230,18 @@ public:
 	int GetspeedLevel() { return speedLevel; }
 	void SetspeedLevel(int value) { speedLevel = value; }
 
+	DWORD GetFlyingStart()
+	{
+		return flying_start;
+	}
+
 	DWORD Getspeedup_start()
 	{
 		return speedup_start;
+	}
+	void Setspeedup_start(int value)
+	{
+		speedup_start = value;
 	}
 	void RenderBoundingBox();
 
@@ -204,6 +265,8 @@ public:
 
 	void StartSpeedup() { speedup_start = GetTickCount(); }
 
+	void StartFlying() { flying_start = GetTickCount(); }
+
 	void Reset();
 
 	void FIXPS(int PSx, int PSy);
@@ -211,4 +274,28 @@ public:
 	void LvChanging();
 
 	virtual void GetBoundingBox(float& left, float& top, float& right, float& bottom);
+
+	bool BrakingCalculation()
+	{
+		if (nx * vx < 0)
+		{
+			if (vx < 0)
+			{
+				vx += 0.008;
+			}
+			else
+			{
+				vx -= 0.008;
+			}
+			isBraking = true;
+			SetspeedLevel(0);
+			return true;
+		}
+		else
+		{
+			isBraking = false;
+		}
+		return false;
+	}
+		
 };
