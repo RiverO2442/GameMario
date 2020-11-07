@@ -350,8 +350,12 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 		mario->SetLevel(MARIO_LEVEL_TAIL);
 		break;
 	case DIK_SPACE:
-		mario->SetIsJumping(true);
-		mario->SetState(MARIO_STATE_JUMP);
+		if (mario->GetIsJumping() == false)
+		{
+			mario->SetIsJumping(true);
+			mario->SetState(MARIO_STATE_JUMP);
+			break;
+		}
 		break;
 	case DIK_V:
 		if (mario->GetLevel() == MARIO_LEVEL_TAIL)
@@ -430,6 +434,7 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 	if (game->IsKeyDown(DIK_RIGHT))
 	{
 		if (game->IsKeyDown(DIK_LSHIFT))
+			//&& !mario->GetCanFly())
 		{
 			if (mario->Getspeedup_start() == 0)
 				mario->StartSpeedup();
@@ -448,7 +453,7 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 	}
 	else if (game->IsKeyDown(DIK_LEFT))
 	{
-		if (game->IsKeyDown(DIK_LSHIFT))
+		if (game->IsKeyDown(DIK_LSHIFT))// && !mario->GetCanFly())
 		{
 			if (mario->Getspeedup_start() == 0)
 				mario->StartSpeedup();

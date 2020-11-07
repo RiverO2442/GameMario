@@ -113,6 +113,15 @@ void CGameObject::FilterCollision(
 			nx = 0;
 			ny = 0;
 		}
+		if (dynamic_cast<CRECT*>(c->obj)) // if e->obj is Coin
+		{
+			if (ny > 0 )//|| nx != 0)
+			{
+				nx = 0;
+				ny = 0;
+			}
+		}
+
 	}
 
 	if (min_ix >= 0) coEventsResult.push_back(coEvents[min_ix]);

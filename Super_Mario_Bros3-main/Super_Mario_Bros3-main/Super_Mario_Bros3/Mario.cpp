@@ -271,9 +271,9 @@ void CMario::CalcPotentialCollisions(
 		LPCOLLISIONEVENT e = SweptAABBEx(coObjects->at(i));
 		if (dynamic_cast<CRECT*>(e->obj))
 		{
-			CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
-			if (mario->dy < 0)
-				continue;
+			//CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
+			//if (mario->dy < 0)// || mario->nx != 0)
+			//	continue;
 		}
 		if (dynamic_cast<FIREBALL*>(e->obj))
 		{
@@ -426,7 +426,13 @@ void CMario::Render()
 
 		else if (level == MARIO_LEVEL_TAIL)
 		{
-			if (isFalling)
+			
+			if (isFlying)
+			{
+				if (nx > 0) ani = MARIO_ANI_TAIL_FLYING_RIGHT;
+				else ani = MARIO_ANI_TAIL_FLYING_LEFT;
+			}
+			else if (isFalling)
 			{
 				if (nx > 0) ani = MARIO_ANI_FALLING_RIGHT;
 				else ani = MARIO_ANI_FALLING_LEFT;
@@ -435,11 +441,6 @@ void CMario::Render()
 			{
 				if (nx > 0) ani = MARIO_ANI_TAIL_JUMPING_RIGHT;
 				else ani = MARIO_ANI_TAIL_JUMPING_LEFT;
-			}
-			else if (isFlying)
-			{
-				if (nx > 0) ani = MARIO_ANI_TAIL_FLYING_RIGHT;
-				else ani = MARIO_ANI_TAIL_FLYING_LEFT;
 			}
 			else if (GetState() == MARIO_STATE_IDLE)
 				{
