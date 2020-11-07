@@ -114,7 +114,23 @@
 #define MARIO_ANI_FIRE_SITDOWN_RIGHT	76
 #define MARIO_ANI_FIRE_SITDOWN_LEFT		77
 
-#define MARIO_ANI_DIE					78
+
+#define MARIO_ANI_SHOOTING_RIGHT		78
+#define MARIO_ANI_SHOOTING_LEFT			79
+
+
+#define MARIO_ANI_BIG_MAX_SPEED_RIGHT	80
+#define MARIO_ANI_BIG_MAX_SPEED_LEFT	81
+#define MARIO_ANI_FIRE_MAX_SPEED_RIGHT	82
+#define MARIO_ANI_FIRE_MAX_SPEED_LEFT	83
+#define MARIO_ANI_SMALL_MAX_SPEED_RIGHT	84
+#define MARIO_ANI_SMALL_MAX_SPEED_LEFT	85
+#define MARIO_ANI_TAIL_MAX_SPEED_RIGHT	86
+#define MARIO_ANI_TAIL_MAX_SPEED_LEFT	87
+#define MARIO_ANI_FALLING_LEFT			88
+#define MARIO_ANI_FALLING_RIGHT			89
+
+#define MARIO_ANI_DIE					90
 
 
 #define	MARIO_LEVEL_BIG		2
@@ -160,11 +176,21 @@ class CMario : public CGameObject
 	bool canFly = false;
 	bool isKicking = 0;
 	bool isHolding = 0;
+	bool renderHolding = 0;
 	bool isFiring = 0;
 	bool isAlreadyFired = 0;
 	float start_x;			// initial position of Mario at scene
 	float start_y;
 public:
+
+	void SetrenderHolding(bool value)
+	{
+		this->renderHolding = value;
+	}
+	bool GetrenderHolding()
+	{
+		return renderHolding;
+	}
 	bool GetIsFlying()
 	{
 		return isFlying;

@@ -9,6 +9,9 @@
 #include "Sprites.h"
 #include "Portal.h"
 #include "FIREBALL.h"
+#include "Flower.h"
+#include "FlowerFireBall.h"
+#include "Coin.h"
 
 using namespace std;
 
@@ -43,6 +46,9 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath) :
 #define OBJECT_TYPE_COIN			10
 #define OBJECT_TYPE_GOOMBA_RED_FLY   11 
 #define OBJECT_TYPE_FIREBALL   12
+#define OBJECT_TYPE_FLOWER				13
+#define OBJECT_TYPE_FLOWER_FIRE_BALL		14
+
 #define OBJECT_TYPE_PORTAL	50
 #define MAX_SCENE_LINE 1024
 
@@ -167,13 +173,15 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_BRICK: obj = new CBrick(); break;
 	case OBJECT_TYPE_KOOPAS_XANH_WALK: obj = new CKoopas(111); break;
 	case OBJECT_TYPE_RECTANGLE: obj = new CRECT(); break;
-	//case OBJECT_TYPE_COIN: obj = new CCoin(); break;
+	case OBJECT_TYPE_COIN: obj = new CCoin(); break;
 	case OBJECT_TYPE_PIPE: obj = new PIPE(); break;
 	case OBJECT_TYPE_NO_COLLISION_OBJECTS:obj = new CNoCollitionObject(); break;
 	case OBJECT_TYPE_KOOPAS_XANH_BAY: obj = new CKoopas(222); break;
 	case OBJECT_TYPE_KOOPAS_RED_WALK: obj = new CKoopas(333); break;
 	case OBJECT_TYPE_KOOPAS_RED_FLY: obj = new CKoopas(444); break;
 	case OBJECT_TYPE_FIREBALL: obj = new FIREBALL(); break;
+	case OBJECT_TYPE_FLOWER: obj = new CFlower(); break;
+	case OBJECT_TYPE_FLOWER_FIRE_BALL: obj = new CFlowerFireBall(); break;
 	case OBJECT_TYPE_PORTAL:
 	{
 		float r = atof(tokens[4].c_str());
@@ -464,7 +472,7 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 	else
 	{
 		mario->SetspeedLevel(0);
-		if ((mario->nx > 0 && mario->vx < 0) || (mario->nx < 0 && mario->vx > 0))
+		if ((mario->nx > 0 && mario->vx <= 0) || (mario->nx < 0 && mario->vx >= 0))
 		{
 			mario->SetState(MARIO_STATE_IDLE);
 		}

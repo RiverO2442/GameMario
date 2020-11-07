@@ -14,6 +14,7 @@ CKoopas::CKoopas(int ctype)
 {
 	type = ctype;
 	SetState(KOOPAS_STATE_WALKING);
+	nx = -1;
 }
 void CKoopas::GetBoundingBox(float& left, float& top, float& right, float& bottom)
 {
@@ -46,19 +47,34 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	coEvents.clear();
 
 	// turn off collision when die 
-	if (state != KOOPAS_STATE_DIE)
+	if (state != KOOPAS_STATE_DIE || state != KOOPAS_STATE_DIE_2)
 		CalcPotentialCollisions(coObjects, coEvents);
 	if (isBeingHold == true) {
 		CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
 		if (mario->GetisHolding() == false)
 		{
 			isBeingHold = false;
-			x += 1;
+			mario->SetIsKicking(true);
+			mario->StartKicking();
+			if (mario->nx > 0)
+			{
+				SetState(KOOPAS_STATE_SPINNING);
+				nx = 1;
+				vx = KOOPAS_SPINNING_SPEED;
+			}
+			else if (mario->nx < 0)
+			{
+				SetState(KOOPAS_STATE_SPINNING);
+				nx = -1;
+				vx = -KOOPAS_SPINNING_SPEED;
+			}
+			mario->SetrenderHolding(false);
 		}
+		else mario->SetrenderHolding(true);
 		if(mario->GetLevel() == MARIO_LEVEL_TAIL)
 			if(mario->nx > 0)
-				x = mario->x + (MARIO_BIG_BBOX_WIDTH) * mario->nx;
-			else x = mario->x + (MARIO_BIG_BBOX_WIDTH - 4) * mario->nx;
+				x = mario->x + (MARIO_BIG_BBOX_WIDTH + 5) * mario->nx;
+			else x = mario->x + (MARIO_BIG_BBOX_WIDTH) * mario->nx;
 		else x = mario->x + (KOOPAS_BBOX_WIDTH - 3) * mario->nx;
 		if(mario->GetLevel() != MARIO_LEVEL_SMALL)
 		y = mario->y + 7;
@@ -105,12 +121,22 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			else if (dynamic_cast<CKoopas*>(e->obj)) // if e->obj is Koopas
 			{
 				CKoopas* Koopas = dynamic_cast<CKoopas*>(e->obj);
+				if (state == KOOPAS_STATE_SPINNING)
+				{
+					Koopas->SetState(KOOPAS_STATE_DIE_2);
+					Koopas->nx = nx;
+				}
 				vx = -vx;
 				Koopas->vx = -Koopas->vx;
 			}
 			else if (dynamic_cast<CGoomba*>(e->obj)) // if e->obj is Goomba
 			{
 				CGoomba* Goomba = dynamic_cast<CGoomba*>(e->obj);
+				if (state == KOOPAS_STATE_SPINNING)
+				{
+					Goomba->SetState(GOOMBA_STATE_DIE_2);
+					Goomba->nx = nx;
+				}
 				vx = -vx;
 				Goomba->vx = -Goomba->vx;
 			}
@@ -148,8 +174,8 @@ void CKoopas::CalcPotentialCollisions(
 		}
 		if (dynamic_cast<CRECT*>(e->obj))
 		{
-			if( dx != 0 )
-				continue;
+			//if( nx != 0 )
+				//continue;
 		}
 		if (e->t > 0 && e->t <= 1.0f)
 			coEvents.push_back(e);
@@ -168,7 +194,7 @@ void CKoopas::Render()
 	case KOOPAS_XANH_WALK:
 		if (state == KOOPAS_STATE_DIE) {
 			ani = KOOPAS_ANI_SHELL_UP;
-			if (nx > 0)
+			if (vx > 0)
 				ani = KOOPAS_ANI_WALKING_RIGHT;
 			else
 				ani = KOOPAS_ANI_WALKING_LEFT;
@@ -192,7 +218,7 @@ void CKoopas::Render()
 	case KOOPAS_XANH_FLY:
 		if (state == KOOPAS_STATE_DIE) {
 			//ani = KOOPAS_ANI_SHELL_UP;
-			if (nx > 0)
+			if (vx > 0)
 				ani = KOOPAS_ANI_WALKING_RIGHT;
 			else
 				ani = KOOPAS_ANI_WALKING_LEFT;
@@ -205,7 +231,7 @@ void CKoopas::Render()
 		{
 			ani = KOOPAS_ANI_SPINNING;
 		}
-		else if (vx > 0) ani = KOOPAS_ANI_FLYING_LEFT;
+		else if (vx < 0) ani = KOOPAS_ANI_FLYING_LEFT;
 		else  ani = KOOPAS_ANI_FLYING_LEFT;
 		break;
 
@@ -214,7 +240,8 @@ void CKoopas::Render()
 		if (state == KOOPAS_STATE_SHELLING) {
 			ani = RED_KOOPAS_ANI_SHELL_DOWN;
 		}
-		else if (vx > 0) ani = RED_KOOPAS_ANI_WALKING_LEFT;
+		else if (vx > 0) ani = RED_KOOPAS_ANI_WALKING_RIGHT;
+			else ani = RED_KOOPAS_ANI_WALKING_LEFT;
 		if (state == KOOPAS_STATE_SPINNING)
 		{
 			ani = RED_KOOPAS_ANI_SPINNING;
@@ -225,7 +252,7 @@ void CKoopas::Render()
 		if (state == KOOPAS_STATE_SHELLING) {
 			ani = RED_KOOPAS_ANI_SHELL_DOWN;
 		}
-		else if (vx > 0) ani = RED_KOOPAS_ANI_FLYING_LEFT;
+		else if (vx < 0) ani = RED_KOOPAS_ANI_FLYING_LEFT;
 		else  ani = RED_KOOPAS_ANI_FLYING_LEFT;
 		break;
 	}
@@ -255,11 +282,7 @@ void CKoopas::SetState(int state)
 		break;
 	case KOOPAS_STATE_WALKING:
 		if (nx > 0)
-		vx = KOOPAS_WALKING_SPEED;
-		if (nx < 0)
 		vx = -KOOPAS_WALKING_SPEED;
-		if (nx == 0)
-			vx = 0;
 	}
 
 }

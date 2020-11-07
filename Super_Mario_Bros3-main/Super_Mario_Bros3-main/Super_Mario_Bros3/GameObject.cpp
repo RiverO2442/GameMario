@@ -8,6 +8,7 @@
 #include "Textures.h"
 #include "GameObject.h"
 #include "Sprites.h"
+#include "Coin.h"
 
 CGameObject::CGameObject()
 {
@@ -106,6 +107,11 @@ void CGameObject::FilterCollision(
 
 		if (c->t < min_ty && c->ny != 0) {
 			min_ty = c->t; ny = c->ny; min_iy = i; rdy = c->dy;
+		}
+		if (dynamic_cast<CCoin*>(c->obj)) // if e->obj is Coin
+		{
+			nx = 0;
+			ny = 0;
 		}
 	}
 

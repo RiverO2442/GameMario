@@ -11,23 +11,24 @@
 
 #define KOOPAS_STATE_WALKING 100
 //#define KOOPAS_STATE_WALKING 110
-#define KOOPAS_STATE_SHELLING 120
-#define KOOPAS_STATE_SPINNING 125
-#define KOOPAS_STATE_SHELL_UP 130
+#define KOOPAS_STATE_SHELLING	120
+#define KOOPAS_STATE_SPINNING	125
+#define KOOPAS_STATE_SHELL_UP	130
 #define KOOPAS_STATE_SHELL_DOWN 140
-#define KOOPAS_STATE_DIE 200
-#define KOOPAS_STATE_DIE_2 400
+#define KOOPAS_STATE_DIE		200
+#define KOOPAS_STATE_DIE_2		400
 
-#define KOOPAS_ANI_WALKING_LEFT 0
-#define KOOPAS_ANI_WALKING_RIGHT 1
-#define KOOPAS_ANI_FLYING_LEFT 2
-#define KOOPAS_ANI_SHELL_DOWN	3
-#define KOOPAS_ANI_SHELL_UP	4
+#define KOOPAS_ANI_WALKING_LEFT		0
+#define KOOPAS_ANI_WALKING_RIGHT	1
+#define KOOPAS_ANI_FLYING_LEFT		2
+#define KOOPAS_ANI_SHELL_DOWN		3
+#define KOOPAS_ANI_SHELL_UP			4
 #define RED_KOOPAS_ANI_WALKING_LEFT 5
-#define RED_KOOPAS_ANI_FLYING_LEFT 6
-#define RED_KOOPAS_ANI_SHELL_DOWN	7
-#define KOOPAS_ANI_SPINNING 8
-#define RED_KOOPAS_ANI_SPINNING 9
+#define RED_KOOPAS_ANI_WALKING_RIGHT 6
+#define RED_KOOPAS_ANI_FLYING_LEFT	7
+#define RED_KOOPAS_ANI_SHELL_DOWN	8
+#define KOOPAS_ANI_SPINNING			9
+#define RED_KOOPAS_ANI_SPINNING		10
 
 #define KOOPAS_GRAVITY	0.002f
 
@@ -49,6 +50,14 @@ public:
 	CKoopas();
 	void SetisBeingHold(bool value) { isBeingHold = value; }
 	bool GetisBeingHold() { return isBeingHold; }
+	int GetType()
+	{
+		return type;
+	}
+	void SetType(int typeInt)
+	{
+		type = typeInt;
+	}
 	CKoopas(int ctype);
 	virtual void SetState(int state);
 };

@@ -147,7 +147,10 @@
   <ItemGroup>
     <ClInclude Include="Animations.h" />
     <ClInclude Include="Brick.h" />
+    <ClInclude Include="Coin.h" />
     <ClInclude Include="FIREBALL.h" />
+    <ClInclude Include="Flower.h" />
+    <ClInclude Include="FlowerFIreBall.h" />
     <ClInclude Include="NoCollisionObject.h" />
     <ClInclude Include="PIPE.h" />
     <ClInclude Include="RECT.h" />
@@ -166,7 +169,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Brick.cpp" />
+    <ClCompile Include="Coin.cpp" />
     <ClCompile Include="FIREBALL.cpp" />
+    <ClCompile Include="Flower.cpp" />
+    <ClCompile Include="FlowerFIreBall.cpp" />
     <ClCompile Include="Goomba.cpp" />
     <ClCompile Include="Koopas.cpp" />
     <ClCompile Include="NoCollisionObject.cpp" />
