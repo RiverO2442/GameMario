@@ -1,17 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "RECT.h"
-#include "PIPE.h"
-#include "NoCollisionObject.h"
 #include "PlayScene.h"
-#include "Utils.h"
-#include "Textures.h"
-#include "Sprites.h"
-#include "Portal.h"
-#include "FIREBALL.h"
-#include "Flower.h"
-#include "FlowerFireBall.h"
-#include "Coin.h"
 
 using namespace std;
 
@@ -46,8 +35,19 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath) :
 #define OBJECT_TYPE_COIN			10
 #define OBJECT_TYPE_GOOMBA_RED_FLY   11 
 #define OBJECT_TYPE_FIREBALL   12
-#define OBJECT_TYPE_FLOWER				13
-#define OBJECT_TYPE_FLOWER_FIRE_BALL		14
+#define OBJECT_TYPE_FLOWER_RED		13
+#define OBJECT_TYPE_FLOWER_BULLET	14
+#define OBJECT_TYPE_COIN_CAN_MOVE	15
+#define OBJECT_TYPE_LEAF			16
+#define OBJECT_TYPE_MUSHROOM_RED		17
+#define OBJECT_TYPE_QUESTION_BRICK_HAVE_ITEM	18
+#define OBJECT_TYPE_MUSHROOM_GREEN		19
+#define OBJECT_TYPE_QUESTION_BRICK_JUST_HAVE_MUSHROOM	20
+#define OBJECT_TYPE_FLOWER_GREEN				21
+#define OBJECT_TYPE_FLOWER_GREEN_CAN_SHOOT		22
+#define OBJECT_TYPE_BREAKABLE_BRICK				23
+#define OBJECT_TYPE_BELL						24
+#define OBJECT_TYPE_PORTAL	50
 
 #define OBJECT_TYPE_PORTAL	50
 #define MAX_SCENE_LINE 1024
@@ -180,8 +180,17 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_KOOPAS_RED_WALK: obj = new CKoopas(333); break;
 	case OBJECT_TYPE_KOOPAS_RED_FLY: obj = new CKoopas(444); break;
 	case OBJECT_TYPE_FIREBALL: obj = new FIREBALL(); break;
-	case OBJECT_TYPE_FLOWER: obj = new CFlower(); break;
-	case OBJECT_TYPE_FLOWER_FIRE_BALL: obj = new CFlowerFireBall(); break;
+	case OBJECT_TYPE_FLOWER_RED:	  obj = new CFlower(100); break;
+	case OBJECT_TYPE_FLOWER_GREEN:	  obj = new CFlower(200); break;
+	case OBJECT_TYPE_FLOWER_GREEN_CAN_SHOOT:   obj = new CFlower(300); break;
+	case OBJECT_TYPE_FLOWER_BULLET:	   obj = new CFlowerBullet(); break;
+	case OBJECT_TYPE_QUESTION_BRICK_HAVE_ITEM: obj = new CQuestionBrick(777); break;
+	case OBJECT_TYPE_QUESTION_BRICK_JUST_HAVE_MUSHROOM: obj = new CQuestionBrick(888); break;
+	case OBJECT_TYPE_LEAF:	           obj = new CLeaf(); break;
+	case OBJECT_TYPE_MUSHROOM_RED:	   obj = new CMushRoom(567); break;
+	case OBJECT_TYPE_MUSHROOM_GREEN:   obj = new CMushRoom(678); break;
+	case OBJECT_TYPE_BREAKABLE_BRICK: obj = new CBreakableBrick(); break;
+	case OBJECT_TYPE_BELL: obj = new CBell(); break;
 	case OBJECT_TYPE_PORTAL:
 	{
 		float r = atof(tokens[4].c_str());
@@ -387,7 +396,6 @@ void CPlayScenceKeyHandler::OnKeyUp(int KeyCode)
 		mario->SetCanFly(false);
 		mario->SetIsFlying(false);
 		mario->SetIsFalling(false);
-		mario->SetIsJumping(true);
 		break;
 	}
 }
