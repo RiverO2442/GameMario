@@ -30,6 +30,7 @@
 #define MARIO_STATE_LEVEL_CHANGING	1600
 #define MARIO_STATE_SPEED_DOWN		1700
 #define MARIO_STATE_FALLING_DOWN	1800
+#define MARIO_STATE_JUMP_HIGH		1900
 
 
 
@@ -157,6 +158,11 @@
 
 class CMario : public CGameObject
 {
+	int time_mario = 0;
+
+	int type;
+	bool isAppear = true;
+
 	int heightLimit;
 	bool isBraking;
 	int speedLevel = 1;
@@ -182,7 +188,14 @@ class CMario : public CGameObject
 	float start_x;			// initial position of Mario at scene
 	float start_y;
 public:
-
+	bool GetIsAppear()
+	{
+		return isAppear;
+	}
+	void SetIsAppear(bool isAppearBool)
+	{
+		this->isAppear = isAppearBool;
+	}
 	void SetrenderHolding(bool value)
 	{
 		this->renderHolding = value;
@@ -237,7 +250,7 @@ public:
 	void SetisHolding(bool value) { isHolding = value; }
 	bool GetisHolding() { return isHolding; }
 
-	CMario(float x = 0.0f, float y = 0.0f);
+	CMario(int ctype, float x = 0.0f, float y = 0.0f);
 
 	void CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents);
 
@@ -278,10 +291,10 @@ public:
 	int GetLevel() {
 		return level;
 	};
-	void SetLevel(int l) 
+	void SetLevel(int l)
 	{
-		 LvChanging();
-			level = l; 
+		LvChanging();
+		level = l;
 	}
 	void StartUntouchable() { untouchable = 1; untouchable_start = GetTickCount(); }
 
@@ -323,5 +336,5 @@ public:
 		}
 		return false;
 	}
-		
+
 };
