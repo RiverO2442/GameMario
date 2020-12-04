@@ -1,18 +1,6 @@
 #pragma once
 #include "GameObject.h"
-#define FIREBALL_SPEED 0.15f;
-
-#define FIREBALL_BBOX_WIDTH	7
-#define FIREBALL_BBOX_HEIGHT 9
-
-#define	FIREBALL_STATE_DIE	90
-#define FIREBALL_STATE_FLYING 100
-
-
-#define FIREBALL_ANI_FLYING 0
-
-#define FIREBALL_GRAVITY	0.0008f
-#define FIREBALL_RESET_TIME 5000
+#include "define.h"
 
 class FIREBALL : public CGameObject
 {

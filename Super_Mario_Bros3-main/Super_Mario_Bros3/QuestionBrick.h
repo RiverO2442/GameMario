@@ -4,6 +4,7 @@
 #include "Mario.h"
 #include "PlayScene.h"
 #include "Leaf.h"
+#include "define.h"
 
 
 #define QUESTION_BRICK_BBOX_WIDTH  16

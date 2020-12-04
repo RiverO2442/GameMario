@@ -7,14 +7,14 @@
 #include <d3dx9.h>
 
 
-#define DIRECTINPUT_VERSION 0x0800
+
 #include <dinput.h>
 
 #include "Scene.h"
+#include "define.h"
 
 using namespace std;
 
-#define KEYBOARD_BUFFER_SIZE 1024
 
 class CGame
 {

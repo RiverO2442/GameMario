@@ -32,7 +32,7 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath) :
 #define OBJECT_TYPE_KOOPAS_XANH_BAY	7 
 #define OBJECT_TYPE_KOOPAS_RED_WALK	8
 #define OBJECT_TYPE_KOOPAS_RED_FLY	9
-#define OBJECT_TYPE_COIN			10
+#define OBJECT_TYPE_COIN_NORMAL			 10
 #define OBJECT_TYPE_GOOMBA_RED_FLY   11 
 #define OBJECT_TYPE_FIREBALL   12
 #define OBJECT_TYPE_FLOWER_RED		13
@@ -173,7 +173,8 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_BRICK: obj = new CBrick(); break;
 	case OBJECT_TYPE_KOOPAS_XANH_WALK: obj = new CKoopas(111); break;
 	case OBJECT_TYPE_RECTANGLE: obj = new CRECT(); break;
-	case OBJECT_TYPE_COIN: obj = new CCoin(); break;
+	case OBJECT_TYPE_COIN_NORMAL: obj = new CCoin(222); break;
+		//case OBJECT_TYPE_COIN_CAN_MOVE: obj = new CCoin(333); break;;
 	case OBJECT_TYPE_PIPE: obj = new PIPE(); break;
 	case OBJECT_TYPE_NO_COLLISION_OBJECTS:obj = new CNoCollitionObject(); break;
 	case OBJECT_TYPE_KOOPAS_XANH_BAY: obj = new CKoopas(222); break;
@@ -267,6 +268,10 @@ void CPlayScene::Load()
 
 void CPlayScene::Update(DWORD dt)
 {
+	float cx, cy;
+	player->GetPosition(cx, cy);
+	CGame* game = CGame::GetInstance();
+
 	// We know that Mario is the first object in the list hence we won't add him into the colliable object list
 	// TO-DO: This is a "dirty" way, need a more organized way 
 	vector<LPGAMEOBJECT> coObjects;
@@ -277,15 +282,20 @@ void CPlayScene::Update(DWORD dt)
 
 	for (size_t i = 0; i < objects.size(); i++)
 	{
-		objects[i]->Update(dt, &coObjects);
+		float xx, xy;
+		objects[i]->GetPosition(xx, xy);
+		if ((xx < cx + game->GetScreenWidth() / 2 && xx > cx - game->GetScreenWidth() / 2 - 16) || dynamic_cast<FIREBALL*>(objects[i]))
+		{
+			if (!dynamic_cast<CNoCollitionObject*>(objects[i]))
+				objects[i]->Update(dt, &coObjects);
+		}
 	}
-
 	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
 	if (player == NULL) return;
 
 	// Update camera to follow mario
-	float cx, cy;
-	player->GetPosition(cx, cy);
+
+
 	if (cx < 0)
 	{
 		player->SetPosition(0, cy);
@@ -295,14 +305,13 @@ void CPlayScene::Update(DWORD dt)
 		player->SetPosition(cx, cy + 0.2);
 	}
 	int Sx = 0, Sy = 0;
-	CGame* game = CGame::GetInstance();
 	cx -= game->GetScreenWidth() / 2;
 	cy -= game->GetScreenHeight() / 2;
-	if (player->x > game->GetScreenWidth()/2)
+	if (player->x > game->GetScreenWidth() / 2)
 	{
 		Sx = cx;
 	}
-	if (player->y < game->GetScreenHeight()/2)
+	if (player->y < game->GetScreenHeight() / 2)
 	{
 		/*if(player->GetState() == "Mario_State_Flying")*/
 		Sy = cy;
@@ -343,9 +352,9 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 	CMario* mario = ((CPlayScene*)scence)->GetPlayer();
 	switch (KeyCode)
 	{
-	/*case DIK_DOWN:
-		mario->FIXPS(0, 9);
-		break;*/
+		/*case DIK_DOWN:
+			mario->FIXPS(0, 9);
+			break;*/
 	case DIK_B:
 		mario->SetLevel(MARIO_LEVEL_BIG);
 		break;
@@ -368,7 +377,7 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 		break;
 	case DIK_V:
 		if (mario->GetLevel() == MARIO_LEVEL_TAIL)
-		mario->SetIsSpining(true);
+			mario->SetIsSpining(true);
 		mario->StartSpining();
 		break;
 	case DIK_A:
@@ -489,7 +498,7 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 		{
 			mario->SetState(MARIO_STATE_IDLE);
 		}
-		if(mario->vx != 0)
+		if (mario->vx != 0)
 		{
 			mario->SetState(MARIO_STATE_SPEED_DOWN);
 		}

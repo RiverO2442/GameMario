@@ -243,102 +243,97 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			else if (dynamic_cast<CKoopas*>(e->obj)) //  if KOOPAS
 			{
 				CKoopas* koopas = dynamic_cast<CKoopas*>(e->obj);
-				if (isSpining)
+				if (e->ny < 0)
 				{
 					if (koopas->GetState() != KOOPAS_STATE_SHELLING)
 					{
-						koopas->SetSpeed(-nx * 0.2, -0.4);
-						koopas->SetState(KOOPAS_STATE_SHELLING);
-					}
-					else
-						if (koopas->GetState() == KOOPAS_STATE_SHELLING)
+						if (koopas->GetType() == KOOPAS_XANH_FLY)
 						{
-							koopas->SetSpeed(-nx * 0.2, -0.4);
-							koopas->SetState(KOOPAS_STATE_DIE_2);
+							koopas->SetType(KOOPAS_XANH_WALK);
+							vy = -1.5f * MARIO_JUMP_DEFLECT_SPEED;
 						}
 						else
-							koopas->SetState(KOOPAS_STATE_SHELLING);
-				}
-				else
-					if (e->ny < 0)
-					{
-						if (koopas->GetState() != KOOPAS_STATE_SHELLING)
-						{
-							if (koopas->GetType() == KOOPAS_XANH_FLY)
-							{
-								koopas->SetType(KOOPAS_XANH_WALK);
-								vy = -1.5f * MARIO_JUMP_DEFLECT_SPEED;
-							}
-							else
-								{
-									vy = -1.7 * MARIO_JUMP_DEFLECT_SPEED;
-									koopas->SetState(KOOPAS_STATE_SHELLING);
-									vx = 0;
-								}
-						}
-						else if (koopas->GetState() == KOOPAS_STATE_SHELLING)
 						{
 							vy = -1.7 * MARIO_JUMP_DEFLECT_SPEED;
-							if (this->nx > 0)
+							koopas->SetState(KOOPAS_STATE_SHELLING);
+							vx = 0;
+						}
+					}
+					else if (koopas->GetState() == KOOPAS_STATE_SHELLING)
+					{
+						vy = -1.7 * MARIO_JUMP_DEFLECT_SPEED;
+						if (this->nx > 0)
+						{
+							koopas->SetState(KOOPAS_STATE_SPINNING);
+							koopas->nx = 1;
+							koopas->vx = KOOPAS_SPINNING_SPEED;
+						}
+						else if (this->nx < 0)
+						{
+							koopas->SetState(KOOPAS_STATE_SPINNING);
+							koopas->nx = -1;
+							koopas->vx = -KOOPAS_SPINNING_SPEED;
+						}
+					}
+				}
+				else
+				if (isSpining)
+				{
+					if (koopas->GetType() == KOOPAS_XANH_FLY)
+					{
+						koopas->SetType(KOOPAS_XANH_WALK);
+					}
+					koopas->SetShellUpRender(true);
+					koopas->SetRenderRegconization(true);
+					koopas->SetState(KOOPAS_STATE_SHELLING);
+					koopas->SetSpeed(-nx * 0.15, -0.4);
+				}
+				else
+					if (koopas->GetState() == KOOPAS_STATE_SHELLING)// koopas->GetisBeingHold() == 0)
+					{
+						if (ny == 0)
+						{
+							if (isHolding == 0)
 							{
-								koopas->SetState(KOOPAS_STATE_SPINNING);
-								koopas->nx = 1;
-								koopas->vx = KOOPAS_SPINNING_SPEED;
+								isKicking = true;
+								StartKicking();
+								if (this->nx > 0)
+								{
+									koopas->SetState(KOOPAS_STATE_SPINNING);
+									koopas->nx = 1;
+									koopas->vx = KOOPAS_SPINNING_SPEED;
+								}
+								else if (this->nx < 0)
+								{
+									koopas->SetState(KOOPAS_STATE_SPINNING);
+									koopas->nx = -1;
+									koopas->vx = -KOOPAS_SPINNING_SPEED;
+								}
 							}
-							else if (this->nx < 0)
-							{
-								koopas->SetState(KOOPAS_STATE_SPINNING);
-								koopas->nx = -1;
-								koopas->vx = -KOOPAS_SPINNING_SPEED;
-							}
+							koopas->SetisBeingHold(true);
 						}
 					}
 					else
-						if (koopas->GetState() == KOOPAS_STATE_SHELLING)// koopas->GetisBeingHold() == 0)
+						if (e->nx != 0)
 						{
-							if (ny == 0)
+							state = MARIO_STATE_IDLE;
+							if (untouchable == 0)
 							{
-								if (isHolding == 0)
+								if (isKicking == 0)
 								{
-									isKicking = true;
-									StartKicking();
-									if (this->nx > 0)
+									if (koopas->GetState() != KOOPAS_STATE_SHELLING)
 									{
-										koopas->SetState(KOOPAS_STATE_SPINNING);
-										koopas->nx = 1;
-										koopas->vx = KOOPAS_SPINNING_SPEED;
-									}
-									else if (this->nx < 0)
-									{
-										koopas->SetState(KOOPAS_STATE_SPINNING);
-										koopas->nx = -1;
-										koopas->vx = -KOOPAS_SPINNING_SPEED;
+										if (level != MARIO_LEVEL_SMALL)
+										{
+											level = MARIO_LEVEL_SMALL;
+											StartUntouchable();
+										}
+										else
+											SetState(MARIO_STATE_DIE);
 									}
 								}
-								koopas->SetisBeingHold(true);
 							}
 						}
-						else
-							if (e->nx != 0)
-							{
-								state = MARIO_STATE_IDLE;
-								if (untouchable == 0)
-								{
-									if (isKicking == 0)
-									{
-										if (koopas->GetState() != KOOPAS_STATE_SHELLING)
-										{
-											if (level != MARIO_LEVEL_SMALL)
-											{
-												level = MARIO_LEVEL_SMALL;
-												StartUntouchable();
-											}
-											else
-												SetState(MARIO_STATE_DIE);
-										}
-									}
-								}
-							}
 			}
 		}
 	}
@@ -464,8 +459,13 @@ void CMario::Render()
 			}
 			if (renderHolding)
 			{
-				if (nx > 0) ani = MARIO_ANI_BIG_HOLDING_RIGHT;
-				else ani = MARIO_ANI_BIG_HOLDING_LEFT;
+				if (vx != 0)
+				{
+					if (nx > 0) ani = MARIO_ANI_BIG_HOLDING_RIGHT;
+					else ani = MARIO_ANI_BIG_HOLDING_LEFT;
+				}
+				else if (nx > 0) ani = MARIO_ANI_BIG_IDLE_HOLDING_RIGHT;
+				else ani = MARIO_ANI_BIG_IDLE_HOLDING_LEFT;
 			}
 		}
 
@@ -530,8 +530,13 @@ void CMario::Render()
 				}
 			if (renderHolding)
 			{
-				if (nx > 0) ani = MARIO_ANI_SMALL_HOLDING_RIGHT;
-				else ani = MARIO_ANI_SMALL_HOLDING_LEFT;
+				if (vx != 0)
+				{
+					if (nx > 0) ani = MARIO_ANI_SMALL_HOLDING_RIGHT;
+					else ani = MARIO_ANI_SMALL_HOLDING_LEFT;
+				}
+				else if (nx > 0) ani = MARIO_ANI_SMALL_IDLE_HOLDING_RIGHT;
+				else ani = MARIO_ANI_SMALL_IDLE_HOLDING_LEFT;
 			}
 			else if (GetIsKicking() == true)
 			{
@@ -618,8 +623,13 @@ void CMario::Render()
 			}
 			if (renderHolding)
 			{
-				if (nx > 0) ani = MARIO_ANI_TAIL_HOLDING_RIGHT;
-				else ani = MARIO_ANI_TAIL_HOLDING_LEFT;
+				if (vx != 0)
+				{
+					if (nx > 0) ani = MARIO_ANI_TAIL_HOLDING_RIGHT;
+					else ani = MARIO_ANI_TAIL_HOLDING_LEFT;
+				}
+				else if (nx > 0) ani = MARIO_ANI_TAIL_IDLE_HOLDING_RIGHT;
+					 else ani = MARIO_ANI_TAIL_IDLE_HOLDING_LEFT;
 			}
 		}
 
@@ -679,8 +689,14 @@ void CMario::Render()
 				}
 			if (renderHolding)
 			{
-				if (nx > 0) ani = MARIO_ANI_FIRE_HOLDING_RIGHT;
-				else ani = MARIO_ANI_FIRE_HOLDING_LEFT;
+				if (vx != 0)
+				{
+					if (nx > 0) ani = MARIO_ANI_FIRE_HOLDING_RIGHT;
+					else ani = MARIO_ANI_FIRE_HOLDING_LEFT;
+				}
+				else 
+					if (nx > 0) ani = MARIO_ANI_FIRE_IDLE_HOLDING_RIGHT;
+					else ani = MARIO_ANI_FIRE_IDLE_HOLDING_LEFT;
 			}
 			else if (GetIsKicking() == true)
 			{
