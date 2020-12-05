@@ -3,18 +3,7 @@
 #include "algorithm"
 #include "Mario.h"
 #include "PlayScene.h"
-
-
-#define BELL_BBOX_WIDTH		16
-#define BELL_BBOX_HEIGHT	16
-
-#define BELL_STATE_IDLE		0
-#define BELL_STATE_UP		100
-
-
-#define BELL_ANI			0		
-
-
+#include "define.h"
 class CBell : public CGameObject
 {
 	bool isAppear = false;

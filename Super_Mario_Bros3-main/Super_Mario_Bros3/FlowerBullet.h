@@ -5,19 +5,7 @@
 #include "Scene.h"
 #include "Flower.h"
 #include <algorithm>
-
-#define FLOWER_BULLET_BBOX_WIDTH  8
-#define FLOWER_BULLET_BBOX_HEIGHT 9
-
-#define FLOWER_BULLET_X_LIMIT		72
-
-
-#define FLOWER_BULLET_FLYING_SPEED		0.05f 
-
-#define FLOWER_BULLET_STATE_FLYING		100
-#define FLOWER_BULLET_STATE_HIDDEN		200
-
-#define FLOWER_BULLET_ANI			0
+#include "define.h"
 
 class CFlowerBullet : public CGameObject
 {

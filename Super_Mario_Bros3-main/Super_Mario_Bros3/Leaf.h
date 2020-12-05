@@ -3,18 +3,9 @@
 #include "algorithm"
 #include "Mario.h"
 #include "PlayScene.h"
-
-#define LEAF_BBOX_WIDTH		16
-#define LEAF_BBOX_HEIGHT	14
-
-#define LEAF_STATE_IDLE		0
-#define LEAF_STATE_UP		100
-#define LEAF_STATE_DOWN		200
+#include "define.h"
 
 
-
-#define LEAF_ANI_LEFT		0
-#define LEAF_ANI_RIGHT		1
 
 
 class CLeaf : public CGameObject

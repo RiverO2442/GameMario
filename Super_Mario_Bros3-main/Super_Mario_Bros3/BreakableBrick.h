@@ -4,18 +4,7 @@
 #include "Mario.h"
 #include "PlayScene.h"
 #include "Coin.h"
-
-#define BREAKABLE_BRICK_BBOX_WIDTH		16
-#define BREAKABLE_BRICK_BBOX_HEIGHT		16
-
-#define BREAKABLE_BRICK_STATE_NORMAL	0
-#define BREAKABLE_BRICK_STATE_BREAK		100
-#define BREAKABLE_BRICK_STATE_COIN		200
-
-
-
-#define BREAKABLE_BRICK_ANI_NORMAL		0
-#define BREAKABLE_BRICK_ANI_COIN		1
+#include "define.h"
 
 
 class CBreakableBrick : public CGameObject

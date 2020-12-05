@@ -146,19 +146,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Animations.h" />
+    <ClInclude Include="BackGroundStage.h" />
     <ClInclude Include="Bell.h" />
     <ClInclude Include="BreakableBrick.h" />
     <ClInclude Include="Brick.h" />
     <ClInclude Include="Coin.h" />
+    <ClInclude Include="define.h" />
     <ClInclude Include="FIREBALL.h" />
     <ClInclude Include="Flower.h" />
     <ClInclude Include="FlowerBullet.h" />
+    <ClInclude Include="IntroScence.h" />
     <ClInclude Include="Leaf.h" />
     <ClInclude Include="MushRoom.h" />
     <ClInclude Include="NoCollisionObject.h" />
     <ClInclude Include="PIPE.h" />
     <ClInclude Include="QuestionBrick.h" />
     <ClInclude Include="RECT.h" />
+    <ClInclude Include="ScrollingStage.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
@@ -173,14 +177,17 @@
     <ClInclude Include="Textures.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BackGroundStage.cpp" />
     <ClCompile Include="Bell.cpp" />
     <ClCompile Include="BreakableBrick.cpp" />
     <ClCompile Include="Brick.cpp" />
     <ClCompile Include="Coin.cpp" />
+    <ClCompile Include="define.cpp" />
     <ClCompile Include="FIREBALL.cpp" />
     <ClCompile Include="Flower.cpp" />
     <ClCompile Include="FlowerBullet.cpp" />
     <ClCompile Include="Goomba.cpp" />
+    <ClCompile Include="IntroScence.cpp" />
     <ClCompile Include="Koopas.cpp" />
     <ClCompile Include="Leaf.cpp" />
     <ClCompile Include="MushRoom.cpp" />
@@ -191,6 +198,7 @@
     <ClCompile Include="QuestionBrick.cpp" />
     <ClCompile Include="RECT.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="ScrollingStage.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />

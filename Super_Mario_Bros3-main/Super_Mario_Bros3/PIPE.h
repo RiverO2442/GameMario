@@ -2,9 +2,9 @@
 
 #pragma once
 #include "GameObject.h"
+#include "define.h"
 
-#define RECT_BBOX_WIDTH  16
-#define RECT_BBOX_HEIGHT 16
+
 
 class PIPE : public CGameObject
 {

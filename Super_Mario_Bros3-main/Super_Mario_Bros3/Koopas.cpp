@@ -71,8 +71,6 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
 	CGameObject::Update(dt, coObjects);
 	vy += KOOPAS_GRAVITY * dt;
-	//if (state == KOOPAS_STATE_SHELLING)
-		//vy = 0;
 
 	vector<LPCOLLISIONEVENT> coEvents;
 	vector<LPCOLLISIONEVENT> coEventsResult;
@@ -146,20 +144,19 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		}
 		reviveStart = 0;
 		reviveRender = false;
-		renderRecognization = false;
 	}
 	else
 	{
 		if (GetTickCount() - reviveStart >= 3000)
 		{
 			reviveRender = true;
-			shellUpRender = false;
 		}
 	}
 
 	if (state != KOOPAS_STATE_WALKING)
 		CanPullBack = false;
-
+	if(state != KOOPAS_STATE_SHELLING && state != KOOPAS_STATE_SPINNING)
+		shellUpRender = false;
 	// No collision occured, proceed normally
 	if (coEvents.size() == 0)
 	{
@@ -214,8 +211,10 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				CheckPosition_Y = y;
 				CanPullBack = true;
 			}
-			if (dynamic_cast<FIREBALL*>(e->obj))
+			if (e->ny < 0)
 			{
+				if (state == KOOPAS_STATE_SHELLING)
+					vx = 0;
 			}
 			else if (dynamic_cast<CKoopas*>(e->obj)) // if e->obj is Koopas
 			{
@@ -273,8 +272,8 @@ void CKoopas::CalcPotentialCollisions(
 		}
 		if (dynamic_cast<CRECT*>(e->obj))
 		{
-			//if( nx != 0 )
-				//continue;
+			if(!( e->ny < 0))
+				continue;
 		}
 		if (e->t > 0 && e->t <= 1.0f)
 			coEvents.push_back(e);
@@ -289,7 +288,6 @@ void CKoopas::Render()
 	int ani = -1;
 	switch (type)
 	{
-
 	case KOOPAS_XANH_WALK:
 		if (state == KOOPAS_STATE_DIE) {
 			ani = KOOPAS_ANI_SHELL_UP;
@@ -300,7 +298,19 @@ void CKoopas::Render()
 		}
 		else if (state == KOOPAS_STATE_SHELLING)
 		{
-			ani = KOOPAS_ANI_SHELL_DOWN;
+			if (reviveRender)
+			{
+				if (shellUpRender)
+					ani = KOOPAS_XANH_ANI_REVIVING_NGUA;
+				else
+					ani = KOOPAS_XANH_ANI_REVIVING;
+			}
+			else if (shellUpRender)
+			{
+				ani = KOOPAS_ANI_SHELL_UP;
+			}
+			else
+				ani = KOOPAS_ANI_SHELL_DOWN;
 		}
 		else if (state == KOOPAS_STATE_DIE_2)
 		{
@@ -308,51 +318,58 @@ void CKoopas::Render()
 		}
 		else if (state == KOOPAS_STATE_SPINNING)
 		{
+			if (shellUpRender)
+			{
+				ani = KOOPAS_ANI_SPINNING_UP;
+			}
+			else
 			ani = KOOPAS_ANI_SPINNING;
 		}
 		else if (vx > 0) ani = KOOPAS_ANI_WALKING_RIGHT;
 		else  ani = KOOPAS_ANI_WALKING_LEFT;
 		break;
-
 	case KOOPAS_XANH_FLY:
-		if (state == KOOPAS_STATE_DIE) {
-			//ani = KOOPAS_ANI_SHELL_UP;
-			if (vx > 0)
-				ani = KOOPAS_ANI_WALKING_RIGHT;
-			else
-				ani = KOOPAS_ANI_WALKING_LEFT;
-		}
-		else if (state == KOOPAS_STATE_SHELLING)
-		{
-			ani = KOOPAS_ANI_SHELL_UP;
-		}
-		else if (state == KOOPAS_STATE_SPINNING)
-		{
-			ani = KOOPAS_ANI_SPINNING;
-		}
-		else if (vx < 0) ani = KOOPAS_ANI_FLYING_LEFT;
+		if (vx < 0) ani = KOOPAS_ANI_FLYING_LEFT;
 		else  ani = KOOPAS_ANI_FLYING_LEFT;
 		break;
 
 	case KOOPAS_RED_WALK:
-		ani = RED_KOOPAS_ANI_WALKING_LEFT;
-		if (state == KOOPAS_STATE_SHELLING) {
-			ani = RED_KOOPAS_ANI_SHELL_DOWN;
-		}
-		else if (vx > 0) ani = RED_KOOPAS_ANI_WALKING_RIGHT;
-			else ani = RED_KOOPAS_ANI_WALKING_LEFT;
+		if (state == KOOPAS_STATE_SHELLING)
+			{
+				if (reviveRender)
+				{
+					if (shellUpRender)
+						ani = KOOPAS_RED_ANI_REVIVING_NGUA;	
+					else
+						ani = KOOPAS_RED_ANI_REVIVING;
+				}
+				else if (shellUpRender)
+				{
+					ani = KOOPAS_RED_ANI_SHELL_UP;
+				}
+				else
+					ani = KOOPAS_RED_ANI_SHELL_DOWN;
+			}
+		else if (vx > 0) ani = KOOPAS_RED_ANI_WALKING_RIGHT;
+			else ani = KOOPAS_RED_ANI_WALKING_LEFT;
 		if (state == KOOPAS_STATE_SPINNING)
 		{
-			ani = RED_KOOPAS_ANI_SPINNING;
+			if (shellUpRender)
+			{
+				ani = KOOPAS_RED_ANI_SPINNING_UP;
+			}
+			else
+				ani = KOOPAS_RED_ANI_SPINNING;
 		}
+		DebugOut(L"[INFO] Done loading scene resources %d\n", ani);
 		break;
 
 	case KOOPAS_RED_FLY:
 		if (state == KOOPAS_STATE_SHELLING) {
-			ani = RED_KOOPAS_ANI_SHELL_DOWN;
+			ani = KOOPAS_RED_ANI_SHELL_DOWN;
 		}
-		else if (vx < 0) ani = RED_KOOPAS_ANI_FLYING_LEFT;
-		else  ani = RED_KOOPAS_ANI_FLYING_LEFT;
+		else if (vx < 0) ani = KOOPAS_RED_ANI_FLYING_LEFT;
+		else  ani = KOOPAS_RED_ANI_FLYING_LEFT;
 		break;
 	}
 

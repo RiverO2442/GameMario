@@ -26,6 +26,7 @@
 #include "BreakableBrick.h"
 #include "Bell.h"
 #include "QuestionBrick.h"
+#include "define.h"
 
 class CPlayScene : public CScene
 {

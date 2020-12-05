@@ -1,4 +1,4 @@
-#include <algorithm>
+	#include <algorithm>
 #include <assert.h>
 #include "Utils.h"
 
@@ -46,7 +46,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	// reset untouchable timer if untouchable time has passed
 	if (GetTickCount() - untouchable_start > MARIO_UNTOUCHABLE_TIME)
 	{
-		untouchable_start = 0;
+		untouchable_start = 0;	
 		untouchable = 0;
 	}
 
@@ -243,102 +243,96 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			else if (dynamic_cast<CKoopas*>(e->obj)) //  if KOOPAS
 			{
 				CKoopas* koopas = dynamic_cast<CKoopas*>(e->obj);
-				if (isSpining)
+				if (e->ny < 0)
 				{
 					if (koopas->GetState() != KOOPAS_STATE_SHELLING)
 					{
-						koopas->SetSpeed(-nx * 0.2, -0.4);
-						koopas->SetState(KOOPAS_STATE_SHELLING);
-					}
-					else
-						if (koopas->GetState() == KOOPAS_STATE_SHELLING)
+						if (koopas->GetType() == KOOPAS_XANH_FLY)
 						{
-							koopas->SetSpeed(-nx * 0.2, -0.4);
-							koopas->SetState(KOOPAS_STATE_DIE_2);
+							koopas->SetType(KOOPAS_XANH_WALK);
+							vy = -1.5f * MARIO_JUMP_DEFLECT_SPEED;
 						}
 						else
-							koopas->SetState(KOOPAS_STATE_SHELLING);
-				}
-				else
-					if (e->ny < 0)
-					{
-						if (koopas->GetState() != KOOPAS_STATE_SHELLING)
-						{
-							if (koopas->GetType() == KOOPAS_XANH_FLY)
-							{
-								koopas->SetType(KOOPAS_XANH_WALK);
-								vy = -1.5f * MARIO_JUMP_DEFLECT_SPEED;
-							}
-							else
-								{
-									vy = -1.7 * MARIO_JUMP_DEFLECT_SPEED;
-									koopas->SetState(KOOPAS_STATE_SHELLING);
-									vx = 0;
-								}
-						}
-						else if (koopas->GetState() == KOOPAS_STATE_SHELLING)
 						{
 							vy = -1.7 * MARIO_JUMP_DEFLECT_SPEED;
-							if (this->nx > 0)
+							koopas->SetState(KOOPAS_STATE_SHELLING);
+							vx = 0;
+						}
+					}
+					else if (koopas->GetState() == KOOPAS_STATE_SHELLING)
+					{
+						vy = -1.7 * MARIO_JUMP_DEFLECT_SPEED;
+						if (this->nx > 0)
+						{
+							koopas->SetState(KOOPAS_STATE_SPINNING);
+							koopas->nx = 1;
+							koopas->vx = KOOPAS_SPINNING_SPEED;
+						}
+						else if (this->nx < 0)
+						{
+							koopas->SetState(KOOPAS_STATE_SPINNING);
+							koopas->nx = -1;
+							koopas->vx = -KOOPAS_SPINNING_SPEED;
+						}
+					}
+				}
+				else
+				if (isSpining)
+				{
+					if (koopas->GetType() == KOOPAS_XANH_FLY)
+					{
+						koopas->SetType(KOOPAS_XANH_WALK);
+					}
+					koopas->SetShellUpRender(true);
+					koopas->SetState(KOOPAS_STATE_SHELLING);
+					koopas->SetSpeed(-nx * 0.15, -0.4);
+				}
+				else
+					if (koopas->GetState() == KOOPAS_STATE_SHELLING)// koopas->GetisBeingHold() == 0)
+					{
+						if (ny == 0)
+						{
+							if (isHolding == 0)
 							{
-								koopas->SetState(KOOPAS_STATE_SPINNING);
-								koopas->nx = 1;
-								koopas->vx = KOOPAS_SPINNING_SPEED;
+								isKicking = true;
+								StartKicking();
+								if (this->nx > 0)
+								{
+									koopas->SetState(KOOPAS_STATE_SPINNING);
+									koopas->nx = 1;
+									koopas->vx = KOOPAS_SPINNING_SPEED;
+								}
+								else if (this->nx < 0)
+								{
+									koopas->SetState(KOOPAS_STATE_SPINNING);
+									koopas->nx = -1;
+									koopas->vx = -KOOPAS_SPINNING_SPEED;
+								}
 							}
-							else if (this->nx < 0)
-							{
-								koopas->SetState(KOOPAS_STATE_SPINNING);
-								koopas->nx = -1;
-								koopas->vx = -KOOPAS_SPINNING_SPEED;
-							}
+							koopas->SetisBeingHold(true);
 						}
 					}
 					else
-						if (koopas->GetState() == KOOPAS_STATE_SHELLING)// koopas->GetisBeingHold() == 0)
+						if (e->nx != 0)
 						{
-							if (ny == 0)
+							state = MARIO_STATE_IDLE;
+							if (untouchable == 0)
 							{
-								if (isHolding == 0)
+								if (isKicking == 0)
 								{
-									isKicking = true;
-									StartKicking();
-									if (this->nx > 0)
+									if (koopas->GetState() != KOOPAS_STATE_SHELLING)
 									{
-										koopas->SetState(KOOPAS_STATE_SPINNING);
-										koopas->nx = 1;
-										koopas->vx = KOOPAS_SPINNING_SPEED;
-									}
-									else if (this->nx < 0)
-									{
-										koopas->SetState(KOOPAS_STATE_SPINNING);
-										koopas->nx = -1;
-										koopas->vx = -KOOPAS_SPINNING_SPEED;
+										if (level != MARIO_LEVEL_SMALL)
+										{
+											level = MARIO_LEVEL_SMALL;
+											StartUntouchable();
+										}
+										else
+											SetState(MARIO_STATE_DIE);
 									}
 								}
-								koopas->SetisBeingHold(true);
 							}
 						}
-						else
-							if (e->nx != 0)
-							{
-								state = MARIO_STATE_IDLE;
-								if (untouchable == 0)
-								{
-									if (isKicking == 0)
-									{
-										if (koopas->GetState() != KOOPAS_STATE_SHELLING)
-										{
-											if (level != MARIO_LEVEL_SMALL)
-											{
-												level = MARIO_LEVEL_SMALL;
-												StartUntouchable();
-											}
-											else
-												SetState(MARIO_STATE_DIE);
-										}
-									}
-								}
-							}
 			}
 		}
 	}
@@ -381,315 +375,416 @@ void CMario::CalcPotentialCollisions(
 void CMario::Render()
 {
 	int ani = -1;
-	if (state == MARIO_STATE_DIE)
-		ani = MARIO_ANI_DIE;
-	else
-
-		//BIG MARIO
-
-
-		if (level == MARIO_LEVEL_BIG)
+	if (isAppear)
+	{
+		switch (type)
 		{
-			if (GetState() == MARIO_STATE_IDLE)
+		case MARIO_TYPE_RED:
+			if (level == MARIO_LEVEL_BIG)
 			{
-				if (nx > 0) ani = MARIO_ANI_BIG_IDLE_RIGHT;
-				else ani = MARIO_ANI_BIG_IDLE_LEFT;
-			}
-			else if (GetisBraking())
-			{
-				if (nx > 0)
-					ani = MARIO_ANI_BIG_BRAKING_RIGHT;
-				else
-					ani = MARIO_ANI_BIG_BRAKING_LEFT;
-			}
-			else if (GetState() == MARIO_STATE_WALKING_LEFT)
-
-				ani = MARIO_ANI_BIG_WALKING_LEFT;
-
-			else if (GetState() == MARIO_STATE_WALKING_RIGHT)
-
-				ani = MARIO_ANI_BIG_WALKING_RIGHT;
-
-			else if (GetState() == MARIO_STATE_RUNNING_LEFT)
-
-				if (abs(vx) >= abs(MARIO_MAX_SPEED))
-
-					ani = MARIO_ANI_BIG_MAX_SPEED_LEFT;
-
-				else ani = MARIO_ANI_BIG_RUNNING_LEFT;
-
-			else if (GetState() == MARIO_STATE_RUNNING_RIGHT)
-
-				if (abs(vx) >= abs(MARIO_MAX_SPEED))
-
-					ani = MARIO_ANI_BIG_MAX_SPEED_RIGHT;
-
-				else ani = MARIO_ANI_BIG_RUNNING_RIGHT;
-
-			else if (GetState() == MARIO_STATE_SITDOWN)
-			{
-				if (nx > 0) ani = MARIO_ANI_BIG_SITDOWN_RIGHT;
-
-				else ani = MARIO_ANI_BIG_SITDOWN_LEFT;
-			}
-			else if (GetIsKicking() == true)
-			{
-				if (nx > 0) ani = MARIO_ANI_BIG_KICKING_RIGHT;
-
-				else ani = MARIO_ANI_BIG_KICKING_LEFT;
-			}
-			else if (state == MARIO_STATE_SPEED_DOWN)
-
-				if (nx > 0)
-
-					ani = MARIO_ANI_BIG_WALKING_RIGHT;
-
-				else
+				if (GetState() == MARIO_STATE_IDLE)
+				{
+					if (nx > 0) ani = MARIO_ANI_BIG_IDLE_RIGHT;
+					else ani = MARIO_ANI_BIG_IDLE_LEFT;
+				}
+				else if (GetisBraking())
+				{
+					if (nx > 0)
+						ani = MARIO_ANI_BIG_BRAKING_RIGHT;
+					else
+						ani = MARIO_ANI_BIG_BRAKING_LEFT;
+				}
+				else if (GetState() == MARIO_STATE_WALKING_LEFT)
 
 					ani = MARIO_ANI_BIG_WALKING_LEFT;
 
-			if (//GetState() == MARIO_STATE_JUMP)
-				GetIsJumping() == true)
-			{
-				if (vy >= 0)
-				{
-					if (nx > 0) ani = MARIO_ANI_BIG_JUMP_FALLING_RIGHT;
-					else ani = MARIO_ANI_BIG_JUMP_FALLING_LEFT;
-				}
-				else
-				{
-					if (nx > 0) ani = MARIO_ANI_BIG_JUMPING_RIGHT;
-					else ani = MARIO_ANI_BIG_JUMPING_LEFT;
-				}
-			}
-			if (renderHolding)
-			{
-				if (nx > 0) ani = MARIO_ANI_BIG_HOLDING_RIGHT;
-				else ani = MARIO_ANI_BIG_HOLDING_LEFT;
-			}
-		}
+				else if (GetState() == MARIO_STATE_WALKING_RIGHT)
 
-	//SMALL MARIO
+					ani = MARIO_ANI_BIG_WALKING_RIGHT;
 
-		else if (level == MARIO_LEVEL_SMALL)
-		{
-			if (GetState() == MARIO_STATE_IDLE)
-			{
-				if (nx > 0) ani = MARIO_ANI_SMALL_IDLE_RIGHT;
-				else ani = MARIO_ANI_SMALL_IDLE_LEFT;
+				else if (GetState() == MARIO_STATE_RUNNING_LEFT)
+
+					if (abs(vx) >= abs(MARIO_MAX_SPEED))
+
+						ani = MARIO_ANI_BIG_MAX_SPEED_LEFT;
+
+					else ani = MARIO_ANI_BIG_RUNNING_LEFT;
+
+				else if (GetState() == MARIO_STATE_RUNNING_RIGHT)
+
+					if (abs(vx) >= abs(MARIO_MAX_SPEED))
+
+						ani = MARIO_ANI_BIG_MAX_SPEED_RIGHT;
+
+					else ani = MARIO_ANI_BIG_RUNNING_RIGHT;
+
+				else if (GetState() == MARIO_STATE_SITDOWN)
+				{
+					if (nx > 0) ani = MARIO_ANI_BIG_SITDOWN_RIGHT;
+
+					else ani = MARIO_ANI_BIG_SITDOWN_LEFT;
+				}
+				else if (GetIsKicking() == true)
+				{
+					if (nx > 0) ani = MARIO_ANI_BIG_KICKING_RIGHT;
+
+					else ani = MARIO_ANI_BIG_KICKING_LEFT;
+				}
+				else if (state == MARIO_STATE_SPEED_DOWN)
+
+					if (nx > 0)
+
+						ani = MARIO_ANI_BIG_WALKING_RIGHT;
+
+					else
+
+						ani = MARIO_ANI_BIG_WALKING_LEFT;
+
+				if (//GetState() == MARIO_STATE_JUMP)
+					GetIsJumping() == true)
+				{
+					if (vy >= 0)
+					{
+						if (nx > 0) ani = MARIO_ANI_BIG_JUMP_FALLING_RIGHT;
+						else ani = MARIO_ANI_BIG_JUMP_FALLING_LEFT;
+					}
+					else
+					{
+						if (nx > 0) ani = MARIO_ANI_BIG_JUMPING_RIGHT;
+						else ani = MARIO_ANI_BIG_JUMPING_LEFT;
+					}
+				}
+				if (renderHolding)
+				{
+					if (vx != 0)
+					{
+						if (nx > 0) ani = MARIO_ANI_BIG_HOLDING_RIGHT;
+						else ani = MARIO_ANI_BIG_HOLDING_LEFT;
+					}
+					else if (nx > 0) ani = MARIO_ANI_BIG_IDLE_HOLDING_RIGHT;
+					else ani = MARIO_ANI_BIG_IDLE_HOLDING_LEFT;
+				}
 			}
-			else if (GetisBraking())
+
+			//SMALL MARIO
+
+			else if (level == MARIO_LEVEL_SMALL)
 			{
-				if (nx > 0)
-					ani = MARIO_ANI_SMALL_BRAKING_RIGHT;
-				else
-					ani = MARIO_ANI_SMALL_BRAKING_LEFT;
-			}
-			else if (GetState() == MARIO_STATE_WALKING_LEFT)
-				ani = MARIO_ANI_SMALL_WALKING_LEFT;
-			else if (GetState() == MARIO_STATE_WALKING_RIGHT)
-				ani = MARIO_ANI_SMALL_WALKING_RIGHT;
-			else if (GetState() == MARIO_STATE_RUNNING_LEFT)
-				if (abs(vx) >= abs(MARIO_MAX_SPEED))
-					ani = MARIO_ANI_SMALL_MAX_SPEED_LEFT;
-				else ani = MARIO_ANI_SMALL_RUNNING_LEFT;
-			else if (GetState() == MARIO_STATE_RUNNING_RIGHT)
-				if (abs(vx) >= abs(MARIO_MAX_SPEED))
-					ani = MARIO_ANI_SMALL_MAX_SPEED_RIGHT;
-				else ani = MARIO_ANI_SMALL_RUNNING_RIGHT;
-			else if (GetState() == MARIO_STATE_SITDOWN)
-			{
-				if (nx > 0) ani = MARIO_ANI_SMALL_IDLE_RIGHT;
-				else ani = MARIO_ANI_SMALL_IDLE_LEFT;
-			}
-			else if (GetState() == MARIO_STATE_FLYING_LEFT)
-				ani = MARIO_ANI_SMALL_FLYING_LEFT;
-			else if (GetState() == MARIO_STATE_FLYING_RIGHT)
-				ani = MARIO_ANI_SMALL_FLYING_RIGHT;
-			//else if (GetState() == MARIO_STATE_SITDOWN)
-			//{
-			//	if (nx > 0) ani = MARIO_ANI_SMALL_SITDOWN_RIGHT;
-			//	else ani = MARIO_ANI_SMALL_SITDOWN_LEFT;
-			//} MARIO SMALL KO CO STATE NGOI
-			else if (state == MARIO_STATE_SPEED_DOWN)
-				if (nx > 0)
-					ani = MARIO_ANI_SMALL_WALKING_RIGHT;
-				else
-					ani = MARIO_ANI_SMALL_WALKING_LEFT;
-			if (//GetState() == MARIO_STATE_JUMP)
-				GetIsJumping() == true)
-				if (vy >= 0)
+				if (GetState() == MARIO_STATE_IDLE)
 				{
 					if (nx > 0) ani = MARIO_ANI_SMALL_IDLE_RIGHT;
 					else ani = MARIO_ANI_SMALL_IDLE_LEFT;
 				}
-				else
+				else if (GetisBraking())
 				{
-					if (nx > 0) ani = MARIO_ANI_SMALL_JUMPING_RIGHT;
-					else ani = MARIO_ANI_SMALL_JUMPING_LEFT;
+					if (nx > 0)
+						ani = MARIO_ANI_SMALL_BRAKING_RIGHT;
+					else
+						ani = MARIO_ANI_SMALL_BRAKING_LEFT;
 				}
-			if (renderHolding)
-			{
-				if (nx > 0) ani = MARIO_ANI_SMALL_HOLDING_RIGHT;
-				else ani = MARIO_ANI_SMALL_HOLDING_LEFT;
-			}
-			else if (GetIsKicking() == true)
-			{
-				if (nx > 0) ani = MARIO_ANI_SMALL_KICKING_RIGHT;
-				else ani = MARIO_ANI_SMALL_KICKING_LEFT;
-			}
-		}
-
-	// TAIL MARIO
-
-		else if (level == MARIO_LEVEL_TAIL)
-		{
-
-			if (isFlying)
-			{
-				if (nx > 0) ani = MARIO_ANI_TAIL_FLYING_RIGHT;
-				else ani = MARIO_ANI_TAIL_FLYING_LEFT;
-			}
-			else if (isFalling)
-			{
-				if (nx > 0) ani = MARIO_ANI_FALLING_RIGHT;
-				else ani = MARIO_ANI_FALLING_LEFT;
-			}
-			else if (GetIsJumping() == true)
-				if (vy >= 0)
+				else if (GetState() == MARIO_STATE_WALKING_LEFT)
+					ani = MARIO_ANI_SMALL_WALKING_LEFT;
+				else if (GetState() == MARIO_STATE_WALKING_RIGHT)
+					ani = MARIO_ANI_SMALL_WALKING_RIGHT;
+				else if (GetState() == MARIO_STATE_RUNNING_LEFT)
+					if (abs(vx) >= abs(MARIO_MAX_SPEED))
+						ani = MARIO_ANI_SMALL_MAX_SPEED_LEFT;
+					else ani = MARIO_ANI_SMALL_RUNNING_LEFT;
+				else if (GetState() == MARIO_STATE_RUNNING_RIGHT)
+					if (abs(vx) >= abs(MARIO_MAX_SPEED))
+						ani = MARIO_ANI_SMALL_MAX_SPEED_RIGHT;
+					else ani = MARIO_ANI_SMALL_RUNNING_RIGHT;
+				else if (GetState() == MARIO_STATE_SITDOWN)
 				{
-					if (nx > 0) ani = MARIO_ANI_TAIL_JUMP_FALLING_RIGHT;
-					else ani = MARIO_ANI_TAIL_JUMP_FALLING_LEFT;
+					if (nx > 0) ani = MARIO_ANI_SMALL_IDLE_RIGHT;
+					else ani = MARIO_ANI_SMALL_IDLE_LEFT;
 				}
-				else
+				else if (GetState() == MARIO_STATE_FLYING_LEFT)
+					ani = MARIO_ANI_SMALL_FLYING_LEFT;
+				else if (GetState() == MARIO_STATE_FLYING_RIGHT)
+					ani = MARIO_ANI_SMALL_FLYING_RIGHT;
+				//else if (GetState() == MARIO_STATE_SITDOWN)
+				//{
+				//	if (nx > 0) ani = MARIO_ANI_SMALL_SITDOWN_RIGHT;
+				//	else ani = MARIO_ANI_SMALL_SITDOWN_LEFT;
+				//} MARIO SMALL KO CO STATE NGOI
+				else if (state == MARIO_STATE_SPEED_DOWN)
+					if (nx > 0)
+						ani = MARIO_ANI_SMALL_WALKING_RIGHT;
+					else
+						ani = MARIO_ANI_SMALL_WALKING_LEFT;
+				if (//GetState() == MARIO_STATE_JUMP)
+					GetIsJumping() == true)
+					if (vy >= 0)
+					{
+						if (nx > 0) ani = MARIO_ANI_SMALL_IDLE_RIGHT;
+						else ani = MARIO_ANI_SMALL_IDLE_LEFT;
+					}
+					else
+					{
+						if (nx > 0) ani = MARIO_ANI_SMALL_JUMPING_RIGHT;
+						else ani = MARIO_ANI_SMALL_JUMPING_LEFT;
+					}
+				if (renderHolding)
 				{
-					if (nx > 0) ani = MARIO_ANI_TAIL_JUMPING_RIGHT;
-					else ani = MARIO_ANI_TAIL_JUMPING_LEFT;
+					if (vx != 0)
+					{
+						if (nx > 0) ani = MARIO_ANI_SMALL_HOLDING_RIGHT;
+						else ani = MARIO_ANI_SMALL_HOLDING_LEFT;
+					}
+					else if (nx > 0) ani = MARIO_ANI_SMALL_IDLE_HOLDING_RIGHT;
+					else ani = MARIO_ANI_SMALL_IDLE_HOLDING_LEFT;
 				}
-			else if (GetState() == MARIO_STATE_IDLE)
-			{
-				if (nx > 0) ani = MARIO_ANI_TAIL_IDLE_RIGHT;
-				else ani = MARIO_ANI_TAIL_IDLE_LEFT;
+				else if (GetIsKicking() == true)
+				{
+					if (nx > 0) ani = MARIO_ANI_SMALL_KICKING_RIGHT;
+					else ani = MARIO_ANI_SMALL_KICKING_LEFT;
+				}
 			}
-			else if (GetisBraking())
+
+			// TAIL MARIO
+
+			else if (level == MARIO_LEVEL_TAIL)
 			{
-				if (nx > 0)
-					ani = MARIO_ANI_TAIL_BRAKING_RIGHT;
-				else
-					ani = MARIO_ANI_TAIL_BRAKING_LEFT;
-			}
-			else if (GetState() == MARIO_STATE_WALKING_LEFT)
-				ani = MARIO_ANI_TAIL_WALKING_LEFT;
-			else if (GetState() == MARIO_STATE_WALKING_RIGHT)
-				ani = MARIO_ANI_TAIL_WALKING_RIGHT;
-			else if (GetState() == MARIO_STATE_RUNNING_LEFT)
-				if (abs(vx) >= abs(MARIO_MAX_SPEED))
-					ani = MARIO_ANI_TAIL_MAX_SPEED_LEFT;
-				else ani = MARIO_ANI_TAIL_RUNNING_LEFT;
-			else if (GetState() == MARIO_STATE_RUNNING_RIGHT)
-				if (abs(vx) >= abs(MARIO_MAX_SPEED))
-					ani = MARIO_ANI_TAIL_MAX_SPEED_RIGHT;
-				else ani = MARIO_ANI_TAIL_RUNNING_RIGHT;
-			else if (GetState() == MARIO_STATE_FLYING_LEFT)
-				ani = MARIO_ANI_TAIL_FLYING_LEFT;
-			else if (GetState() == MARIO_STATE_FLYING_RIGHT)
-				ani = MARIO_ANI_TAIL_FLYING_RIGHT;
-			else if (GetState() == MARIO_STATE_SITDOWN)
-			{
-				if (nx > 0) ani = MARIO_ANI_TAIL_SITDOWN_RIGHT;
-				else ani = MARIO_ANI_TAIL_SITDOWN_LEFT;
-			}
-			else if (GetIsKicking() == true)
-			{
-				if (nx > 0) ani = MARIO_ANI_TAIL_KICKING_RIGHT;
-				else ani = MARIO_ANI_TAIL_KICKING_LEFT;
-			}
-			else if (state == MARIO_STATE_SPEED_DOWN)
-				if (nx > 0)
-					ani = MARIO_ANI_TAIL_WALKING_RIGHT;
-				else
+
+				if (isFlying)
+				{
+					if (nx > 0) ani = MARIO_ANI_TAIL_FLYING_RIGHT;
+					else ani = MARIO_ANI_TAIL_FLYING_LEFT;
+				}
+				else if (isFalling)
+				{
+					if (nx > 0) ani = MARIO_ANI_FALLING_RIGHT;
+					else ani = MARIO_ANI_FALLING_LEFT;
+				}
+				else if (GetIsJumping() == true)
+					if (vy >= 0)
+					{
+						if (nx > 0) ani = MARIO_ANI_TAIL_JUMP_FALLING_RIGHT;
+						else ani = MARIO_ANI_TAIL_JUMP_FALLING_LEFT;
+					}
+					else
+					{
+						if (nx > 0) ani = MARIO_ANI_TAIL_JUMPING_RIGHT;
+						else ani = MARIO_ANI_TAIL_JUMPING_LEFT;
+					}
+				else if (GetState() == MARIO_STATE_IDLE)
+				{
+					if (nx > 0) ani = MARIO_ANI_TAIL_IDLE_RIGHT;
+					else ani = MARIO_ANI_TAIL_IDLE_LEFT;
+				}
+				else if (GetisBraking())
+				{
+					if (nx > 0)
+						ani = MARIO_ANI_TAIL_BRAKING_RIGHT;
+					else
+						ani = MARIO_ANI_TAIL_BRAKING_LEFT;
+				}
+				else if (GetState() == MARIO_STATE_WALKING_LEFT)
 					ani = MARIO_ANI_TAIL_WALKING_LEFT;
-			if (GetIsSpining() == true)
-			{
-				DebugOut(L"da chay vo ham nay \n");
-				if (nx > 1)
-					ani = MARIO_ANI_TAIL_TURNING_RIGHT;
-				else ani = MARIO_ANI_TAIL_TURNING_LEFT;
+				else if (GetState() == MARIO_STATE_WALKING_RIGHT)
+					ani = MARIO_ANI_TAIL_WALKING_RIGHT;
+				else if (GetState() == MARIO_STATE_RUNNING_LEFT)
+					if (abs(vx) >= abs(MARIO_MAX_SPEED))
+						ani = MARIO_ANI_TAIL_MAX_SPEED_LEFT;
+					else ani = MARIO_ANI_TAIL_RUNNING_LEFT;
+				else if (GetState() == MARIO_STATE_RUNNING_RIGHT)
+					if (abs(vx) >= abs(MARIO_MAX_SPEED))
+						ani = MARIO_ANI_TAIL_MAX_SPEED_RIGHT;
+					else ani = MARIO_ANI_TAIL_RUNNING_RIGHT;
+				else if (GetState() == MARIO_STATE_FLYING_LEFT)
+					ani = MARIO_ANI_TAIL_FLYING_LEFT;
+				else if (GetState() == MARIO_STATE_FLYING_RIGHT)
+					ani = MARIO_ANI_TAIL_FLYING_RIGHT;
+				else if (GetState() == MARIO_STATE_SITDOWN)
+				{
+					if (nx > 0) ani = MARIO_ANI_TAIL_SITDOWN_RIGHT;
+					else ani = MARIO_ANI_TAIL_SITDOWN_LEFT;
+				}
+				else if (GetIsKicking() == true)
+				{
+					if (nx > 0) ani = MARIO_ANI_TAIL_KICKING_RIGHT;
+					else ani = MARIO_ANI_TAIL_KICKING_LEFT;
+				}
+				else if (state == MARIO_STATE_SPEED_DOWN)
+					if (nx > 0)
+						ani = MARIO_ANI_TAIL_WALKING_RIGHT;
+					else
+						ani = MARIO_ANI_TAIL_WALKING_LEFT;
+				if (GetIsSpining() == true)
+				{
+					DebugOut(L"da chay vo ham nay \n");
+					if (nx > 1)
+						ani = MARIO_ANI_TAIL_TURNING_RIGHT;
+					else ani = MARIO_ANI_TAIL_TURNING_LEFT;
+				}
+				if (renderHolding)
+				{
+					if (vx != 0)
+					{
+						if (nx > 0) ani = MARIO_ANI_TAIL_HOLDING_RIGHT;
+						else ani = MARIO_ANI_TAIL_HOLDING_LEFT;
+					}
+					else if (nx > 0) ani = MARIO_ANI_TAIL_IDLE_HOLDING_RIGHT;
+					else ani = MARIO_ANI_TAIL_IDLE_HOLDING_LEFT;
+				}
 			}
-			if (renderHolding)
+
+			// FIRE MARIO
+
+			else if (level == MARIO_LEVEL_FIRE)
 			{
-				if (nx > 0) ani = MARIO_ANI_TAIL_HOLDING_RIGHT;
-				else ani = MARIO_ANI_TAIL_HOLDING_LEFT;
-			}
-		}
-
-	// FIRE MARIO
-
-		else if (level == MARIO_LEVEL_FIRE)
-		{
-			if (state == MARIO_STATE_SPEED_DOWN)
-				if (nx > 0)
-					ani = MARIO_ANI_FIRE_WALKING_RIGHT;
-				else
+				if (state == MARIO_STATE_SPEED_DOWN)
+					if (nx > 0)
+						ani = MARIO_ANI_FIRE_WALKING_RIGHT;
+					else
+						ani = MARIO_ANI_FIRE_WALKING_LEFT;
+				else if (GetState() == MARIO_STATE_IDLE)
+				{
+					if (nx > 0) ani = MARIO_ANI_FIRE_IDLE_RIGHT;
+					else ani = MARIO_ANI_FIRE_IDLE_LEFT;
+				}
+				else if (GetisBraking())
+				{
+					if (nx > 0)
+						ani = MARIO_ANI_FIRE_BRAKING_RIGHT;
+					else
+						ani = MARIO_ANI_FIRE_BRAKING_LEFT;
+				}
+				else if (GetState() == MARIO_STATE_WALKING_LEFT)
 					ani = MARIO_ANI_FIRE_WALKING_LEFT;
-			else if (GetState() == MARIO_STATE_IDLE)
-			{
-				if (nx > 0) ani = MARIO_ANI_FIRE_IDLE_RIGHT;
-				else ani = MARIO_ANI_FIRE_IDLE_LEFT;
-			}
-			else if (GetisBraking())
-			{
-				if (nx > 0)
-					ani = MARIO_ANI_FIRE_BRAKING_RIGHT;
-				else
-					ani = MARIO_ANI_FIRE_BRAKING_LEFT;
-			}
-			else if (GetState() == MARIO_STATE_WALKING_LEFT)
-				ani = MARIO_ANI_FIRE_WALKING_LEFT;
-			else if (GetState() == MARIO_STATE_WALKING_RIGHT)
-				ani = MARIO_ANI_FIRE_WALKING_RIGHT;
-			else if (GetState() == MARIO_STATE_RUNNING_LEFT)
-				if (abs(vx) >= abs(MARIO_MAX_SPEED))
-					ani = MARIO_ANI_FIRE_MAX_SPEED_LEFT;
-				else ani = MARIO_ANI_FIRE_RUNNING_LEFT;
-			else if (GetState() == MARIO_STATE_RUNNING_RIGHT)
-				if (abs(vx) >= abs(MARIO_MAX_SPEED))
-					ani = MARIO_ANI_FIRE_MAX_SPEED_RIGHT;
-				else ani = MARIO_ANI_FIRE_RUNNING_RIGHT;
-			else if (GetState() == MARIO_STATE_FLYING_LEFT)
-				ani = MARIO_ANI_FIRE_FLYING_LEFT;
-			else if (GetState() == MARIO_STATE_FLYING_RIGHT)
-				ani = MARIO_ANI_FIRE_FLYING_RIGHT;
-			else if (GetState() == MARIO_STATE_SITDOWN)
-			{
-				if (nx > 0) ani = MARIO_ANI_FIRE_SITDOWN_RIGHT;
-				else ani = MARIO_ANI_FIRE_SITDOWN_LEFT;
-			}
-			if (//GetState() == MARIO_STATE_JUMP)
-				GetIsJumping() == true)
-				if (vy >= 0)
+				else if (GetState() == MARIO_STATE_WALKING_RIGHT)
+					ani = MARIO_ANI_FIRE_WALKING_RIGHT;
+				else if (GetState() == MARIO_STATE_RUNNING_LEFT)
+					if (abs(vx) >= abs(MARIO_MAX_SPEED))
+						ani = MARIO_ANI_FIRE_MAX_SPEED_LEFT;
+					else ani = MARIO_ANI_FIRE_RUNNING_LEFT;
+				else if (GetState() == MARIO_STATE_RUNNING_RIGHT)
+					if (abs(vx) >= abs(MARIO_MAX_SPEED))
+						ani = MARIO_ANI_FIRE_MAX_SPEED_RIGHT;
+					else ani = MARIO_ANI_FIRE_RUNNING_RIGHT;
+				else if (GetState() == MARIO_STATE_FLYING_LEFT)
+					ani = MARIO_ANI_FIRE_FLYING_LEFT;
+				else if (GetState() == MARIO_STATE_FLYING_RIGHT)
+					ani = MARIO_ANI_FIRE_FLYING_RIGHT;
+				else if (GetState() == MARIO_STATE_SITDOWN)
 				{
-					if (nx > 0) ani = MARIO_ANI_FIRE_JUMP_FALL_RIGHT;
-					else ani = MARIO_ANI_FIRE_JUMP_FALL_LEFT;
+					if (nx > 0) ani = MARIO_ANI_FIRE_SITDOWN_RIGHT;
+					else ani = MARIO_ANI_FIRE_SITDOWN_LEFT;
+				}
+				if (//GetState() == MARIO_STATE_JUMP)
+					GetIsJumping() == true)
+					if (vy >= 0)
+					{
+						if (nx > 0) ani = MARIO_ANI_FIRE_JUMP_FALL_RIGHT;
+						else ani = MARIO_ANI_FIRE_JUMP_FALL_LEFT;
+					}
+					else
+					{
+						if (nx > 0) ani = MARIO_ANI_FIRE_JUMPING_RIGHT;
+						else ani = MARIO_ANI_FIRE_JUMPING_LEFT;
+					}
+				if (renderHolding)
+				{
+					if (vx != 0)
+					{
+						if (nx > 0) ani = MARIO_ANI_FIRE_HOLDING_RIGHT;
+						else ani = MARIO_ANI_FIRE_HOLDING_LEFT;
+					}
+					else
+						if (nx > 0) ani = MARIO_ANI_FIRE_IDLE_HOLDING_RIGHT;
+						else ani = MARIO_ANI_FIRE_IDLE_HOLDING_LEFT;
+				}
+				else if (GetIsKicking() == true)
+				{
+					if (nx > 0) ani = MARIO_ANI_FIRE_KICKING_RIGHT;
+					else ani = MARIO_ANI_FIRE_KICKING_LEFT;
+				}
+				break;
+		case MARIO_TYPE_GREEN:
+
+			if (state == MARIO_STATE_IDLE)
+			{
+
+				if (nx > 0) ani = MARIO_GREEN_ANI_BIG_IDLE_RIGHT;
+				else ani = MARIO_GREEN_ANI_BIG_IDLE_LEFT;
+
+			}
+
+			else if (renderHolding)
+			{
+				if (vx == 0)
+				{
+					if (nx > 0) ani = MARIO_GREEN_ANI_BIG_HOLDING_IDLE_RIGHT;
+					else ani = MARIO_GREEN_ANI_BIG_HOLDING_IDLE_LEFT;
+
 				}
 				else
 				{
-					if (nx > 0) ani = MARIO_ANI_FIRE_JUMPING_RIGHT;
-					else ani = MARIO_ANI_FIRE_JUMPING_LEFT;
+
+					if (nx > 0) ani = MARIO_GREEN_ANI_BIG_HOLDING_RIGHT;
+					else ani = MARIO_GREEN_ANI_BIG_HOLDING_LEFT;
+
 				}
-			if (renderHolding)
-			{
-				if (nx > 0) ani = MARIO_ANI_FIRE_HOLDING_RIGHT;
-				else ani = MARIO_ANI_FIRE_HOLDING_LEFT;
 			}
-			else if (GetIsKicking() == true)
+
+
+			else if (isJumping == true)
 			{
-				if (nx > 0) ani = MARIO_ANI_FIRE_KICKING_RIGHT;
-				else ani = MARIO_ANI_FIRE_KICKING_LEFT;
+
+				if (vy < 0)
+				{
+					if (nx > 0) ani = MARIO_GREEN_ANI_BIG_JUMPING_RIGHT;
+					else ani = MARIO_GREEN_ANI_BIG_JUMPING_LEFT;
+				}
+				else
+				{
+					if (nx > 0) ani = MARIO_GREEN_ANI_JUMP_FALL_RIGHT;
+					else ani = MARIO_GREEN_ANI_JUMP_FALL_LEFT;
+				}
+
+			}
+
+
+			else if (state == MARIO_STATE_RUNNING_RIGHT)
+			{
+				ani = MARIO_GREEN_ANI_BIG_RUNNING_RIGHT;
+			}
+
+			else if (state == MARIO_STATE_RUNNING_LEFT)
+			{
+				ani = MARIO_GREEN_ANI_BIG_RUNNING_LEFT;
+
+			}
+
+
+			else if (isKicking)
+			{
+				if (nx > 0) ani = MARIO_GREEN_ANI_BIG_KICKING_RIGHT;
+				else ani = MARIO_GREEN_ANI_BIG_KICKING_LEFT;
+
+			}
+
+
+			else if (nx > 0) // walking right
+			{
+				//if (state == MARIO_STATE_WALKING_RIGHT)
+				ani = MARIO_GREEN_ANI_BIG_WALKING_RIGHT;
+
+			}
+
+			else if (nx < 0) // walking left
+			{
+
+				ani = MARIO_GREEN_ANI_BIG_WALKING_LEFT;
+			}
+			break;
 			}
 		}
+	}
 
 	int alpha = 255;
+
 	if (untouchable) alpha = 128;
 
 	animation_set->at(ani)->Render(x, y, alpha);
