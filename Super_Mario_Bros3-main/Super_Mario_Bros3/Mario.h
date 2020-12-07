@@ -34,14 +34,6 @@ class CMario : public CGameObject
 	float start_x;			// initial position of Mario at scene
 	float start_y;
 public:
-	int GetType()
-	{
-		return type;
-	}
-	void SetType(int typeInt)
-	{
-		type = typeInt;
-	}
 	bool GetIsAppear()
 	{
 		return isAppear;

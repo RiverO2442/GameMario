@@ -1,10 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include "PlayScene.h"
-#include "define.h"
+
 using namespace std;
-
-
 
 CPlayScene::CPlayScene(int id, LPCWSTR filePath) :
 	CScene(id, filePath)
@@ -16,6 +14,44 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath) :
 	Load scene resources from scene file (textures, sprites, animations and objects)
 	See scene1.txt, scene2.txt for detail format specification
 */
+
+#define SCENE_SECTION_UNKNOWN -1
+#define SCENE_SECTION_TEXTURES 2
+#define SCENE_SECTION_SPRITES 3
+#define SCENE_SECTION_ANIMATIONS 4
+#define SCENE_SECTION_ANIMATION_SETS	5
+#define SCENE_SECTION_OBJECTS	6
+
+#define OBJECT_TYPE_MARIO				 0
+#define OBJECT_TYPE_BRICK				 1
+#define OBJECT_TYPE_GOOMBA_NORMAL		 2
+#define OBJECT_TYPE_KOOPAS_XANH_WALK	 3
+#define OBJECT_TYPE_NO_COLLISION_OBJECTS 4
+#define OBJECT_TYPE_RECTANGLE			 5
+#define OBJECT_TYPE_PIPE				 6
+#define OBJECT_TYPE_KOOPAS_XANH_BAY	7 
+#define OBJECT_TYPE_KOOPAS_RED_WALK	8
+#define OBJECT_TYPE_KOOPAS_RED_FLY	9
+#define OBJECT_TYPE_COIN_NORMAL			 10
+#define OBJECT_TYPE_GOOMBA_RED_FLY   11 
+#define OBJECT_TYPE_FIREBALL   12
+#define OBJECT_TYPE_FLOWER_RED		13
+#define OBJECT_TYPE_FLOWER_BULLET	14
+#define OBJECT_TYPE_COIN_CAN_MOVE	15
+#define OBJECT_TYPE_LEAF			16
+#define OBJECT_TYPE_MUSHROOM_RED		17
+#define OBJECT_TYPE_QUESTION_BRICK_HAVE_ITEM	18
+#define OBJECT_TYPE_MUSHROOM_GREEN		19
+#define OBJECT_TYPE_QUESTION_BRICK_JUST_HAVE_MUSHROOM	20
+#define OBJECT_TYPE_FLOWER_GREEN				21
+#define OBJECT_TYPE_FLOWER_GREEN_CAN_SHOOT		22
+#define OBJECT_TYPE_BREAKABLE_BRICK				23
+#define OBJECT_TYPE_BELL						24
+#define OBJECT_TYPE_PORTAL	50
+
+#define OBJECT_TYPE_PORTAL	50
+#define MAX_SCENE_LINE 1024
+
 
 void CPlayScene::_ParseSection_TEXTURES(string line)
 {
@@ -104,7 +140,6 @@ void CPlayScene::_ParseSection_ANIMATION_SETS(string line)
 */
 void CPlayScene::_ParseSection_OBJECTS(string line)
 {
-
 	vector<string> tokens = split(line);
 
 	//DebugOut(L"--> %s\n",ToWSTR(line).c_str());
@@ -129,7 +164,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 			DebugOut(L"[ERROR] MARIO object was created before!\n");
 			return;
 		}
-		obj = new CMario(1, x, y);
+		obj = new CMario(x, y);
 		player = (CMario*)obj;
 		DebugOut(L"[INFO] Player object created!\n");
 		break;
@@ -139,17 +174,18 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_KOOPAS_XANH_WALK: obj = new CKoopas(111); break;
 	case OBJECT_TYPE_RECTANGLE: obj = new CRECT(); break;
 	case OBJECT_TYPE_COIN_NORMAL: obj = new CCoin(222); break;
-	case OBJECT_TYPE_COIN_CAN_MOVE: obj = new CCoin(333); break;
+		//case OBJECT_TYPE_COIN_CAN_MOVE: obj = new CCoin(333); break;;
 	case OBJECT_TYPE_PIPE: obj = new PIPE(); break;
-	case OBJECT_TYPE_NO_COLLISION_OBJECTS:obj = new CNoCollisionObject(3); break;
+	//case OBJECT_TYPE_NO_COLLISION_OBJECTS:obj = new CNoCollisionObject(); break;
 	case OBJECT_TYPE_KOOPAS_XANH_BAY: obj = new CKoopas(222); break;
 	case OBJECT_TYPE_KOOPAS_RED_WALK: obj = new CKoopas(333); break;
-	case OBJECT_TYPE_FIRE_BULLET:     obj = new FIREBALL(); break;
+	case OBJECT_TYPE_KOOPAS_RED_FLY: obj = new CKoopas(444); break;
+	case OBJECT_TYPE_FIREBALL: obj = new FIREBALL(); break;
 	case OBJECT_TYPE_FLOWER_RED:	  obj = new CFlower(100); break;
 	case OBJECT_TYPE_FLOWER_GREEN:	  obj = new CFlower(200); break;
 	case OBJECT_TYPE_FLOWER_GREEN_CAN_SHOOT:   obj = new CFlower(300); break;
 	case OBJECT_TYPE_FLOWER_BULLET:	   obj = new CFlowerBullet(); break;
-	case OBJECT_TYPE_QUESTION_BRICK_HAVE_LEAF: obj = new CQuestionBrick(777); break;
+	case OBJECT_TYPE_QUESTION_BRICK_HAVE_ITEM: obj = new CQuestionBrick(777); break;
 	case OBJECT_TYPE_QUESTION_BRICK_JUST_HAVE_MUSHROOM: obj = new CQuestionBrick(888); break;
 	case OBJECT_TYPE_LEAF:	           obj = new CLeaf(); break;
 	case OBJECT_TYPE_MUSHROOM_RED:	   obj = new CMushRoom(567); break;
@@ -176,7 +212,6 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 
 	obj->SetAnimationSet(ani_set);
 	objects.push_back(obj);
-
 }
 
 void CPlayScene::Load()
@@ -233,44 +268,61 @@ void CPlayScene::Load()
 
 void CPlayScene::Update(DWORD dt)
 {
-	// We know that Mario is the first object in the list hence we won't add him into the colliable object list
-	// TO-DO: This is a "dirty" way, need a more organized way 
-
-	vector<LPGAMEOBJECT> coObjects;
-	for (size_t i = 0; i < objects.size(); i++)
-	{
-		if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
-			coObjects.push_back(objects[i]);
-	}
-
-	for (size_t i = 0; i < objects.size(); i++)
-	{
-		objects[i]->Update(dt, &coObjects);
-	}
-
-	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
-	if (player == NULL) return;
-
-	// Update camera to follow mario	
 	float cx, cy;
 	player->GetPosition(cx, cy);
 	CGame* game = CGame::GetInstance();
 
-	if (player->x > (game->GetScreenWidth() / 2))
+	// We know that Mario is the first object in the list hence we won't add him into the colliable object list
+	// TO-DO: This is a "dirty" way, need a more organized way 
+	vector<LPGAMEOBJECT> coObjects;
+	for (size_t i = 0; i < objects.size(); i++)
 	{
-		cx -= game->GetScreenWidth() / 2;
-		CGame::GetInstance()->SetCamPos((int)cx);
+		coObjects.push_back(objects[i]);
+	}
 
-		if ((player->y < (game->GetScreenHeight() / 2)))
+	for (size_t i = 0; i < objects.size(); i++)
+	{
+		float xx, xy;
+		objects[i]->GetPosition(xx, xy);
+		if ((xx < cx + game->GetScreenWidth() / 2 && xx > cx - game->GetScreenWidth() / 2 - 16) || dynamic_cast<FIREBALL*>(objects[i]))
 		{
-			cy -= game->GetScreenHeight() / 2;
-			CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
+			if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
+				objects[i]->Update(dt, &coObjects);
 		}
 	}
-	else
+	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
+	if (player == NULL) return;
+
+	// Update camera to follow mario
+
+
+	if (cx < 0)
 	{
-		CGame::GetInstance()->SetCamPos();
+		player->SetPosition(0, cy);
 	}
+	if (player->GetState() == MARIO_STATE_LEVEL_CHANGING)
+	{
+		player->SetPosition(cx, cy + 0.2);
+	}
+	int Sx = 0, Sy = 0;
+	cx -= game->GetScreenWidth() / 2;
+	cy -= game->GetScreenHeight() / 2;
+	if (player->x > game->GetScreenWidth() / 2)
+	{
+		Sx = cx;
+	}
+	if (player->y < game->GetScreenHeight() / 2)
+	{
+		/*if(player->GetState() == "Mario_State_Flying")*/
+		Sy = cy;
+	}
+	if (player->x < game->GetScreenWidth() / 2)
+	{
+		Sx = 0;
+		Sy = 0;
+	}
+	//if(player->x>(game->GetScreenWidth()/2) /*|| player->y > (game->GetScreenHeight() / 2)*/)
+	CGame::GetInstance()->SetCamPos(Sx, Sy + 0.02);
 }
 
 void CPlayScene::Render()

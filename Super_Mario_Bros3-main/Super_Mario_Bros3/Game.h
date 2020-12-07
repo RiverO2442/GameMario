@@ -7,12 +7,14 @@
 #include <d3dx9.h>
 
 
+
 #include <dinput.h>
-#include "define.h"
+
 #include "Scene.h"
-#include "IntroScence.h"
+#include "define.h"
 
 using namespace std;
+
 
 class CGame
 {
@@ -33,8 +35,8 @@ class CGame
 
 	LPKEYEVENTHANDLER keyHandler;
 
-	float cam_x;
-	float cam_y;
+	float cam_x = 0.0f;
+	float cam_y = 0.0f;
 
 	int screen_width;
 	int screen_height;
@@ -80,7 +82,7 @@ public:
 	LPDIRECT3DSURFACE9 GetBackBuffer() { return backBuffer; }
 	LPD3DXSPRITE GetSpriteHandler() { return this->spriteHandler; }
 
-	void SetCamPos(float x = 0, float y = 0) { cam_x = (int)x; cam_y = (int)y; }
+	void SetCamPos(float x, float y) { cam_x = x; cam_y = y; }
 
 	static CGame* GetInstance();
 

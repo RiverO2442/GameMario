@@ -1,13 +1,8 @@
 #pragma once
-#include "Game.h"
-#include "Textures.h"
-#include "Scene.h"
-#include "GameObject.h"
-#include "Mario.h"
 #include "PlayScene.h"
-#include "ScrollingStage.h"
-#include "BackGroundStage.h"
-class CIntroScence : public  CScene
+#include "define.h"
+
+class CIntroScence : public CScene
 {
 protected:
 

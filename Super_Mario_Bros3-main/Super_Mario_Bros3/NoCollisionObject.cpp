@@ -1,6 +1,7 @@
 #include "NoCollisionObject.h"
 #include"Game.h"
 #include"Scene.h"
+#include "IntroScence.h"
 
 CNoCollisionObject::CNoCollisionObject(int scene_id)
 {
@@ -23,14 +24,14 @@ void CNoCollisionObject::Render()
 		vector<LPGAMEOBJECT> objects = intro_scene->GetObjects();
 		for (size_t i = 0; i < objects.size(); i++)
 		{
-			if (dynamic_cast<CBackGroundStage*>(objects[i]))
+			/*if (dynamic_cast<CBackGroundStage*>(objects[i]))
 			{
 				CBackGroundStage* background_stage = dynamic_cast<CBackGroundStage*>(objects[i]);
 				if (background_stage->GetType() == BACKGROUND_STAGE_TYPE_FINAL && background_stage->GetIsAppear())
 				{
 					isRender = true;
 				}
-			}
+			}*/
 		}
 	}
 	if (isRender)

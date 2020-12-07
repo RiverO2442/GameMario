@@ -1,4 +1,4 @@
-	#include <algorithm>
+#include <algorithm>
 #include <assert.h>
 #include "Utils.h"
 
@@ -46,7 +46,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	// reset untouchable timer if untouchable time has passed
 	if (GetTickCount() - untouchable_start > MARIO_UNTOUCHABLE_TIME)
 	{
-		untouchable_start = 0;	
+		untouchable_start = 0;
 		untouchable = 0;
 	}
 
@@ -284,6 +284,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 						koopas->SetType(KOOPAS_XANH_WALK);
 					}
 					koopas->SetShellUpRender(true);
+					koopas->SetRenderRegconization(true);
 					koopas->SetState(KOOPAS_STATE_SHELLING);
 					koopas->SetSpeed(-nx * 0.15, -0.4);
 				}
@@ -380,6 +381,7 @@ void CMario::Render()
 		switch (type)
 		{
 		case MARIO_TYPE_RED:
+			//BIG MARIO
 			if (level == MARIO_LEVEL_BIG)
 			{
 				if (GetState() == MARIO_STATE_IDLE)
@@ -701,6 +703,8 @@ void CMario::Render()
 					else ani = MARIO_ANI_FIRE_KICKING_LEFT;
 				}
 				break;
+
+
 		case MARIO_TYPE_GREEN:
 
 			if (state == MARIO_STATE_IDLE)
@@ -782,9 +786,9 @@ void CMario::Render()
 			}
 		}
 	}
+	else return;
 
 	int alpha = 255;
-
 	if (untouchable) alpha = 128;
 
 	animation_set->at(ani)->Render(x, y, alpha);

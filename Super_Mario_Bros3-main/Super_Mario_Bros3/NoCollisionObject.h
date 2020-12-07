@@ -1,6 +1,8 @@
 #pragma once
 #include "GameObject.h"
-#include "define.h"
+
+#define NoCollisionObjects_BBOX_WIDTH  16
+#define NoCollisionObjects_BBOX_HEIGHT 16
 
 class CNoCollisionObject : public CGameObject
 {

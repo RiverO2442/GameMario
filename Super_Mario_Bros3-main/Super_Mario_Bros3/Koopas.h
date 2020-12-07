@@ -15,6 +15,7 @@ class CKoopas : public CGameObject
 	bool shellUpRender = false;
 	bool isKickedRevive = false;
 	int dieDirection = -1;
+	bool renderRecognization = false;
 
 	DWORD jumpingStart = 0;
 	DWORD reviveStart = 0;
@@ -45,6 +46,14 @@ public:
 	void SetType(int typeInt)
 	{
 		type = typeInt;
+	}
+	void SetRenderRegconization(bool renderRegconizationBool)
+	{
+		this->renderRecognization = renderRegconizationBool;
+	}
+	bool GetRenderRegconization()
+	{
+		return renderRecognization;
 	}
 	CKoopas(int ctype);
 	void StartRevive()

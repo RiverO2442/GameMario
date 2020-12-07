@@ -11,13 +11,8 @@ CIntroScence::CIntroScence(int id, LPCWSTR filePath) :
 	CScene(id, filePath)
 {
 	key_handler = new CIntroScenceKeyHandler(this);
-	CGame::GetInstance()->SetCamPos(0,-20);
+	CGame::GetInstance()->SetCamPos(0, -20);
 }
-
-CIntroScence::~CIntroScence()
-{
-}
-
 
 #define SCENE_SECTION_UNKNOWN -1
 #define SCENE_SECTION_TEXTURES 2
@@ -119,7 +114,7 @@ void CIntroScence::_ParseSection_ANIMATION_SETS(string line)
 
 	LPANIMATION_SET s = new CAnimationSet();
 
-	CAnimations *animations = CAnimations::GetInstance();
+	CAnimations* animations = CAnimations::GetInstance();
 
 	for (int i = 1; i < tokens.size(); i++)
 	{
@@ -150,42 +145,42 @@ void CIntroScence::_ParseSection_OBJECTS(string line)
 
 	int ani_set_id = atoi(tokens[3].c_str());
 
-	CAnimationSets * animation_sets = CAnimationSets::GetInstance();
+	CAnimationSets* animation_sets = CAnimationSets::GetInstance();
 
-	CGameObject *obj = NULL;
+	CGameObject* obj = NULL;
 
 	switch (object_type)
 	{
-	case OBJECT_TYPE_MARIO_RED:
-		obj = new CMario(1, x, y);
-		player1 = (CMario*)obj;
-		DebugOut(L"[INFO] Player1 object created!\n");
-		break;
-	case OBJECT_TYPE_MARIO_GREEN:
-		obj = new CMario(2, x, y);
-		player2 = (CMario*)obj;
-		DebugOut(L"[INFO] Player2 object created!\n");
-		break;
-	//case OBJECT_TYPE_GOOMBA_NORMAL: obj = new CGoomba(888); break;
+		case OBJECT_TYPE_MARIO_RED:
+			obj = new CMario(1, x, y);
+			player1 = (CMario*)obj;
+			DebugOut(L"[INFO] Player1 object created!\n");
+			break;
+		case OBJECT_TYPE_MARIO_GREEN:
+			obj = new CMario(2, x, y);
+			player2 = (CMario*)obj;
+			DebugOut(L"[INFO] Player2 object created!\n");
+			break;
+			//case object_type_goomba_normal: obj = new cgoomba(888); break;
 	case OBJECT_TYPE_BRICK: obj = new CBrick(); break;
-	case OBJECT_TYPE_BACKGROUND_STAGE_BLACK:  obj = new CBackGroundStage(111); break;
-	case OBJECT_TYPE_BACKGROUND_STAGE_COLOR:  obj = new CBackGroundStage(222); break;
-	case OBJECT_TYPE_BACKGROUND_STAGE_FINAL:  obj = new CBackGroundStage(333); break;
-	case OBJECT_TYPE_SCROLLING_STAGE: obj = new CScrollingStage(); break;
-	//case OBJECT_TYPE_KOOPAS_NORMAL: obj = new CKoopas(111); break;
-	case OBJECT_TYPE_NO_COLLISION_OBJECTS:	obj = new CNoCollisionObject(1); break;
-		/*case OBJECT_TYPE_LEAF:	           obj = new CLeaf(); break;*/
-		/*case OBJECT_TYPE_MUSHROOM_RED:	   obj = new CMushRoom(567); break;*/
-			/*case OBJECT_TYPE_STAR:				obj = new CStar(); break;
-			case OBJECT_TYPE_MENU_GAME:	           obj = new CMenuGame(); break; */
-			/*case OBJECT_TYPE_PORTAL:
-			{
-				float r = atof(tokens[4].c_str());
-				float b = atof(tokens[5].c_str());
-				int scene_id = atoi(tokens[6].c_str());
-				obj = new CPortal(x, y, r, b, scene_id);
-			}
-			break;*/
+		/*case OBJECT_TYPE_BACKGROUND_STAGE_BLACK:  obj = new CBackGroundStage(111); break;
+		case OBJECT_TYPE_BACKGROUND_STAGE_COLOR:  obj = new CBackGroundStage(222); break;
+		case OBJECT_TYPE_BACKGROUND_STAGE_FINAL:  obj = new CBackGroundStage(333); break;
+		case OBJECT_TYPE_SCROLLING_STAGE: obj = new CScrollingStage(); break;*/
+		case OBJECT_TYPE_KOOPAS_NORMAL: obj = new CKoopas(111); break;
+		case OBJECT_TYPE_NO_COLLISION_OBJECTS:	obj = new CNoCollisionObject(1); break;
+			/*case OBJECT_TYPE_LEAF:	           obj = new CLeaf(); break;*/
+			/*case OBJECT_TYPE_MUSHROOM_RED:	   obj = new CMushRoom(567); break;*/
+				/*case OBJECT_TYPE_STAR:				obj = new CStar(); break;
+				case OBJECT_TYPE_MENU_GAME:	           obj = new CMenuGame(); break; */
+				case OBJECT_TYPE_PORTAL:
+				{
+					float r = atof(tokens[4].c_str());
+					float b = atof(tokens[5].c_str());
+					int scene_id = atoi(tokens[6].c_str());
+					obj = new CPortal(x, y, r, b, scene_id);
+				}
+				break;
 	default:
 		DebugOut(L"[ERR] Invalid object type: %d\n", object_type);
 		return;
@@ -256,7 +251,7 @@ void CIntroScence::Load()
 
 void CIntroScence::Update(DWORD dt)
 {
-	StartTimeCount();
+	//StartTimeCount();
 
 
 	vector<LPGAMEOBJECT> coObjects;
@@ -271,9 +266,9 @@ void CIntroScence::Update(DWORD dt)
 		objects[i]->Update(dt, &coObjects);
 	}
 
-	player1->nx = -1;
+	/*player1->nx = -1;
 	player1->SetIsAppear(false);
-	player2->SetIsAppear(false);
+	player2->SetIsAppear(false);*/
 
 
 
@@ -331,7 +326,7 @@ void CIntroScence::Update(DWORD dt)
 	if (player1 == NULL) return;
 
 	if (player2 == NULL) return;
-	// Update camera to follow mario	
+	 //Update camera to follow mario	
 
 
 
@@ -342,7 +337,7 @@ void CIntroScence::Render()
 	for (int i = 0; i < objects.size(); i++)
 		objects[i]->Render();
 }
-	
+
 /*
 	Unload current scene
 */
@@ -352,8 +347,8 @@ void CIntroScence::Unload()
 		delete objects[i];
 
 	objects.clear();
-	player1 = NULL;
-	player2 = NULL;
+	/*player1 = NULL;
+	player2 = NULL;*/
 
 	DebugOut(L"[INFO] Scene %s unloaded! \n", sceneFilePath);
 }
@@ -379,7 +374,7 @@ void CIntroScenceKeyHandler::OnKeyUp(int KeyCode)
 {
 
 }
-void CIntroScenceKeyHandler::KeyState(BYTE *states)
+void CIntroScenceKeyHandler::KeyState(BYTE* states)
 {
 
 }
