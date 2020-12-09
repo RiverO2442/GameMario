@@ -103,7 +103,25 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	{
 		SetIsKicking(false);
 	}
-
+	if (state == MARIO_STATE_HITTED)
+	{
+		if (GetTickCount() - hitted_start >= 350)
+		{
+			StartHitted();
+			SetState(MARIO_STATE_LOOK_UP);
+		}
+	}	
+	if (state == MARIO_STATE_LOOK_UP)
+	{
+		if (GetTickCount() - hitted_start >= 350)
+		{
+			if (!isJumping)
+			{
+				SetState(MARIO_STATE_JUMP);
+				isJumping = true;
+			}
+		}
+	}
 	if (GetTickCount() - spining_start > MARIO_SPINING_TIME)
 	{
 		SetIsSpining(false);
@@ -444,10 +462,20 @@ void CMario::Render()
 
 			if (level == MARIO_LEVEL_BIG)
 			{
+
 				if (GetState() == MARIO_STATE_IDLE)
 				{
 					if (nx > 0) ani = MARIO_ANI_BIG_IDLE_RIGHT;
 					else ani = MARIO_ANI_BIG_IDLE_LEFT;
+				}
+				if (state == MARIO_STATE_HITTED)
+				{
+					ani = MARIO_RED_ANI_HITTED;
+				}
+
+				else if (state == MARIO_STATE_LOOK_UP)
+				{
+					ani = MARIO_RED_LOOKING_UP;
 				}
 				else if (GetState() == MARIO_STATE_SITDOWN)
 				{
@@ -950,6 +978,10 @@ void CMario::SetState(int state)
 	case MARIO_STATE_JUMP:
 		// TODO: need to check if Mario is *current* on a platform before allowing to jump again
 		vy = -MARIO_JUMP_SPEED_Y;
+		break;
+	case MARIO_STATE_JUMP_HIGH:
+		// TODO: need to check if Mario is *current* on a platform before allowing to jump again
+		vy = MARIO_JUMP_HIGH_SPEED_Y;
 		break;
 	case MARIO_STATE_DIE:
 		vy = -MARIO_DIE_DEFLECT_SPEED;

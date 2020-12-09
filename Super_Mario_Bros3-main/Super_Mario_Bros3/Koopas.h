@@ -2,7 +2,11 @@
 #pragma once
 #include "GameObject.h"
 #include "define.h"
-
+#include "Goomba.h"
+#include "PlayScene.h"
+#include "RECT.h"
+#include "FIREBALL.h"
+#include "BackGroundStage.h"
 
 
 class CKoopas : public CGameObject
@@ -17,18 +21,22 @@ class CKoopas : public CGameObject
 	int dieDirection = -1;
 	bool renderRecognization = false;
 
+	bool isAppear = true;
+	int jump_count = 0;
+
 	DWORD jumpingStart = 0;
 	DWORD reviveStart = 0;
 
 
+	
+
+public:
 	virtual void GetBoundingBox(float& left, float& top, float& right, float& bottom);
 	virtual void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects);
 	virtual void Render();
 	void FilterCollision(vector<LPCOLLISIONEVENT>& coEvents, vector<LPCOLLISIONEVENT>& coEventsResult, float& min_tx, float& min_ty, float& nx, float& ny, float& rdx, float& rdy);
 	void CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents);
-
-public:
-	CKoopas();
+	CKoopas(int ctype, int scene_id);
 	void SetisBeingHold(bool value) { isBeingHold = value; }
 	bool GetisBeingHold() { return isBeingHold; }
 	int GetType()
@@ -55,7 +63,6 @@ public:
 	{
 		return renderRecognization;
 	}
-	CKoopas(int ctype);
 	void StartRevive()
 	{
 		reviveStart = GetTickCount();

@@ -1,4 +1,5 @@
 #include "Leaf.h"
+#include "BackGroundStage.h"
 
 
 CLeaf::CLeaf()
@@ -82,6 +83,19 @@ void CLeaf::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				}
 			}
 		}
+		if (dynamic_cast<CBackGroundStage*>(obj))
+		{
+			CBackGroundStage* background_stage = dynamic_cast<CBackGroundStage*>(obj);
+			if (background_stage->GetType() == BACKGROUND_STAGE_TYPE_FINAL && background_stage->GetIsAppear())
+			{
+				if (!isAppear)
+				{
+					isAppear = true;
+					SetState(LEAF_STATE_DOWN);
+				}
+
+			}
+		}
 	}
 
 
@@ -94,11 +108,14 @@ void CLeaf::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		}
 	}
 
+
 	if (state == LEAF_STATE_DOWN)
 	{
 		if (downing_start == 0)
+		{
 			StartDowning();
-		if (GetTickCount() - downing_start >= 700)
+		}
+		if (GetTickCount() - downing_start >= 500)
 		{
 			vx = -vx;
 			downing_start = 0;
@@ -197,7 +214,7 @@ void CLeaf::SetState(int state)
 		break;
 	case LEAF_STATE_DOWN:
 		vx = 0.04f;
-		vy = 0.04f;
+		vy = 0.03f;
 		break;
 	}
 }

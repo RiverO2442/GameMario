@@ -20,6 +20,7 @@ class CMario : public CGameObject
 	DWORD speedup_start;
 	DWORD kicking_start;
 	DWORD spining_start;
+	DWORD hitted_start = 0;
 	bool isSpining = true;
 	bool isJumping = 0;
 	bool isFlying = false;
@@ -153,6 +154,8 @@ public:
 	void StartSpeedup() { speedup_start = GetTickCount(); }
 
 	void StartFlying() { flying_start = GetTickCount(); }
+
+	void StartHitted() { hitted_start = GetTickCount(); }
 
 	void Reset();
 

@@ -1,5 +1,8 @@
 #pragma once
 #include "PlayScene.h"
+#include "BackGroundStage.h"
+#include "ScrollingStage.h"
+#include "Star.h"
 
 class CIntroScence : public  CScene
 {
@@ -30,7 +33,10 @@ protected:
 
 public:
 	CIntroScence(int id, LPCWSTR filePath);
-
+	vector<LPGAMEOBJECT> GetObjects()
+	{
+		return objects;
+	}
 	virtual void Load();
 	virtual void Update(DWORD dt);
 	virtual void Render();
