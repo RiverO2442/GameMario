@@ -144,20 +144,19 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		}
 		reviveStart = 0;
 		reviveRender = false;
-		renderRecognization = false;
 	}
 	else
 	{
 		if (GetTickCount() - reviveStart >= 3000)
 		{
 			reviveRender = true;
-			shellUpRender = false;
 		}
 	}
 
 	if (state != KOOPAS_STATE_WALKING)
 		CanPullBack = false;
-
+	if (state != KOOPAS_STATE_SHELLING && state != KOOPAS_STATE_SPINNING)
+		shellUpRender = false;
 	// No collision occured, proceed normally
 	if (coEvents.size() == 0)
 	{
@@ -299,16 +298,16 @@ void CKoopas::Render()
 		}
 		else if (state == KOOPAS_STATE_SHELLING)
 		{
-			if (shellUpRender)
+			if (reviveRender)
 			{
-				ani = KOOPAS_ANI_SHELL_UP;
-			}
-			else if (reviveRender)
-			{
-				if (renderRecognization)
+				if (shellUpRender)
 					ani = KOOPAS_XANH_ANI_REVIVING_NGUA;
 				else
 					ani = KOOPAS_XANH_ANI_REVIVING;
+			}
+			else if (shellUpRender)
+			{
+				ani = KOOPAS_ANI_SHELL_UP;
 			}
 			else
 				ani = KOOPAS_ANI_SHELL_DOWN;
@@ -319,12 +318,16 @@ void CKoopas::Render()
 		}
 		else if (state == KOOPAS_STATE_SPINNING)
 		{
-			ani = KOOPAS_ANI_SPINNING;
+			if (shellUpRender)
+			{
+				ani = KOOPAS_ANI_SPINNING_UP;
+			}
+			else
+				ani = KOOPAS_ANI_SPINNING;
 		}
 		else if (vx > 0) ani = KOOPAS_ANI_WALKING_RIGHT;
 		else  ani = KOOPAS_ANI_WALKING_LEFT;
 		break;
-
 	case KOOPAS_XANH_FLY:
 		if (vx < 0) ani = KOOPAS_ANI_FLYING_LEFT;
 		else  ani = KOOPAS_ANI_FLYING_LEFT;
@@ -332,26 +335,31 @@ void CKoopas::Render()
 
 	case KOOPAS_RED_WALK:
 		if (state == KOOPAS_STATE_SHELLING)
+		{
+			if (reviveRender)
 			{
 				if (shellUpRender)
-				{
-					ani = KOOPAS_RED_ANI_SHELL_UP;
-				}
-				else if (reviveRender)
-				{
-					if (renderRecognization)
-						ani = KOOPAS_RED_ANI_REVIVING_NGUA;	
-					else
-						ani = KOOPAS_RED_ANI_REVIVING;
-				}
+					ani = KOOPAS_RED_ANI_REVIVING_NGUA;
 				else
-					ani = KOOPAS_RED_ANI_SHELL_DOWN;
+					ani = KOOPAS_RED_ANI_REVIVING;
 			}
+			else if (shellUpRender)
+			{
+				ani = KOOPAS_RED_ANI_SHELL_UP;
+			}
+			else
+				ani = KOOPAS_RED_ANI_SHELL_DOWN;
+		}
 		else if (vx > 0) ani = KOOPAS_RED_ANI_WALKING_RIGHT;
-			else ani = KOOPAS_RED_ANI_WALKING_LEFT;
+		else ani = KOOPAS_RED_ANI_WALKING_LEFT;
 		if (state == KOOPAS_STATE_SPINNING)
 		{
-			ani = RED_KOOPAS_ANI_SPINNING;
+			if (shellUpRender)
+			{
+				ani = KOOPAS_RED_ANI_SPINNING_UP;
+			}
+			else
+				ani = KOOPAS_RED_ANI_SPINNING;
 		}
 		DebugOut(L"[INFO] Done loading scene resources %d\n", ani);
 		break;
