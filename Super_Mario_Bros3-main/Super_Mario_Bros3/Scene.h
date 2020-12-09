@@ -2,7 +2,6 @@
 
 #include <d3dx9.h>
 #include "KeyEventHandler.h"
-#include "define.h"
 
 class CScene
 {
@@ -19,6 +18,7 @@ public:
 	virtual void Unload() = 0;
 	virtual void Update(DWORD dt) = 0;
 	virtual void Render() = 0;
+	int GetId() { return id; }
 };
 typedef CScene* LPSCENE;
 
