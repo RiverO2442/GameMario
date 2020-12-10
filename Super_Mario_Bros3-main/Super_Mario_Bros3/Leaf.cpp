@@ -1,5 +1,4 @@
 #include "Leaf.h"
-#include "BackGroundStage.h"
 
 
 CLeaf::CLeaf()
@@ -214,7 +213,7 @@ void CLeaf::SetState(int state)
 		break;
 	case LEAF_STATE_DOWN:
 		vx = 0.04f;
-		vy = 0.03f;
+		vy = 0.05;
 		break;
 	}
 }

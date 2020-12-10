@@ -5,6 +5,15 @@
 
 using namespace std;
 
+
+
+CIntroScence::CIntroScence(int id, LPCWSTR filePath) :
+	CScene(id, filePath)
+{
+	key_handler = new CIntroScenceKeyHandler(this);
+	CGame::GetInstance()->SetCamPos(70, -20);
+}
+
 CIntroScence::~CIntroScence()
 {
 }
@@ -259,15 +268,18 @@ void CIntroScence::Update(DWORD dt)
 	}
 
 
-	for (size_t i = 0; i < objects.size(); i++)
-	{
-		objects[i]->Update(dt, &coObjects);
-	}
 
-	player1->nx = -1;
 	player1->SetIsAppear(false);
 	player2->SetIsAppear(false);
 
+	if (isLookingLeft)
+	{
+		player1->nx = -1;
+	}
+	else
+	{
+		player1->nx = 1;
+	}
 
 	if (player1->GetState() == MARIO_STATE_SITDOWN)
 	{
@@ -314,15 +326,83 @@ void CIntroScence::Update(DWORD dt)
 	}
 
 
+	if (player1->GetState() == MARIO_STATE_HITTED)
+	{
+		if (GetTickCount() - player1->GetHittedStart() >= 350)
+		{
+			player1->SetState(MARIO_STATE_LOOK_UP);
+			player1->StartHitted();
+		}
+	}
+
+
+	if (player1->GetState() == MARIO_STATE_LOOK_UP)
+	{
+		if (GetTickCount() - player1->GetHittedStart() >= 700)
+		{
+			if (!player1->GetIsJumping())
+			{
+				player1->SetState(MARIO_STATE_JUMP);
+				player1->SetIsJumping(true);
+			}
+		}
+	}
+
+	if (player1->GetIsJumping())
+	{
+		player1->SetCanFall(true);
+	}
+	else
+	{
+		player1->SetCanFall(false);
+	}
+
+	if (player1->GetLevel() == MARIO_LEVEL_TAIL)
+	{
+		if (player1->GetCanFall())
+		{
+			player1->SetState(MARIO_STATE_FALLING_DOWN);
+			player1->SetIsFalling(true);
+		}
+		else
+		{
+			isLookingLeft = false;
+			player1->nx = 1;
+			bool result = player1->BrakingCalculation();
+			if (!result)
+			{
+				player1->SetState(MARIO_STATE_WALKING_RIGHT);
+
+			}
+		}
+	}
+
+
+	if (player1->GetState() == MARIO_STATE_WALKING_RIGHT)
+	{
+		StartIdleCount();
+		if (GetTickCount() - idle_count >= 2000)
+		{
+			player1->SetState(MARIO_STATE_IDLE);
+		}
+	}
+
 	if (player2->x >= 320)
 	{
-		player2->SetState(MARIO_STATE_IDLE);
+		if (!player2->GetisHolding())
+		{
+			player2->SetState(MARIO_STATE_IDLE);
+		}
+
 		player2->nx = -1;
 	}
 
 
 
-
+	for (size_t i = 0; i < objects.size(); i++)
+	{
+		objects[i]->Update(dt, &coObjects);
+	}
 
 	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
 	if (player1 == NULL) return;
@@ -332,13 +412,6 @@ void CIntroScence::Update(DWORD dt)
 
 
 
-}
-
-CIntroScence::CIntroScence(int id, LPCWSTR filePath) :
-	CScene(id, filePath)
-{
-	key_handler = new CIntroScenceKeyHandler(this);
-	CGame::GetInstance()->SetCamPos(0, -20);
 }
 
 void CIntroScence::Render()

@@ -332,6 +332,10 @@ void CKoopas::CalcPotentialCollisions(
 			if (!(e->ny < 0))
 				continue;
 		}
+		if (dynamic_cast<CLeaf*>(e->obj))
+		{
+				continue;
+		}
 		if (e->t > 0 && e->t <= 1.0f)
 			coEvents.push_back(e);
 		else
@@ -437,7 +441,6 @@ void CKoopas::Render()
 	else return;
 
 	animation_set->at(ani)->Render(x, y);
-
 	//RenderBoundingBox();
 }
 

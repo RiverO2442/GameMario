@@ -117,7 +117,10 @@ public:
 
 	int GetspeedLevel() { return speedLevel; }
 	void SetspeedLevel(int value) { speedLevel = value; }
-
+	DWORD GetHittedStart()
+	{
+		return hitted_start;
+	}
 	DWORD GetFlyingStart()
 	{
 		return flying_start;

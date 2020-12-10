@@ -463,12 +463,37 @@ void CMario::Render()
 			if (level == MARIO_LEVEL_BIG)
 			{
 
+
 				if (GetState() == MARIO_STATE_IDLE)
 				{
 					if (nx > 0) ani = MARIO_ANI_BIG_IDLE_RIGHT;
 					else ani = MARIO_ANI_BIG_IDLE_LEFT;
 				}
-				if (state == MARIO_STATE_HITTED)
+				if (//GetState() == MARIO_STATE_JUMP)
+					GetIsJumping() == true)
+				{
+					if (vy >= 0)
+					{
+						if (nx > 0) ani = MARIO_ANI_BIG_JUMP_FALLING_RIGHT;
+						else ani = MARIO_ANI_BIG_JUMP_FALLING_LEFT;
+					}
+					else
+					{
+						if (nx > 0) ani = MARIO_ANI_BIG_JUMPING_RIGHT;
+						else ani = MARIO_ANI_BIG_JUMPING_LEFT;
+					}
+				}
+				else if (renderHolding)
+				{
+					if (vx != 0)
+					{
+						if (nx > 0) ani = MARIO_ANI_BIG_HOLDING_RIGHT;
+						else ani = MARIO_ANI_BIG_HOLDING_LEFT;
+					}
+					else if (nx > 0) ani = MARIO_ANI_BIG_IDLE_HOLDING_RIGHT;
+					else ani = MARIO_ANI_BIG_IDLE_HOLDING_LEFT;
+				}
+				else if (state == MARIO_STATE_HITTED)
 				{
 					ani = MARIO_RED_ANI_HITTED;
 				}
@@ -529,31 +554,6 @@ void CMario::Render()
 					else
 
 						ani = MARIO_ANI_BIG_WALKING_LEFT;
-
-				if (//GetState() == MARIO_STATE_JUMP)
-					GetIsJumping() == true)
-				{
-					if (vy >= 0)
-					{
-						if (nx > 0) ani = MARIO_ANI_BIG_JUMP_FALLING_RIGHT;
-						else ani = MARIO_ANI_BIG_JUMP_FALLING_LEFT;
-					}
-					else
-					{
-						if (nx > 0) ani = MARIO_ANI_BIG_JUMPING_RIGHT;
-						else ani = MARIO_ANI_BIG_JUMPING_LEFT;
-					}
-				}
-				if (renderHolding)
-				{
-					if (vx != 0)
-					{
-						if (nx > 0) ani = MARIO_ANI_BIG_HOLDING_RIGHT;
-						else ani = MARIO_ANI_BIG_HOLDING_LEFT;
-					}
-					else if (nx > 0) ani = MARIO_ANI_BIG_IDLE_HOLDING_RIGHT;
-					else ani = MARIO_ANI_BIG_IDLE_HOLDING_LEFT;
-				}
 			}
 
 			//SMALL MARIO
@@ -647,7 +647,7 @@ void CMario::Render()
 					if (nx > 0) ani = MARIO_ANI_FALLING_RIGHT;
 					else ani = MARIO_ANI_FALLING_LEFT;
 				}
-				else if (GetIsJumping() == true)
+				if (GetIsJumping() == true)
 					if (vy >= 0)
 					{
 						if (nx > 0) ani = MARIO_ANI_TAIL_JUMP_FALLING_RIGHT;
@@ -795,11 +795,13 @@ void CMario::Render()
 
 		case MARIO_TYPE_GREEN:
 
-			if (state == MARIO_STATE_IDLE)
+			if (isKicking)
 			{
-				if (nx > 0) ani = MARIO_GREEN_ANI_BIG_IDLE_RIGHT;
-				else ani = MARIO_GREEN_ANI_BIG_IDLE_LEFT;
+				if (nx > 0) ani = MARIO_GREEN_ANI_BIG_KICKING_RIGHT;
+				else ani = MARIO_GREEN_ANI_BIG_KICKING_LEFT;
+
 			}
+
 			else if (renderHolding)
 			{
 				if (vx == 0)
@@ -816,6 +818,15 @@ void CMario::Render()
 
 				}
 			}
+
+			else if (state == MARIO_STATE_IDLE)
+			{
+
+				if (nx > 0) ani = MARIO_GREEN_ANI_BIG_IDLE_RIGHT;
+				else ani = MARIO_GREEN_ANI_BIG_IDLE_LEFT;
+
+			}
+
 
 
 			else if (isJumping == true)
@@ -846,13 +857,6 @@ void CMario::Render()
 
 			}
 
-
-			else if (isKicking)
-			{
-				if (nx > 0) ani = MARIO_GREEN_ANI_BIG_KICKING_RIGHT;
-				else ani = MARIO_GREEN_ANI_BIG_KICKING_LEFT;
-
-			}
 
 
 			else if (nx > 0) // walking right
