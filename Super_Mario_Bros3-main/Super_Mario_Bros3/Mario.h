@@ -172,22 +172,23 @@ public:
 	{
 		if (nx * vx < 0)
 		{
-			if (vx < 0)
+			if (nx > 0)
 			{
-				vx += 0.008;
+				vx += MARIO_WALKING_SPEED / 30;
 			}
 			else
 			{
-				vx -= 0.008;
+				vx -= MARIO_WALKING_SPEED / 30;
 			}
 			isBraking = true;
-			SetspeedLevel(0);
+			//CalcTheMarioTimeDown();
 			return true;
 		}
 		else
 		{
 			isBraking = false;
 		}
+
 		return false;
 	}
 

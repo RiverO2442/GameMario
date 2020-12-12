@@ -264,7 +264,7 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			}
 			if (dynamic_cast<CMario*>(e->obj))
 			{
-				if (ny < 0)
+				if (e->ny < 0)
 				{
 					mario->SetState(MARIO_STATE_HITTED);
 					mario->StartHitted();
@@ -439,7 +439,8 @@ void CKoopas::Render()
 		}
 	}
 	else return;
-
+	if (ani == -1)
+		return;
 	animation_set->at(ani)->Render(x, y);
 	//RenderBoundingBox();
 }

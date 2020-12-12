@@ -13,6 +13,7 @@
 #include "FIREBALL.h"
 #include "Coin.h"
 #include "QuestionBrick.h"
+#include "IntroScence.h"
 
 CMario::CMario(int ctype, float x, float y) : CGameObject()
 {
@@ -82,7 +83,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 	// Simple fall down
 	vy += MARIO_GRAVITY * dt;
-
+	DebugOut1(L"[INFO] State La : %d \n", state);
 	vector<LPCOLLISIONEVENT> coEvents;
 	vector<LPCOLLISIONEVENT> coEventsResult;
 
@@ -133,8 +134,15 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		isFlying = false;
 		flying_start = 0;
 	}
-	if (!canFly)
-		canFall = true;
+
+	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
+	if (id != 1)
+	{
+		if (!canFly)
+		{
+			canFall = true;
+		}
+	}
 
 	if (abs(y - heightLimit) >= 1)
 		isJumping = true;
@@ -462,15 +470,12 @@ void CMario::Render()
 
 			if (level == MARIO_LEVEL_BIG)
 			{
-
-
 				if (GetState() == MARIO_STATE_IDLE)
 				{
 					if (nx > 0) ani = MARIO_ANI_BIG_IDLE_RIGHT;
 					else ani = MARIO_ANI_BIG_IDLE_LEFT;
 				}
-				if (//GetState() == MARIO_STATE_JUMP)
-					GetIsJumping() == true)
+				if (state == MARIO_STATE_JUMP || GetIsJumping() == true)
 				{
 					if (vy >= 0)
 					{
@@ -498,7 +503,7 @@ void CMario::Render()
 					ani = MARIO_RED_ANI_HITTED;
 				}
 
-				else if (state == MARIO_STATE_LOOK_UP)
+				if (state == MARIO_STATE_LOOK_UP)
 				{
 					ani = MARIO_RED_LOOKING_UP;
 				}
@@ -603,8 +608,7 @@ void CMario::Render()
 						ani = MARIO_ANI_SMALL_WALKING_RIGHT;
 					else
 						ani = MARIO_ANI_SMALL_WALKING_LEFT;
-				if (//GetState() == MARIO_STATE_JUMP)
-					GetIsJumping() == true)
+				if (state == MARIO_STATE_JUMP || GetIsJumping() == true)
 					if (vy >= 0)
 					{
 						if (nx > 0) ani = MARIO_ANI_SMALL_IDLE_RIGHT;
@@ -636,7 +640,11 @@ void CMario::Render()
 
 			else if (level == MARIO_LEVEL_TAIL)
 			{
-
+				if (GetIsKicking() == true)
+				{
+					if (nx > 0) ani = MARIO_ANI_TAIL_KICKING_RIGHT;
+					else ani = MARIO_ANI_TAIL_KICKING_LEFT;
+				}
 				if (isFlying)
 				{
 					if (nx > 0) ani = MARIO_ANI_TAIL_FLYING_RIGHT;
@@ -690,11 +698,6 @@ void CMario::Render()
 				{
 					if (nx > 0) ani = MARIO_ANI_TAIL_SITDOWN_RIGHT;
 					else ani = MARIO_ANI_TAIL_SITDOWN_LEFT;
-				}
-				else if (GetIsKicking() == true)
-				{
-					if (nx > 0) ani = MARIO_ANI_TAIL_KICKING_RIGHT;
-					else ani = MARIO_ANI_TAIL_KICKING_LEFT;
 				}
 				else if (state == MARIO_STATE_SPEED_DOWN)
 					if (nx > 0)
@@ -790,6 +793,7 @@ void CMario::Render()
 					if (nx > 0) ani = MARIO_ANI_FIRE_KICKING_RIGHT;
 					else ani = MARIO_ANI_FIRE_KICKING_LEFT;
 				}
+			}
 				break;
 
 
@@ -872,10 +876,9 @@ void CMario::Render()
 				ani = MARIO_GREEN_ANI_BIG_WALKING_LEFT;
 			}
 			break;
-			}
 		}
 	}
-	else return;
+	if(ani == -1) return;
 
 	int alpha = 255;
 	if (untouchable) alpha = 128;
@@ -905,6 +908,7 @@ void CMario::RenderBoundingBox()
 
 void CMario::SetState(int state)
 {
+	CMario* player1 = ((CIntroScence*)CGame::GetInstance()->GetCurrentScene())->GetPlayer1();
 	CGameObject::SetState(state);
 
 	switch (state)
@@ -967,7 +971,8 @@ void CMario::SetState(int state)
 		nx = -1;
 		break;
 	case MARIO_STATE_FALLING_DOWN:
-		vy = 0.08;
+		vy = 0.08f;
+		player1->vx = -0.16f;
 		break;
 	case MARIO_STATE_SPEED_DOWN:
 		if (vx > 0)

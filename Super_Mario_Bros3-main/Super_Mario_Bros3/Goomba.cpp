@@ -3,6 +3,7 @@
 #include "Mario.h"
 #include "FlowerBullet.h"
 #include "BackGroundStage.h"
+#include "IntroScence.h"
 CGoomba::CGoomba(int ctype, int scene_id)
 {
 	if (scene_id == 1)
@@ -128,7 +129,19 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	vector<LPCOLLISIONEVENT> coEventsResult;
 
 	coEvents.clear();
-
+	CMario* player1 = ((CIntroScence*)CGame::GetInstance()->GetCurrentScene())->GetPlayer1();
+	if (state != GOOMBA_STATE_DIE && state != GOOMBA_STATE_DISAPPEAR)
+	{
+		if (player1->GetLevel() == MARIO_LEVEL_TAIL)
+		{
+			if (runningStart == 0)
+				StartRunning();
+			if (GetTickCount() - runningStart >= 200)
+			{
+				SetState(GOOMBA_STATE_WALKING);
+			}
+		}
+	}
 
 	if (GetTickCount() - jumpingStart >= GOOMBA_TIME_JUMPING && type == GOOMBA_RED_FLY) // GOOMBA RED FLY JUMP
 	{

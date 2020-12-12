@@ -89,8 +89,8 @@ void CLeaf::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			{
 				if (!isAppear)
 				{
-					isAppear = true;
-					SetState(LEAF_STATE_DOWN);
+					//isAppear = true;
+					//SetState(LEAF_STATE_DOWN);
 				}
 
 			}
@@ -213,7 +213,7 @@ void CLeaf::SetState(int state)
 		break;
 	case LEAF_STATE_DOWN:
 		vx = 0.04f;
-		vy = 0.05;
+		vy = 0.04f;
 		break;
 	}
 }
