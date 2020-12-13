@@ -159,7 +159,6 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	if (tokens.size() < 3) return; // skip invalid lines - an object set must have at least id, x, y
 
 	int object_type = atoi(tokens[0].c_str());
-
 	float x = atof(tokens[1].c_str());
 	float y = atof(tokens[2].c_str());
 
@@ -188,8 +187,8 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_BRICK: obj = new CBrick(); break;
 	case OBJECT_TYPE_KOOPAS_XANH_WALK: obj = new CKoopas(111, 3); break;
 	case OBJECT_TYPE_RECTANGLE: obj = new CRECT(); break;
-	//case OBJECT_TYPE_COIN_NORMAL: obj = new CCoin(222); break;
-	//case OBJECT_TYPE_COIN_CAN_MOVE: obj = new CCoin(333); break;;
+	case OBJECT_TYPE_COIN_NORMAL: obj = new CCoin(222); break;
+		//case OBJECT_TYPE_COIN_CAN_MOVE: obj = new CCoin(333); break;;
 	case OBJECT_TYPE_PIPE: obj = new PIPE(); break;
 	case OBJECT_TYPE_NO_COLLISION_OBJECTS:obj = new CNoCollisionObject(3); break;
 	case OBJECT_TYPE_KOOPAS_XANH_BAY: obj = new CKoopas(222, 3); break;

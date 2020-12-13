@@ -29,8 +29,8 @@ void CHUD::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		float cam_y_diff = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetCamYDiff();
 
 
-		this->x = 0;// += cam_x - cam_x_diff;
-		this->y = 0;// += cam_y - cam_y_diff;
+		this->x += cam_x - cam_x_diff;
+		this->y += cam_y - cam_y_diff;
 	}
 
 }
