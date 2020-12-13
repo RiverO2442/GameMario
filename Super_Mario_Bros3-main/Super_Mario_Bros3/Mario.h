@@ -8,7 +8,6 @@ class CMario : public CGameObject
 
 	int type;
 	bool isAppear = true;
-
 	int heightLimit;
 	bool isBraking;
 	int speedLevel = 1;
@@ -35,6 +34,14 @@ class CMario : public CGameObject
 	float start_x;			// initial position of Mario at scene
 	float start_y;
 public:
+	int GetMarioTime()
+	{
+		return time_mario;
+	}
+	void SetMarioTime(int mario_time)
+	{
+		time_mario = mario_time;
+	}
 	bool GetIsAppear()
 	{
 		return isAppear;

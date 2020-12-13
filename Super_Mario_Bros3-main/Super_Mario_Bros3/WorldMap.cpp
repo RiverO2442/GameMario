@@ -152,7 +152,7 @@ void CWorldMap::_ParseSection_OBJECTS(string line)
 
 	CGameObject* obj = NULL;
 	Node* node = NULL;
-
+	CHUD* HUD_items = NULL;
 
 	switch (object_type)
 	{
@@ -167,6 +167,42 @@ void CWorldMap::_ParseSection_OBJECTS(string line)
 		break;
 	case OBJECT_TYPE_BUSH:
 		obj = new CWorldMapObjects(44);
+		break;
+	case OBJECT_TYPE_HUD_PANEL:
+		obj = new CHUD(11);
+		break;
+	case OBJECT_TYPE_WORLD:
+		obj = new CHUD(22);
+		break;
+	case OBJECT_TYPE_MARIO_LUIGI:
+		obj = new CHUD(77);
+		break;
+	case OBJECT_TYPE_LIFE:
+		obj = new CHUD(33);
+		break;
+	case OBJECT_TYPE_TIME_PICKER:
+		obj = new CHUD(44);
+		break;
+	case OBJECT_TYPE_SCORE:
+		HUD_items = new CHUD(55);
+		scores.push_back(HUD_items);
+		HUD_items->SetPosition(x, y);
+		break;
+	case OBJECT_TYPE_MONEY:
+		HUD_items = new CHUD(66);
+		moneys.push_back(HUD_items);
+		HUD_items->SetPosition(x, y);
+		break;
+	case OBJECT_TYPE_STACK_NORMAL:
+		obj = new CHUD(88);
+		break;
+	case OBJECT_TYPE_STACK_MAX:
+		obj = new CHUD(99);
+		break;
+	case OBJECT_TYPE_ITEM:
+		HUD_items = new CHUD(100);
+		items.push_back(HUD_items);
+		HUD_items->SetPosition(x, y);
 		break;
 	case  OBJECT_TYPE_NODE:
 	{
@@ -195,6 +231,12 @@ void CWorldMap::_ParseSection_OBJECTS(string line)
 		obj->SetAnimationSet(ani_set);
 		objects.push_back(obj);
 	}
+
+	if (HUD_items != NULL)
+	{
+		HUD_items->SetAnimationSet(ani_set);
+	}
+
 }
 
 
@@ -287,6 +329,21 @@ void CWorldMap::Update(DWORD dt)
 		objects[i]->Update(dt, &coObjects);
 	}
 
+	for (size_t i = 0; i < scores.size(); i++)
+	{
+		scores[i]->Update(dt, &coObjects);
+	}
+
+	for (size_t i = 0; i < moneys.size(); i++)
+	{
+		moneys[i]->Update(dt, &coObjects);
+	}
+
+	for (size_t i = 0; i < items.size(); i++)
+	{
+		items[i]->Update(dt, &coObjects);
+	}
+
 
 	//if (current_node->GetNodeId() == 1)
 	//{
@@ -307,8 +364,6 @@ void CWorldMap::Update(DWORD dt)
 	//}
 
 
-
-
 	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
 
 	CGame::GetInstance()->SetCamPos(0, 0);
@@ -324,6 +379,19 @@ void CWorldMap::Render()
 
 	for (int i = 0; i < objects.size(); i++)
 		objects[i]->Render();
+
+	for (size_t i = 0; i < scores.size(); i++)
+	{
+		scores[i]->Render(i);
+	}
+	for (size_t i = 0; i < moneys.size(); i++)
+	{
+		moneys[i]->Render(i);
+	}
+	for (size_t i = 0; i < items.size(); i++)
+	{
+		items[i]->Render(i);
+	}
 }
 
 /*
@@ -333,6 +401,28 @@ void CWorldMap::Unload()
 {
 	for (int i = 0; i < objects.size(); i++)
 		delete objects[i];
+
+
+	for (size_t i = 0; i < scores.size(); i++)
+	{
+		delete scores[i];
+	}
+	for (size_t i = 0; i < moneys.size(); i++)
+	{
+		delete moneys[i];
+	}
+	for (size_t i = 0; i < items.size(); i++)
+	{
+		delete items[i];
+	}for (size_t i = 0; i < Nodes.size(); i++)
+	{
+		delete Nodes[i];
+	}
+
+	items.clear();
+	moneys.clear();
+	scores.clear();
+	Nodes.clear();
 
 	objects.clear();
 	delete map;

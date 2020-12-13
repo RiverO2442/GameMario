@@ -25,6 +25,7 @@ CMario::CMario(int ctype, float x, float y) : CGameObject()
 	start_y = y;
 	this->x = x;
 	this->y = y;
+	isAppear = true;
 }
 void CMario::FilterCollision(vector<LPCOLLISIONEVENT>& coEvents, vector<LPCOLLISIONEVENT>& coEventsResult, float& min_tx, float& min_ty, float& nx, float& ny, float& rdx, float& rdy)
 {

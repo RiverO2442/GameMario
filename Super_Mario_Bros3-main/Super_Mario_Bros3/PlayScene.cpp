@@ -46,6 +46,20 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath) :
 #define OBJECT_TYPE_FLOWER_GREEN_CAN_SHOOT		22
 #define OBJECT_TYPE_BREAKABLE_BRICK				23
 #define OBJECT_TYPE_BELL						24
+
+#define OBJECT_TYPE_HUD_PANEL			25
+#define OBJECT_TYPE_MARIO_LUIGI			26
+#define OBJECT_TYPE_LIFE				27
+#define OBJECT_TYPE_MONEY				28
+#define OBJECT_TYPE_SCORE				29
+#define OBJECT_TYPE_TIME_PICKER			30
+#define OBJECT_TYPE_WORLD				31
+#define OBJECT_TYPE_STACK_NORMAL		32
+#define OBJECT_TYPE_STACK_MAX			33
+#define OBJECT_TYPE_ITEM				34
+
+#define OBJECT_TYPE_BLACK_BLACK			35
+
 #define OBJECT_TYPE_PORTAL	50
 
 #define MAX_SCENE_LINE 1024
@@ -145,6 +159,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	if (tokens.size() < 3) return; // skip invalid lines - an object set must have at least id, x, y
 
 	int object_type = atoi(tokens[0].c_str());
+
 	float x = atof(tokens[1].c_str());
 	float y = atof(tokens[2].c_str());
 
@@ -154,6 +169,8 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 
 	CGameObject* obj = NULL;
 
+	CHUD* HUD_items = NULL;
+
 	switch (object_type)
 	{
 	case OBJECT_TYPE_MARIO:
@@ -162,7 +179,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 			DebugOut(L"[ERROR] MARIO object was created before!\n");
 			return;
 		}
-		obj = new CMario(x, y);
+		obj = new CMario(1, x, y);
 		player = (CMario*)obj;
 		DebugOut(L"[INFO] Player object created!\n");
 		break;
@@ -171,8 +188,8 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_BRICK: obj = new CBrick(); break;
 	case OBJECT_TYPE_KOOPAS_XANH_WALK: obj = new CKoopas(111, 3); break;
 	case OBJECT_TYPE_RECTANGLE: obj = new CRECT(); break;
-	case OBJECT_TYPE_COIN_NORMAL: obj = new CCoin(222); break;
-		//case OBJECT_TYPE_COIN_CAN_MOVE: obj = new CCoin(333); break;;
+	//case OBJECT_TYPE_COIN_NORMAL: obj = new CCoin(222); break;
+	//case OBJECT_TYPE_COIN_CAN_MOVE: obj = new CCoin(333); break;;
 	case OBJECT_TYPE_PIPE: obj = new PIPE(); break;
 	case OBJECT_TYPE_NO_COLLISION_OBJECTS:obj = new CNoCollisionObject(3); break;
 	case OBJECT_TYPE_KOOPAS_XANH_BAY: obj = new CKoopas(222, 3); break;
@@ -189,12 +206,56 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_MUSHROOM_GREEN:   obj = new CMushRoom(678); break;
 	case OBJECT_TYPE_BREAKABLE_BRICK: obj = new CBreakableBrick(); break;
 	case OBJECT_TYPE_BELL: obj = new CBell(); break;
+	case OBJECT_TYPE_BLACK_BLACK: obj = new CHUD(1000); break;
+	case OBJECT_TYPE_HUD_PANEL:
+		obj = new CHUD(11);
+		break;
+	case OBJECT_TYPE_WORLD:
+		obj = new CHUD(22);
+		break;
+	case OBJECT_TYPE_MARIO_LUIGI:
+		obj = new CHUD(77);
+		break;
+	case OBJECT_TYPE_LIFE:
+		obj = new CHUD(33);
+		break;
+	case OBJECT_TYPE_TIME_PICKER:
+		HUD_items = new CHUD(44);
+		timers.push_back(HUD_items);
+		HUD_items->SetPosition(x, y);
+		break;
+	case OBJECT_TYPE_SCORE:
+		HUD_items = new CHUD(55);
+		scores.push_back(HUD_items);
+		HUD_items->SetPosition(x, y);
+		break;
+	case OBJECT_TYPE_MONEY:
+		HUD_items = new CHUD(66);
+		moneys.push_back(HUD_items);
+		HUD_items->SetPosition(x, y);
+		break;
+	case OBJECT_TYPE_STACK_NORMAL:
+		HUD_items = new CHUD(88);
+		normarl_stacks.push_back(HUD_items);
+		HUD_items->SetPosition(x, y);
+		break;
+	case OBJECT_TYPE_STACK_MAX:
+		HUD_items = new CHUD(99);
+		max_stack = (CHUD*)HUD_items;
+		HUD_items->SetPosition(x, y);
+		break;
+	case OBJECT_TYPE_ITEM:
+		HUD_items = new CHUD(100);
+		items.push_back(HUD_items);
+		HUD_items->SetPosition(x, y);
+		break;
 	case OBJECT_TYPE_PORTAL:
 	{
 		float r = atof(tokens[4].c_str());
 		float b = atof(tokens[5].c_str());
 		int scene_id = atoi(tokens[6].c_str());
 		obj = new CPortal(x, y, r, b, scene_id);
+
 	}
 	break;
 	default:
@@ -203,12 +264,19 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	}
 
 	// General object setup
-	obj->SetPosition(x, y);
-
 	LPANIMATION_SET ani_set = animation_sets->Get(ani_set_id);
+	if (obj != NULL)
+	{
+		obj->SetPosition(x, y);
+		obj->SetAnimationSet(ani_set);
+		objects.push_back(obj);
+	}
 
-	obj->SetAnimationSet(ani_set);
-	objects.push_back(obj);
+	if (HUD_items != NULL)
+		HUD_items->SetAnimationSet(ani_set);
+
+
+
 }
 
 void CPlayScene::Load()
@@ -265,68 +333,124 @@ void CPlayScene::Load()
 
 void CPlayScene::Update(DWORD dt)
 {
-	float cx, cy;
-	player->GetPosition(cx, cy);
-	CGame* game = CGame::GetInstance();
-
 	// We know that Mario is the first object in the list hence we won't add him into the colliable object list
 	// TO-DO: This is a "dirty" way, need a more organized way 
+
+	StartTimeCounter();
+
 	vector<LPGAMEOBJECT> coObjects;
 	for (size_t i = 0; i < objects.size(); i++)
 	{
-		coObjects.push_back(objects[i]);
+		if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
+			coObjects.push_back(objects[i]);
 	}
 
+
+	float cx, cy;
+	player->GetPosition(cx, cy);
+
+	CGame* game = CGame::GetInstance();
+
+	cam_x_diff = game->GetCamX();
+	cam_y_diff = game->GetCamY();
+
+	if (player->x >= (game->GetScreenWidth() / 2))
+	{
+		cx -= game->GetScreenWidth() / 2;
+		CGame::GetInstance()->SetCamPos((int)cx);
+
+		if (player->y <= (game->GetScreenHeight() / 3) )//|| player->AtBase)
+		{
+			cy -= game->GetScreenHeight() / 2;
+			CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
+		}
+	}
+	else
+	{
+		CGame::GetInstance()->SetCamPos(0);
+	}
+
+	player->GetPosition(cx, cy);
 	for (size_t i = 0; i < objects.size(); i++)
 	{
 		float xx, xy;
 		objects[i]->GetPosition(xx, xy);
-		if ((xx < cx + game->GetScreenWidth() / 2 && xx > cx - game->GetScreenWidth() / 2 - 16) || dynamic_cast<FIREBALL*>(objects[i]))
+		if ((((xx < cx + game->GetScreenWidth() / 2 && xx > cx - game->GetScreenWidth() / 2 - 16) && abs(xy - cy) <= 500) || dynamic_cast<FIREBALL*>(objects[i]) || dynamic_cast<CHUD*>(objects[i])))
 		{
 			if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
 				objects[i]->Update(dt, &coObjects);
 		}
 	}
 
+	if (GetTickCount() - time_counter >= 1000 && time_picker > 0)
+	{
+		time_picker--;
+		time_counter = 0;
+	}
+
+
+	for (size_t i = 0; i < timers.size(); i++)
+	{
+		timers[i]->Update(dt, &coObjects);
+	}
+
+	for (size_t i = 0; i < scores.size(); i++)
+	{
+		scores[i]->Update(dt, &coObjects);
+	}
+
+	for (size_t i = 0; i < moneys.size(); i++)
+	{
+		moneys[i]->Update(dt, &coObjects);
+	}
+
+	for (size_t i = 0; i < normarl_stacks.size(); i++)
+	{
+		normarl_stacks[i]->Update(dt, &coObjects);
+	}
+
+	for (size_t i = 0; i < items.size(); i++)
+	{
+		items[i]->Update(dt, &coObjects);
+	}
+
+	//max_stack->Update(dt, &coObjects);
+
 	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
 	if (player == NULL) return;
 
-	// Update camera to follow mario
+	// Update camera to follow mario	
 
 
-	if (cx < 0)
-	{
-		player->SetPosition(0, cy);
-	}
-	if (player->GetState() == MARIO_STATE_LEVEL_CHANGING)
-	{
-		player->SetPosition(cx, cy + 0.2);
-	}
-	int Sx = 0, Sy = 0;
-	cx -= game->GetScreenWidth() / 2;
-	cy -= game->GetScreenHeight() / 2;
-	if (player->x > game->GetScreenWidth() / 2)
-	{
-		Sx = cx;
-	}
-	if (player->y < game->GetScreenHeight() / 2)
-	{
-		/*if(player->GetState() == "Mario_State_Flying")*/
-		Sy = cy;
-	}
-	if (player->x < game->GetScreenWidth() / 2)
-	{
-		Sx = 0;
-		Sy = 0;
-	}
-	//if(player->x>(game->GetScreenWidth()/2) /*|| player->y > (game->GetScreenHeight() / 2)*/)
-	CGame::GetInstance()->SetCamPos(Sx, Sy + 0.02);
+
 }
 
 void CPlayScene::Render()
 {
 	for (int i = 0; i < objects.size(); i++)
 		objects[i]->Render();
+
+	for (size_t i = 0; i < timers.size(); i++)
+	{
+		timers[i]->Render(i);
+	}
+	for (size_t i = 0; i < scores.size(); i++)
+	{
+		scores[i]->Render(i);
+	}
+	for (size_t i = 0; i < moneys.size(); i++)
+	{
+		moneys[i]->Render(i);
+	}
+	for (size_t i = 0; i < normarl_stacks.size(); i++)
+	{
+		normarl_stacks[i]->Render(i);
+	}
+	max_stack->Render();
+	for (size_t i = 0; i < items.size(); i++)
+	{
+		items[i]->Render(i);
+	}
 }
 
 /*
@@ -336,8 +460,34 @@ void CPlayScene::Unload()
 {
 	for (int i = 0; i < objects.size(); i++)
 		delete objects[i];
-
+	for (size_t i = 0; i < scores.size(); i++)
+	{
+		delete scores[i];
+	}
+	for (size_t i = 0; i < moneys.size(); i++)
+	{
+		delete moneys[i];
+	}
+	for (size_t i = 0; i < items.size(); i++)
+	{
+		delete items[i];
+	}
+	for (size_t i = 0; i < timers.size(); i++)
+	{
+		delete timers[i];
+	}
+	for (size_t i = 0; i < normarl_stacks.size(); i++)
+	{
+		delete normarl_stacks[i];
+	}
 	objects.clear();
+	items.clear();
+	moneys.clear();
+	scores.clear();
+	objects.clear();
+	normarl_stacks.clear();
+	timers.clear();
+
 	player = NULL;
 
 	DebugOut(L"[INFO] Scene %s unloaded! \n", sceneFilePath);
