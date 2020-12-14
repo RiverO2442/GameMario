@@ -58,6 +58,8 @@ void CGame::Init(HWND hWnd)
 	// Initialize sprite helper from Direct3DX helper library
 	D3DXCreateSprite(d3ddv, &spriteHandler);
 
+	cam_x = cam_y = 0.0f;
+
 	OutputDebugString(L"[INFO] InitGame done;\n");
 }
 
@@ -342,13 +344,14 @@ void CGame::_ParseSection_SCENES(string line)
 	LPSCENE scene;
 	if (id == 1)
 		scene = new CIntroScence(id, path);
-	else if (id == 3)
+	else if (id == 2)
 	{
 		scene = new CWorldMap(id, path);
 	}
 	else
 	{
 		scene = new CPlayScene(id, path);
+		CGame::GetInstance()->SetCamPos((int)0, (int)-50);
 	}
 	scenes[id] = scene;
 }

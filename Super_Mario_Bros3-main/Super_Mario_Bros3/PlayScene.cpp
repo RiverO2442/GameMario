@@ -190,7 +190,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_COIN_NORMAL: obj = new CCoin(222); break;
 		//case OBJECT_TYPE_COIN_CAN_MOVE: obj = new CCoin(333); break;;
 	case OBJECT_TYPE_PIPE: obj = new PIPE(); break;
-	case OBJECT_TYPE_NO_COLLISION_OBJECTS:obj = new CNoCollisionObject(3); break;
+	case OBJECT_TYPE_NO_COLLISION_OBJECTS:obj = new CNoCollisionObject(3, 1	); break;
 	case OBJECT_TYPE_KOOPAS_XANH_BAY: obj = new CKoopas(222, 3); break;
 	case OBJECT_TYPE_KOOPAS_RED_WALK: obj = new CKoopas(333, 3); break;
 	case OBJECT_TYPE_FIREBALL: obj = new FIREBALL(); break;
@@ -238,11 +238,11 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		normarl_stacks.push_back(HUD_items);
 		HUD_items->SetPosition(x, y);
 		break;
-	case OBJECT_TYPE_STACK_MAX:
-		HUD_items = new CHUD(99);
-		max_stack = (CHUD*)HUD_items;
-		HUD_items->SetPosition(x, y);
-		break;
+	//case OBJECT_TYPE_STACK_MAX:
+	//	HUD_items = new CHUD(99);
+	//	max_stack = (CHUD*)HUD_items;
+	//	HUD_items->SetPosition(x, y);
+	//	break;
 	case OBJECT_TYPE_ITEM:
 		HUD_items = new CHUD(100);
 		items.push_back(HUD_items);
@@ -350,8 +350,8 @@ void CPlayScene::Update(DWORD dt)
 
 	CGame* game = CGame::GetInstance();
 
-	cam_x_diff = game->GetCamX();
-	cam_y_diff = game->GetCamY();
+		cam_x_diff = game->GetCamX();
+		cam_y_diff = game->GetCamY();
 
 	if (player->x >= (game->GetScreenWidth() / 2))
 	{
@@ -370,6 +370,7 @@ void CPlayScene::Update(DWORD dt)
 	}
 
 	player->GetPosition(cx, cy);
+
 	for (size_t i = 0; i < objects.size(); i++)
 	{
 		float xx, xy;
@@ -445,7 +446,7 @@ void CPlayScene::Render()
 	{
 		normarl_stacks[i]->Render(i);
 	}
-	max_stack->Render();
+	//max_stack->Render();
 	for (size_t i = 0; i < items.size(); i++)
 	{
 		items[i]->Render(i);
@@ -528,7 +529,7 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 		mario->StartSpining();
 		break;
 	case DIK_A:
-		mario->Reset();
+		CGame::GetInstance()->SwitchScene(2);
 		break;
 	}
 }

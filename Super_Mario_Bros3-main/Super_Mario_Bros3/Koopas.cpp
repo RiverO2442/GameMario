@@ -264,16 +264,17 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			}
 			if (dynamic_cast<CMario*>(e->obj))
 			{
+				int id = CGame::GetInstance()->GetCurrentScene()->GetId();
+				if (id == 1)
 				if (e->ny < 0)
 				{
 					mario->SetState(MARIO_STATE_HITTED);
 					mario->StartHitted();
 					vx = -0.2f;
 					vy = -0.1f;
-
 				}
 			}
-			else if (dynamic_cast<CKoopas*>(e->obj)) // if e->obj is Koopas
+			if (dynamic_cast<CKoopas*>(e->obj)) // if e->obj is Koopas
 			{
 				CKoopas* Koopas = dynamic_cast<CKoopas*>(e->obj);
 				if (state == KOOPAS_STATE_SPINNING)

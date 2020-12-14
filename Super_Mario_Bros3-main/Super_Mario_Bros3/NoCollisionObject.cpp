@@ -1,10 +1,10 @@
 #include "NoCollisionObject.h"
 #include"Game.h"
 #include"Scene.h"
-#include "IntroScence.h"
 
-CNoCollisionObject::CNoCollisionObject(int scene_id)
+CNoCollisionObject::CNoCollisionObject(int scene_id, int ctype)
 {
+	type = ctype;
 	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
 	if (id == 1)
 	{
@@ -29,10 +29,16 @@ void CNoCollisionObject::Render()
 				CBackGroundStage* background_stage = dynamic_cast<CBackGroundStage*>(objects[i]);
 				if (background_stage->GetType() == BACKGROUND_STAGE_TYPE_FINAL && background_stage->GetIsAppear())
 				{
-					isRender = true;
+					if (type == NoCollisionObject_TYPE_NUMBER_THREE)
+						isRender = true;
 				}
 			}
 		}
+		CMario* player1 = ((CIntroScence*)CGame::GetInstance()->GetCurrentScene())->GetPlayer1();
+		/*if (player1->GetIsAllowToShowBush() && type == NoCollisionObject_TYPE_BUSH_INTRO_SCENE)
+		{
+			isRender = true;
+		}*/
 	}
 	if (isRender)
 		animation_set->at(0)->Render(x, y);
