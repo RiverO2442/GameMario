@@ -25,6 +25,8 @@
 #include "MushRoom.h"
 #include "BreakableBrick.h"
 #include "Bell.h"
+#include "Special_Item.h"
+
 
 class CPlayScene : public CScene
 {

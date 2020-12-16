@@ -59,6 +59,10 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath) :
 #define OBJECT_TYPE_ITEM				34
 
 #define OBJECT_TYPE_BLACK_BLACK			35
+#define OBJECT_TYPE_SPECIAL_ITEM		36
+
+#define OBJECT_TYPE_PIPE_DOWN			37
+#define OBJECT_TYPE_PIPE_UP				38
 
 #define OBJECT_TYPE_PORTAL	50
 
@@ -152,6 +156,7 @@ void CPlayScene::_ParseSection_ANIMATION_SETS(string line)
 */
 void CPlayScene::_ParseSection_OBJECTS(string line)
 {
+
 	vector<string> tokens = split(line);
 
 	//DebugOut(L"--> %s\n",ToWSTR(line).c_str());
@@ -170,6 +175,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 
 	CHUD* HUD_items = NULL;
 
+
 	switch (object_type)
 	{
 	case OBJECT_TYPE_MARIO:
@@ -182,18 +188,20 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		player = (CMario*)obj;
 		DebugOut(L"[INFO] Player object created!\n");
 		break;
-	case OBJECT_TYPE_GOOMBA_NORMAL: obj = new CGoomba(888, 3); break;
-	case OBJECT_TYPE_GOOMBA_RED_FLY: obj = new CGoomba(999, 3); break;
+	case OBJECT_TYPE_GOOMBA_NORMAL: obj = new CGoomba(888); break;
+	case OBJECT_TYPE_GOOMBA_RED_FLY: obj = new CGoomba(999); break;
 	case OBJECT_TYPE_BRICK: obj = new CBrick(); break;
 	case OBJECT_TYPE_KOOPAS_XANH_WALK: obj = new CKoopas(111, 3); break;
 	case OBJECT_TYPE_RECTANGLE: obj = new CRECT(); break;
 	case OBJECT_TYPE_COIN_NORMAL: obj = new CCoin(222); break;
-		//case OBJECT_TYPE_COIN_CAN_MOVE: obj = new CCoin(333); break;;
-	case OBJECT_TYPE_PIPE: obj = new PIPE(); break;
-	case OBJECT_TYPE_NO_COLLISION_OBJECTS:obj = new CNoCollisionObject(3, 1	); break;
+	case OBJECT_TYPE_COIN_CAN_MOVE: obj = new CCoin(333); break;
+	case OBJECT_TYPE_PIPE: obj = new PIPE(100); break;
+	case OBJECT_TYPE_PIPE_DOWN: obj = new PIPE(200); break;
+	case OBJECT_TYPE_PIPE_UP: obj = new PIPE(300); break;
+	case OBJECT_TYPE_NO_COLLISION_OBJECTS:obj = new CNoCollisionObject(3, 1); break;
 	case OBJECT_TYPE_KOOPAS_XANH_BAY: obj = new CKoopas(222, 3); break;
 	case OBJECT_TYPE_KOOPAS_RED_WALK: obj = new CKoopas(333, 3); break;
-	case OBJECT_TYPE_FIREBALL: obj = new FIREBALL(); break;
+	case OBJECT_TYPE_FIREBALL:     obj = new FIREBALL(); break;
 	case OBJECT_TYPE_FLOWER_RED:	  obj = new CFlower(100); break;
 	case OBJECT_TYPE_FLOWER_GREEN:	  obj = new CFlower(200); break;
 	case OBJECT_TYPE_FLOWER_GREEN_CAN_SHOOT:   obj = new CFlower(300); break;
@@ -206,6 +214,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_BREAKABLE_BRICK: obj = new CBreakableBrick(); break;
 	case OBJECT_TYPE_BELL: obj = new CBell(); break;
 	case OBJECT_TYPE_BLACK_BLACK: obj = new CHUD(1000); break;
+	case OBJECT_TYPE_SPECIAL_ITEM: obj = new CSpecial_Item(); break;
 	case OBJECT_TYPE_HUD_PANEL:
 		obj = new CHUD(11);
 		break;
@@ -238,11 +247,11 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		normarl_stacks.push_back(HUD_items);
 		HUD_items->SetPosition(x, y);
 		break;
-	//case OBJECT_TYPE_STACK_MAX:
-	//	HUD_items = new CHUD(99);
-	//	max_stack = (CHUD*)HUD_items;
-	//	HUD_items->SetPosition(x, y);
-	//	break;
+	case OBJECT_TYPE_STACK_MAX:
+		HUD_items = new CHUD(99);
+		max_stack = (CHUD*)HUD_items;
+		HUD_items->SetPosition(x, y);
+		break;
 	case OBJECT_TYPE_ITEM:
 		HUD_items = new CHUD(100);
 		items.push_back(HUD_items);
@@ -335,6 +344,7 @@ void CPlayScene::Update(DWORD dt)
 	// We know that Mario is the first object in the list hence we won't add him into the colliable object list
 	// TO-DO: This is a "dirty" way, need a more organized way 
 
+
 	StartTimeCounter();
 
 	vector<LPGAMEOBJECT> coObjects;
@@ -345,20 +355,22 @@ void CPlayScene::Update(DWORD dt)
 	}
 
 
+
+
 	float cx, cy;
 	player->GetPosition(cx, cy);
 
 	CGame* game = CGame::GetInstance();
 
-		cam_x_diff = game->GetCamX();
-		cam_y_diff = game->GetCamY();
+	cam_x_diff = game->GetCamX();
+	cam_y_diff = game->GetCamY();
 
 	if (player->x >= (game->GetScreenWidth() / 2))
 	{
 		cx -= game->GetScreenWidth() / 2;
 		CGame::GetInstance()->SetCamPos((int)cx);
 
-		if (player->y <= (game->GetScreenHeight() / 3) )//|| player->AtBase)
+		if (player->y <= (game->GetScreenHeight() / 3))
 		{
 			cy -= game->GetScreenHeight() / 2;
 			CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
@@ -369,13 +381,18 @@ void CPlayScene::Update(DWORD dt)
 		CGame::GetInstance()->SetCamPos(0);
 	}
 
+	if (player->GetIsAtTheTunnel())
+	{
+		CGame::GetInstance()->SetCamPos(1300, 980);
+	}
+
 	player->GetPosition(cx, cy);
 
 	for (size_t i = 0; i < objects.size(); i++)
 	{
 		float xx, xy;
 		objects[i]->GetPosition(xx, xy);
-		if ((((xx < cx + game->GetScreenWidth() / 2 && xx > cx - game->GetScreenWidth() / 2 - 16) && abs(xy - cy) <= 500) || dynamic_cast<FIREBALL*>(objects[i]) || dynamic_cast<CHUD*>(objects[i])))
+		if ((((xx < cx + game->GetScreenWidth() / 2 && xx > cx - game->GetScreenWidth() / 2 - 16) && abs(xy - cy) <= 500) || dynamic_cast<FIREBALL*>(objects[i]) || dynamic_cast<CFlowerBullet*>(objects[i]) || dynamic_cast<CHUD*>(objects[i])))
 		{
 			if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
 				objects[i]->Update(dt, &coObjects);
@@ -387,7 +404,6 @@ void CPlayScene::Update(DWORD dt)
 		time_picker--;
 		time_counter = 0;
 	}
-
 
 	for (size_t i = 0; i < timers.size(); i++)
 	{
@@ -414,7 +430,8 @@ void CPlayScene::Update(DWORD dt)
 		items[i]->Update(dt, &coObjects);
 	}
 
-	//max_stack->Update(dt, &coObjects);
+	max_stack->Update(dt, &coObjects);
+
 
 	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
 	if (player == NULL) return;
@@ -427,6 +444,7 @@ void CPlayScene::Update(DWORD dt)
 
 void CPlayScene::Render()
 {
+
 	for (int i = 0; i < objects.size(); i++)
 		objects[i]->Render();
 
@@ -446,7 +464,8 @@ void CPlayScene::Render()
 	{
 		normarl_stacks[i]->Render(i);
 	}
-	//max_stack->Render();
+	max_stack->Render();
+
 	for (size_t i = 0; i < items.size(); i++)
 	{
 		items[i]->Render(i);
@@ -561,39 +580,43 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 {
 	CGame* game = CGame::GetInstance();
 	CMario* mario = ((CPlayScene*)scence)->GetPlayer();
-
-	// disable control key when Mario die 
-	if (mario->GetState() == MARIO_STATE_DIE) return;
-	if (game->IsKeyDown(DIK_X))
+	if (!mario->GetLoseControl())
 	{
-		if (abs(mario->vx) >= abs(MARIO_MAX_SPEED))
-			mario->SetCanFly(true);
-		if (mario->GetLevel() == MARIO_LEVEL_TAIL && (mario->GetCanFly() == true))
+		// disable control key when Mario die 
+		if (mario->GetState() == MARIO_STATE_DIE) return;
+		if (game->IsKeyDown(DIK_X))
 		{
-			if (mario->nx > 0)
+			if (abs(mario->vx) >= abs(MARIO_MAX_SPEED))
+				mario->SetCanFly(true);
+			if (mario->GetLevel() == MARIO_LEVEL_TAIL && (mario->GetCanFly() == true))
 			{
-				mario->SetState(MARIO_STATE_FLYING_RIGHT);
+				if (mario->nx > 0)
+				{
+					mario->SetState(MARIO_STATE_FLYING_RIGHT);
+				}
+				else
+				{
+					mario->SetState(MARIO_STATE_FLYING_LEFT);
+
+				}
+				if (mario->GetFlyingStart() == 0)
+				{
+					mario->StartFlying();
+				}
+				mario->SetIsFlying(true);
 			}
 			else
 			{
-				mario->SetState(MARIO_STATE_FLYING_LEFT);
+				if (mario->GetLevel() == MARIO_LEVEL_TAIL && mario->GetIsJumping() && mario->vy > 0)
+				{
+					mario->SetState(MARIO_STATE_FALLING_DOWN);
+					mario->SetIsFalling(true);
+					mario->SetCanFall(true);
+				}
 
 			}
-			if (mario->GetFlyingStart() == 0)
-			{
-				mario->StartFlying();
-			}
-			mario->SetIsFlying(true);
 		}
-		else
-		{
-			if (mario->GetCanFall() == true)
-			{
-				mario->SetState(MARIO_STATE_FALLING_DOWN);
-				mario->SetIsFalling(true);
-			}
 
-		}
 
 	}
 	if (game->IsKeyDown(DIK_RIGHT))

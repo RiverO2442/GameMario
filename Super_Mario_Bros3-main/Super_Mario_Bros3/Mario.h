@@ -4,6 +4,24 @@
 
 class CMario : public CGameObject
 {
+
+	bool control_able = false;
+	bool isAtTheTunnel = false;
+	bool setPositionOutOfTunnel = false;
+
+	bool fireRecog = false;
+
+	bool canPipeDowning = false;
+	bool canPipeUpping = false;
+
+	DWORD switch_scene_start = 0;
+	DWORD fire_recog_start = 0;
+
+	DWORD pipe_downing_start = 0;
+	DWORD pipe_upping_start = 0;
+
+	DWORD on_the_air_start = 0;
+
 	int time_mario = 0;
 
 	int type;
@@ -20,7 +38,7 @@ class CMario : public CGameObject
 	DWORD kicking_start;
 	DWORD spining_start;
 	DWORD hitted_start = 0;
-	bool isSpining = true;
+	bool isSpining = false;
 	bool isJumping = 0;
 	bool isFlying = false;
 	bool isFalling = false;
@@ -34,6 +52,46 @@ class CMario : public CGameObject
 	float start_x;			// initial position of Mario at scene
 	float start_y;
 public:
+	void StartOnTheAir() { on_the_air_start = GetTickCount(); }
+	void StartSwitchScene()
+	{
+		if (switch_scene_start == 0)
+			switch_scene_start = GetTickCount();
+	}
+	void StartPipeDowning()
+	{
+		if (pipe_downing_start == 0)
+			pipe_downing_start = GetTickCount();
+	}
+	void StartPipeUpping()
+	{
+		if (pipe_upping_start == 0)
+			pipe_upping_start = GetTickCount();
+	}
+	void StartFireRecog()
+	{
+		fire_recog_start = GetTickCount();
+	}
+	bool GetIsAtTheTunnel()
+	{
+		return isAtTheTunnel;
+	}
+	void SetIsAtTheTunnel(bool isAtTheTunnelBool)
+	{
+		this->isAtTheTunnel = isAtTheTunnelBool;
+	}
+	bool GetLoseControl()
+	{
+		return control_able;
+	}
+	bool GetFireRecog()
+	{
+		return fireRecog;
+	}
+	void SetFireRecog(bool fireRecogBool)
+	{
+		fireRecog = fireRecogBool;
+	}
 	int GetMarioTime()
 	{
 		return time_mario;

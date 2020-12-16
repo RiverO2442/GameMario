@@ -27,7 +27,7 @@ class CGame
 
 	int money = 0;
 
-	vector<int> items_type = { 1,2,3 };
+	vector<int> items_type = { 1,1,4 };
 
 	HWND hWnd;									// Window handle
 
@@ -46,7 +46,7 @@ class CGame
 	LPKEYEVENTHANDLER keyHandler;
 
 	float cam_x;
-	float cam_y;
+	float cam_y = -50;
 
 	int screen_width;
 	int screen_height;
@@ -132,6 +132,10 @@ public:
 	float GetCamY()
 	{
 		return cam_y;
+	}
+	void SetItems(vector<int> vector_items)
+	{
+		items_type = vector_items;
 	}
 	~CGame();
 };

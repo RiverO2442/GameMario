@@ -173,7 +173,7 @@ void CIntroScence::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_BACKGROUND_STAGE_FINAL:  obj = new CBackGroundStage(333); break;
 	case OBJECT_TYPE_SCROLLING_STAGE: obj = new CScrollingStage(); break;
 	//case OBJECT_TYPE_NO_COLLISION_OBJECTS:	obj = new CNoCollisionObject(1); break;
-	case OBJECT_TYPE_GOOMBA_NORMAL: obj = new CGoomba(888, 1); break;
+	case OBJECT_TYPE_GOOMBA_NORMAL: obj = new CGoomba(888); break;
 	case OBJECT_TYPE_LEAF:	           obj = new CLeaf(); break;
 	case OBJECT_TYPE_MUSHROOM_RED:	   obj = new CMushRoom(567); break;
 	case OBJECT_TYPE_STAR:				obj = new CStar(); break;
