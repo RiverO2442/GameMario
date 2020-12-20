@@ -159,6 +159,7 @@
     <ClInclude Include="IntroScence.h" />
     <ClInclude Include="Leaf.h" />
     <ClInclude Include="Map.h" />
+    <ClInclude Include="MenuGame.h" />
     <ClInclude Include="MushRoom.h" />
     <ClInclude Include="NoCollisionObject.h" />
     <ClInclude Include="Node.h" />
@@ -180,6 +181,7 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Sprites.h" />
     <ClInclude Include="Textures.h" />
+    <ClInclude Include="WordsEndScene.h" />
     <ClInclude Include="WorldMap.h" />
     <ClInclude Include="WorldMapObjects.h" />
   </ItemGroup>
@@ -199,6 +201,7 @@
     <ClCompile Include="Koopas.cpp" />
     <ClCompile Include="Leaf.cpp" />
     <ClCompile Include="Map.cpp" />
+    <ClCompile Include="MenuGame.cpp" />
     <ClCompile Include="MushRoom.cpp" />
     <ClCompile Include="NoCollisionObject.cpp" />
     <ClCompile Include="Node.cpp" />
@@ -219,6 +222,7 @@
     <ClCompile Include="Sprites.cpp" />
     <ClCompile Include="Animations.cpp" />
     <ClCompile Include="Textures.cpp" />
+    <ClCompile Include="WordsEndScene.cpp" />
     <ClCompile Include="WorldMap.cpp" />
     <ClCompile Include="WorldMapObjects.cpp" />
   </ItemGroup>

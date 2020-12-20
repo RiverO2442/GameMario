@@ -8,27 +8,18 @@
 #include "ScrollingStage.h"
 #include "BackGroundStage.h"
 #include "Star.h"
+#include "MenuGame.h"
 class CIntroScence : public  CScene
 {
+	bool showmenugame = false;
+public:
+	bool menu_game_key_handler;
 protected:
-
-	CMario* player1;	// MARIO RED
-	CMario* player2;	// MARIO GREEN
 	vector<LPGAMEOBJECT> objects;
-
+	
 
 
 	DWORD time_count = 0;
-	DWORD sit_down_count = 0;
-
-	DWORD idle_count = 0;
-
-	int jump_count = 0;
-
-	bool isAllowToWalkGreen = true;
-	bool isAllowToWalkRed = true;
-	bool isLookingLeft = true;
-
 	void _ParseSection_TEXTURES(string line);
 	void _ParseSection_SPRITES(string line);
 	void _ParseSection_ANIMATIONS(string line);
@@ -36,6 +27,14 @@ protected:
 	void _ParseSection_OBJECTS(string line);
 
 public:
+	bool GetMenuGame()
+	{
+		return showmenugame;
+	}
+	void SetMenuGame(bool value)
+	{
+		showmenugame = value;
+	}
 	CIntroScence(int id, LPCWSTR filePath);
 
 	virtual void Load();
@@ -54,25 +53,6 @@ public:
 		if (time_count == 0)
 			time_count = GetTickCount();
 	}
-
-
-	void StartSitDownCount()
-	{
-		if (sit_down_count == 0)
-			sit_down_count = GetTickCount();
-	}
-
-
-	void StartIdleCount()
-	{
-		if (idle_count == 0)
-			idle_count = GetTickCount();
-	}
-
-	CMario* GetPlayer1() { return player1; }
-
-	CMario* GetPlayer2() { return player2; }
-
 	~CIntroScence();
 };
 

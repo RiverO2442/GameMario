@@ -42,7 +42,7 @@ class CHUD : public CGameObject
 
 	bool stack_alive = false;
 
-	bool max_stack_alive = false;
+	bool render_max_stack = false;
 
 	bool render_recog_money = false;
 

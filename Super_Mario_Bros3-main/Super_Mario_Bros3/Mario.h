@@ -4,11 +4,21 @@
 
 class CMario : public CGameObject
 {
+	bool isAllowToShowScore = false;
 
-	bool control_able = false;
+	bool toEndTheScoreProgress = false;
+
+	int pointPara = 1;
+
+	bool isAllowToShowWordsEndScene = false;
+	int words_end_scene_item_id;
+
+	int control_able = 0;
 	bool isAtTheTunnel = false;
 	bool setPositionOutOfTunnel = false;
 
+	bool isTransform = false;
+	bool isSmokeTransform = false;
 	bool fireRecog = false;
 
 	bool canPipeDowning = false;
@@ -22,22 +32,23 @@ class CMario : public CGameObject
 
 	DWORD on_the_air_start = 0;
 
-	int time_mario = 0;
-
 	int type;
 	bool isAppear = true;
 	int heightLimit;
 	bool isBraking;
 	int speedLevel = 1;
-	int level;
+	int level = 0;
 	int untouchable;
+	DWORD transform_start = 0;
 	DWORD flying_start = 0;
 	DWORD braking_start;
 	DWORD untouchable_start;
 	DWORD speedup_start;
+	DWORD speeddown_start;
 	DWORD kicking_start;
 	DWORD spining_start;
 	DWORD hitted_start = 0;
+	DWORD count_down_time_start;
 	bool isSpining = false;
 	bool isJumping = 0;
 	bool isFlying = false;
@@ -51,12 +62,37 @@ class CMario : public CGameObject
 	bool isAlreadyFired = 0;
 	float start_x;			// initial position of Mario at scene
 	float start_y;
+	int timetemp = 0;
+	bool isAllowToShowMenuGame = false;
 public:
-	void StartOnTheAir() { on_the_air_start = GetTickCount(); }
-	void StartSwitchScene()
+	DWORD Getswitch_scene_start()
 	{
-		if (switch_scene_start == 0)
-			switch_scene_start = GetTickCount();
+		return switch_scene_start;
+	}
+	bool GetIsAllowToShowMenuGame()
+	{
+		return isAllowToShowMenuGame;
+	}
+	void SetIsAllowToShowMenuGame(bool isAllowToShowMenuGameBool)
+	{
+		isAllowToShowMenuGame = isAllowToShowMenuGameBool;
+	}
+	int GetWordsEndSceneItemId()
+	{
+		return words_end_scene_item_id;
+	}
+	void StartCountDownTimePicker()
+	{
+		if (count_down_time_start == 0)
+			count_down_time_start = GetTickCount();
+	}
+	bool GetIsAllowToShowWordsEndScene()
+	{
+		return isAllowToShowWordsEndScene;
+	}
+	void SetIsAllowToShowWordsEndScene(bool isAllowToShowWordsEndSceneBool)
+	{
+		isAllowToShowWordsEndScene = isAllowToShowWordsEndSceneBool;
 	}
 	void StartPipeDowning()
 	{
@@ -67,6 +103,52 @@ public:
 	{
 		if (pipe_upping_start == 0)
 			pipe_upping_start = GetTickCount();
+	}
+	bool GetCanPipeDowning()
+	{
+		return canPipeDowning;
+	}
+	void SetCanPipeDowning(bool canPipeDowningBool)
+	{
+		this->canPipeDowning = canPipeDowningBool;
+	}
+	bool GetCanPipeUpping()
+	{
+		return canPipeUpping;
+	}
+	void SetCanPipeUpping(bool canPipeUppingBool)
+	{
+		this->canPipeUpping = canPipeUppingBool;
+	}
+	bool GetIsTransform()
+	{
+		return isTransform;
+	}
+	void SetIsTransform(bool value)
+	{
+		this->isTransform = value;
+	}
+	bool GetIsSmokeTransform()
+	{
+		return isSmokeTransform;
+	}
+	void SetIsSmokeTransform(bool value)
+	{
+		this->isSmokeTransform = value;
+	}
+	
+	void StartIsTransform() 
+	{ 
+		if(transform_start == 0)
+			transform_start = GetTickCount(); 
+	}
+
+	void StartOnTheAir() { on_the_air_start = GetTickCount(); }
+
+	void StartSwitchScene()
+	{
+		if (switch_scene_start == 0)
+			switch_scene_start = GetTickCount();
 	}
 	void StartFireRecog()
 	{
@@ -80,9 +162,13 @@ public:
 	{
 		this->isAtTheTunnel = isAtTheTunnelBool;
 	}
-	bool GetLoseControl()
+	int GetControl()
 	{
 		return control_able;
+	}
+	void SetControl(int value)
+	{
+		control_able = value;
 	}
 	bool GetFireRecog()
 	{
@@ -91,14 +177,6 @@ public:
 	void SetFireRecog(bool fireRecogBool)
 	{
 		fireRecog = fireRecogBool;
-	}
-	int GetMarioTime()
-	{
-		return time_mario;
-	}
-	void SetMarioTime(int mario_time)
-	{
-		time_mario = mario_time;
 	}
 	bool GetIsAppear()
 	{
@@ -195,9 +273,17 @@ public:
 	{
 		return speedup_start;
 	}
+	DWORD Getspeeddown_start()
+	{
+		return speeddown_start;
+	}
 	void Setspeedup_start(int value)
 	{
 		speedup_start = value;
+	}
+	void Setspeeddown_start(int value)
+	{
+		speeddown_start = value;
 	}
 	void RenderBoundingBox();
 
@@ -220,6 +306,8 @@ public:
 	void StartSpining() { spining_start = GetTickCount(); }
 
 	void StartSpeedup() { speedup_start = GetTickCount(); }
+
+	void StartSpeeddown() { speeddown_start = GetTickCount(); }
 
 	void StartFlying() { flying_start = GetTickCount(); }
 
@@ -246,15 +334,29 @@ public:
 				vx -= MARIO_WALKING_SPEED / 30;
 			}
 			isBraking = true;
-			//CalcTheMarioTimeDown();
 			return true;
 		}
 		else
 		{
 			isBraking = false;
 		}
-
 		return false;
+	}
+	void ACCELERETING()
+	{
+		if (GetTickCount() - Getspeedup_start() > MARIO_SPEEDUP_TIME && GetspeedLevel() < MARIO_MAX_SPEED_LEVEL)
+		{
+			SetspeedLevel(GetspeedLevel() + 1);
+			Setspeedup_start(0);
+		}
+	}
+	void DEACCELERETING()
+	{
+		if (GetTickCount() - Getspeeddown_start() > MARIO_SPEEDDOWN_TIME && GetspeedLevel() > MARIO_MIN_SPEED_LEVEL)
+		{
+			SetspeedLevel(GetspeedLevel() - 1);
+			Setspeeddown_start(0);
+		}
 	}
 
 };

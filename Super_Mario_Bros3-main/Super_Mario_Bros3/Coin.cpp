@@ -36,6 +36,8 @@ void CCoin::CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCO
 	}
 
 	std::sort(coEvents.begin(), coEvents.end(), CCollisionEvent::compare);
+
+
 }
 
 

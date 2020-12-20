@@ -14,12 +14,37 @@ void CGoomba::GetBoundingBox(float& left, float& top, float& right, float& botto
 {
 	left = x;
 	top = y;
-	right = x + GOOMBA_BBOX_WIDTH;
 
-	if (state == GOOMBA_STATE_DIE || state == GOOMBA_STATE_DIE_2)
-		return;
+	if (state == GOOMBA_STATE_DIE)
+	{
+		top = y + 7;
+		right = x + GOOMBA_NORMAL_BBOX_WIDTH;
+		bottom = y + GOOMBA_NORMAL_BBOX_HEIGHT;
+	}
+	else if (state == GOOMBA_STATE_WALKING)
+	{
+		if (type == GOOMBA_NORMAL)
+		{
+			right = x + GOOMBA_NORMAL_BBOX_WIDTH;
+			bottom = y + GOOMBA_NORMAL_BBOX_HEIGHT;
+		}
+		else
+		{
+			right = x + GOOMBA_RED_FLY_BBOX_WIDTH;
+			bottom = y + GOOMBA_RED_FLY_BBOX_HEIGHT;
+		}
+	}
+	else if (state == GOOMBA_STATE_RED_LOSE_WINGS)
+	{
+		top = y + 7;
+		right = x + GOOMBA_RED_LOSE_WINGS_BBOX_WIDTH;
+		bottom = y + GOOMBA_NORMAL_BBOX_HEIGHT;
+	}
 	else
-		bottom = y + GOOMBA_BBOX_HEIGHT;
+	{
+		left = top = right = bottom = 0;
+	}
+
 }
 
 void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)

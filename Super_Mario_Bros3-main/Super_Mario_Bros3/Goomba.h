@@ -40,5 +40,9 @@ class CGoomba : public CGameObject
 public:
 	CGoomba(int ctype);
 	CGoomba();
+	int GetType()
+	{
+		return type;
+	}
 	virtual void SetState(int state);
 };

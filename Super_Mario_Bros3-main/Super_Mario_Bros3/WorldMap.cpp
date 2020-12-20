@@ -441,6 +441,8 @@ void CWorldMapKeyHandler::OnKeyDown(int KeyCode)
 
 	Node* current_node = ((CWorldMap*)scence)->GetCurrentNode();
 
+	
+
 	if (world_map_scene->GetKeyControl())
 	{
 		switch (KeyCode)

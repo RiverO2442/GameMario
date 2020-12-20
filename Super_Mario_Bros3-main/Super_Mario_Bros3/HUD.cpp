@@ -25,12 +25,12 @@ void CHUD::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		float cam_x = CGame::GetInstance()->GetCamX();
 		float cam_y = CGame::GetInstance()->GetCamY();
 
-		float cam_x_diff = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetCamXDiff();
-		float cam_y_diff = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetCamYDiff();
+		float cam_x_pre = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetCamXPre();
+		float cam_y_pre = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetCamYPre();
 
 
-		this->x += cam_x - cam_x_diff;
-		this->y += cam_y - cam_y_diff;
+		this->x += cam_x - cam_x_pre;
+		this->y += cam_y - cam_y_pre;
 	}
 
 }
@@ -46,15 +46,15 @@ void CHUD::Render()
 	if (id == 3)
 	{
 		CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
-		int stack_count = mario->GetMarioTime();
+		int speedlevel = mario->GetspeedLevel();
 
-		if (stack_count == 7)
+		if (speedlevel == 7)
 		{
-			max_stack_alive = true;
+			render_max_stack = true;
 		}
 		else
 		{
-			max_stack_alive = false;
+			render_max_stack = false;
 		}
 	}
 
@@ -79,7 +79,7 @@ void CHUD::Render()
 		ani = 0;
 		break;
 	case HUD_TYPE_STACK_MAX:
-		if (max_stack_alive)
+		if (render_max_stack)
 		{
 			ani = HUD_TYPE_STACK_MAX_ANI_FILLED;
 		}
@@ -188,11 +188,11 @@ void CHUD::Render(int id)
 	}
 
 	CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
-	int stack_count = mario->GetMarioTime();
+	int speed_level_count = mario->GetspeedLevel();
 
 
 
-	if (id < stack_count)
+	if (id < speed_level_count)
 	{
 		stack_alive = true;
 	}

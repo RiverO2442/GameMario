@@ -26,7 +26,8 @@
 #include "BreakableBrick.h"
 #include "Bell.h"
 #include "Special_Item.h"
-
+#include "WordsEndScene.h"
+#include "define.h"
 
 class CPlayScene : public CScene
 {
@@ -47,8 +48,10 @@ protected:
 
 	DWORD time_counter = 0;
 
-	float cam_x_diff = 0;
-	float cam_y_diff = 0;
+	float cam_x_pre = 0;
+	float cam_y_pre = 0;
+
+	int lv_pre = 1;
 
 	void _ParseSection_TEXTURES(string line);
 	void _ParseSection_SPRITES(string line);
@@ -68,11 +71,26 @@ public:
 
 	CMario* GetPlayer() { return player; }
 
+	void SetTimeDown()
+	{
+		if (time_picker >= 50)
+		{
+			this->time_picker -= 50;
+		}
+		else
+		{
+			this->time_picker -= (this->time_picker % 50);
+		}
+	}
 	int GetTimePicker()
 	{
 		return time_picker;
 	}
 
+	void SetTimePicker(int VALUE)
+	{
+		time_picker = VALUE;
+	}
 	void StartTimeCounter()
 	{
 		if (time_counter == 0)
@@ -103,13 +121,21 @@ public:
 	{
 		return items;
 	}
-	float GetCamXDiff()
+	float GetCamXPre()
 	{
-		return cam_x_diff;
+		return cam_x_pre;
 	}
-	float GetCamYDiff()
+	float GetCamYPre()
 	{
-		return cam_y_diff;
+		return cam_y_pre;
+	}
+	void SetLvPre(int value)
+	{
+		lv_pre = value;
+	}
+	int GetLvPre()
+	{
+		return lv_pre;
 	}
 
 	//friend class CPlayScenceKeyHandler;

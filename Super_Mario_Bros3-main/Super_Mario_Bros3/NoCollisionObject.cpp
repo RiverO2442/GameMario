@@ -34,11 +34,6 @@ void CNoCollisionObject::Render()
 				}
 			}
 		}
-		CMario* player1 = ((CIntroScence*)CGame::GetInstance()->GetCurrentScene())->GetPlayer1();
-		/*if (player1->GetIsAllowToShowBush() && type == NoCollisionObject_TYPE_BUSH_INTRO_SCENE)
-		{
-			isRender = true;
-		}*/
 	}
 	if (isRender)
 		animation_set->at(0)->Render(x, y);

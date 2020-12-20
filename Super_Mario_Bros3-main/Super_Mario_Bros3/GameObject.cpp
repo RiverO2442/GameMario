@@ -71,7 +71,7 @@ void CGameObject::CalcPotentialCollisions(
 {
 	for (UINT i = 0; i < coObjects->size(); i++)
 	{
-		LPCOLLISIONEVENT e = SweptAABBEx(coObjects->at(i));
+		LPCOLLISIONEVENT e = SweptAABBEx(coObjects->at(i));	
 		if (e->t > 0 && e->t <= 1.0f)
 			coEvents.push_back(e);
 		else
@@ -108,20 +108,6 @@ void CGameObject::FilterCollision(
 		if (c->t < min_ty && c->ny != 0) {
 			min_ty = c->t; ny = c->ny; min_iy = i; rdy = c->dy;
 		}
-		if (dynamic_cast<CCoin*>(c->obj)) // if e->obj is Coin
-		{
-			nx = 0;
-			ny = 0;
-		}
-		if (dynamic_cast<CRECT*>(c->obj)) // if e->obj is Coin
-		{
-			if (ny > 0 )//|| nx != 0)
-			{
-				nx = 0;
-				ny = 0;
-			}
-		}
-
 	}
 
 	if (min_ix >= 0) coEventsResult.push_back(coEvents[min_ix]);

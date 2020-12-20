@@ -23,11 +23,11 @@ class CGame
 
 	int life = 3;
 
-	int score = 123456;
+	int score = 0;
 
 	int money = 0;
 
-	vector<int> items_type = { 1,1,4 };
+	vector<int> items_type = { 1,1,1 };
 
 	HWND hWnd;									// Window handle
 
@@ -136,6 +136,10 @@ public:
 	void SetItems(vector<int> vector_items)
 	{
 		items_type = vector_items;
+	}
+	void ScoreUp(int scoreInt)
+	{
+		score += scoreInt;
 	}
 	~CGame();
 };
