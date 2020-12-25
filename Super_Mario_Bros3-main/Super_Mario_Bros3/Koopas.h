@@ -6,6 +6,7 @@
 #include "PlayScene.h"
 #include "RECT.h"
 #include "FIREBALL.h"
+#include "BreakableBrick.h"
 #include "BackGroundStage.h"
 
 

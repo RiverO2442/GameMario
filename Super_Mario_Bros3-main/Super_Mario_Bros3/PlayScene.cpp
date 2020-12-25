@@ -165,6 +165,8 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_WORDS_END_SCENE_COURSE_CLEAR: obj = new CWordsEndScene(111); break;
 	case OBJECT_TYPE_WORDS_END_SCENE_YOU_GOT_A_CARD: obj = new CWordsEndScene(222); break;
 	case OBJECT_TYPE_WORDS_END_SCENE_ITEM: obj = new CWordsEndScene(333); break;
+	case OBJECT_TYPE_MOVING_ROCK: obj = new CMovingRock(); break;
+		
 	case OBJECT_TYPE_HUD_PANEL:
 		obj = new CHUD(11);
 		break;
@@ -341,7 +343,7 @@ void CPlayScene::Update(DWORD dt)
 	{
 		float xx, xy;
 		objects[i]->GetPosition(xx, xy);
-		if ((((xx < cx + game->GetScreenWidth() / 2 && xx > cx - game->GetScreenWidth() / 2 - 16) && abs(xy - cy) <= 500) || dynamic_cast<FIREBALL*>(objects[i]) || dynamic_cast<CFlowerBullet*>(objects[i]) || dynamic_cast<CHUD*>(objects[i])))
+		if ((((xx < cx + game->GetScreenWidth() / 2 && xx > cx - game->GetScreenWidth() / 2 - 16) && abs(xy - cy) <= 500) || dynamic_cast<FIREBALL*>(objects[i]) || dynamic_cast<CFlowerBullet*>(objects[i]) || dynamic_cast<CHUD*>(objects[i]) || dynamic_cast<CMovingRock*>(objects[i]) ))
 		{
 			if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
 				objects[i]->Update(dt, &coObjects);
@@ -386,7 +388,11 @@ void CPlayScene::Update(DWORD dt)
 	if (player == NULL) return;
 
 	// Update camera to follow mario	
-
+	if (player->Getswitch_scene())
+	{
+		player->Setswitch_scene(false);
+		CGame::GetInstance()->SwitchScene(WORLD_MAP_ID);
+	}
 
 
 }
@@ -497,9 +503,12 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 			if (mario->GetLevel() == MARIO_LEVEL_TAIL)
 				mario->SetIsSpining(true);
 			mario->StartSpining();
+			mario->SetisFiring(true);
+			if (mario->GetLevel() == MARIO_LEVEL_FIRE)
+			mario->startFiring();
 			break;
 		case DIK_R:
-			CGame::GetInstance()->SwitchScene(2);
+			CGame::GetInstance()->SwitchScene(WORLD_MAP_ID);
 			break;
 		}
 	}
@@ -523,7 +532,6 @@ void CPlayScenceKeyHandler::OnKeyUp(int KeyCode)
 			mario->SetisAlreadyFired(false);
 			break;
 		case DIK_S:
-			mario->SetCanFly(false);
 			mario->SetIsFlying(false);
 			mario->SetIsFalling(false);
 			break;
@@ -589,7 +597,7 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 			{
 				if (mario->Getspeeddown_start() == 0)
 					mario->StartSpeeddown();
-				if (!game->IsKeyDown(DIK_S))
+				if (!mario->GetCanFly())
 					mario->DEACCELERETING();
 				mario->SetState(MARIO_STATE_WALKING_RIGHT);
 			}
@@ -609,25 +617,9 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 			{
 				if (mario->Getspeeddown_start() == 0)
 					mario->StartSpeeddown();
-				if (!game->IsKeyDown(DIK_S))
+				if (!mario->GetCanFly())
 					mario->DEACCELERETING();
 				mario->SetState(MARIO_STATE_WALKING_LEFT);
-			}
-		}
-		else if (game->IsKeyDown(DIK_DOWN))    //Sit down
-		{
-			if (mario->GetLevel() != MARIO_LEVEL_SMALL)
-				mario->SetState(MARIO_STATE_SITDOWN);
-			else
-			{
-				mario->SetState(MARIO_STATE_IDLE);
-			}
-			mario->DEACCELERETING();
-			if (mario->GetCanPipeDowning())
-			{
-				mario->SetState(MARIO_STATE_PIPE_DOWNING);
-				mario->StartPipeDowning();
-				return;
 			}
 		}
 		else if (game->IsKeyDown(DIK_UP))
@@ -645,7 +637,7 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 			{
 				if (mario->Getspeeddown_start() == 0)
 					mario->StartSpeeddown();
-				if (!game->IsKeyDown(DIK_S))
+				if (!mario->GetCanFly())
 					mario->DEACCELERETING();
 				mario->SetState(MARIO_STATE_IDLE);
 			}
@@ -653,11 +645,23 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 			{
 				if (mario->Getspeeddown_start() == 0)
 					mario->StartSpeeddown();
-				if (!game->IsKeyDown(DIK_S))
+				if (!mario->GetCanFly())
 					mario->DEACCELERETING();
 				mario->SetState(MARIO_STATE_SPEED_DOWN);
 			}
 			//mario->SetState(MARIO_STATE_IDLE);
+			if (game->IsKeyDown(DIK_DOWN))    //Sit down
+			{
+				mario->SetisSitting(true);
+				if (mario->GetCanPipeDowning())
+				{
+					mario->SetState(MARIO_STATE_PIPE_DOWNING);
+					mario->StartPipeDowning();
+					return;
+				}
+			}
+			else
+				mario->SetisSitting(false);
 		}
 		if (game->IsKeyDown(DIK_C))
 		{

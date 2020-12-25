@@ -96,7 +96,10 @@ public:
 	void SetCamPos(float x = 0, float y = -50) { cam_x = (int)x; cam_y = (int)y; }
 
 	static CGame* GetInstance();
-
+	void LifeDown()
+	{
+		life -= 1;
+	}
 	int GetLife()
 	{
 		return life;

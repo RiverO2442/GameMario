@@ -27,6 +27,7 @@
 #include "Bell.h"
 #include "Special_Item.h"
 #include "WordsEndScene.h"
+#include "MovingRock.h"
 #include "define.h"
 
 class CPlayScene : public CScene

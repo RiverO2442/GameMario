@@ -160,6 +160,7 @@
     <ClInclude Include="Leaf.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MenuGame.h" />
+    <ClInclude Include="MovingRock.h" />
     <ClInclude Include="MushRoom.h" />
     <ClInclude Include="NoCollisionObject.h" />
     <ClInclude Include="Node.h" />
@@ -202,6 +203,7 @@
     <ClCompile Include="Leaf.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MenuGame.cpp" />
+    <ClCompile Include="MovingRock.cpp" />
     <ClCompile Include="MushRoom.cpp" />
     <ClCompile Include="NoCollisionObject.cpp" />
     <ClCompile Include="Node.cpp" />

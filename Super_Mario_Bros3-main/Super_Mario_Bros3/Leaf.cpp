@@ -65,7 +65,7 @@ void CLeaf::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			CQuestionBrick* question_brick = dynamic_cast<CQuestionBrick*>(obj);
 			if (!question_brick->GetIsAlive() && question_brick->GetType() == QUESTION_BRICK_HAVE_LEAF && !question_brick->GetIsUsed())
 			{
-				if (mario->GetLevel() == MARIO_LEVEL_BIG)
+				if (mario->GetLevel() >= MARIO_LEVEL_BIG)
 				{
 					if (!isAppear)
 					{
@@ -80,19 +80,6 @@ void CLeaf::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 					}
 				}
-			}
-		}
-		if (dynamic_cast<CBackGroundStage*>(obj))
-		{
-			CBackGroundStage* background_stage = dynamic_cast<CBackGroundStage*>(obj);
-			if (background_stage->GetType() == BACKGROUND_STAGE_TYPE_FINAL && background_stage->GetIsAppear())
-			{
-				if (!isAppear)
-				{
-					//isAppear = true;
-					//SetState(LEAF_STATE_DOWN);
-				}
-
 			}
 		}
 	}

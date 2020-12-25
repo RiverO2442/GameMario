@@ -40,6 +40,11 @@ void CKoopas::FilterCollision(vector<LPCOLLISIONEVENT>& coEvents, vector<LPCOLLI
 		if (c->t < min_ty && c->ny != 0) {
 			min_ty = c->t; ny = c->ny; min_iy = i; rdy = c->dy;
 		}
+		if (dynamic_cast<CBell*>(c->obj))
+		{
+			if (dynamic_cast<CBell*>(c->obj)->GetState() == BREAKABLE_BRICK_STATE_COIN)
+				ny = 0;
+		}
 		if (dynamic_cast<CMario*>(c->obj))
 		{
 			ny = -0.01f;
@@ -262,16 +267,28 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				if (state == KOOPAS_STATE_SHELLING)
 					vx = 0;
 			}
-			if (dynamic_cast<CMario*>(e->obj))
+			if (dynamic_cast<CBreakableBrick*>(e->obj)) // if e->obj is Goomba
 			{
-				int id = CGame::GetInstance()->GetCurrentScene()->GetId();
-				if (id == 1)
-				if (e->ny < 0)
+				CBreakableBrick* breakable_brick = dynamic_cast<CBreakableBrick*>(e->obj);
+				if (state == KOOPAS_STATE_SPINNING && e->nx != 0)
 				{
-					mario->SetState(MARIO_STATE_HITTED);
-					mario->StartHitted();
-					vx = -0.2f;
-					vy = -0.1f;
+					breakable_brick->SetisBreaking(true);
+					breakable_brick->BreakLocating();
+					breakable_brick->SetState(BREAKABLE_BRICK_STATE_BREAK);
+				}
+			}
+			if (dynamic_cast<CQuestionBrick*>(e->obj))
+			{
+				if (e->nx != 0 && state == KOOPAS_STATE_SPINNING)
+				{
+					CQuestionBrick* question_brick = dynamic_cast<CQuestionBrick*>(e->obj);
+					if (question_brick->GetIsAlive())
+					{
+						question_brick->SetIsUp(true);
+						question_brick->SetCalcYColli(true);
+						question_brick->SetIsAlive(false);
+
+					}
 				}
 			}
 			if (dynamic_cast<CKoopas*>(e->obj)) // if e->obj is Koopas
@@ -288,14 +305,16 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			else if (dynamic_cast<CGoomba*>(e->obj)) // if e->obj is Goomba
 			{
 				CGoomba* Goomba = dynamic_cast<CGoomba*>(e->obj);
+				
+				vx = -vx;
+				Goomba->vx = -Goomba->vx;
 				if (state == KOOPAS_STATE_SPINNING)
 				{
 					Goomba->SetState(GOOMBA_STATE_DIE_2);
 					Goomba->nx = nx;
 				}
-				vx = -vx;
-				Goomba->vx = -Goomba->vx;
 			}
+			
 			//Colli with any thing else then Koopas will change direction
 			else if (nx != 0 && ny == 0)
 			{
@@ -337,12 +356,12 @@ void CKoopas::CalcPotentialCollisions(
 		{
 				continue;
 		}
+		
 		if (e->t > 0 && e->t <= 1.0f)
 			coEvents.push_back(e);
 		else
 			delete e;
 	}
-	std::sort(coEvents.begin(), coEvents.end(), CCollisionEvent::compare);
 }
 
 void CKoopas::Render()

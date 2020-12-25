@@ -39,6 +39,7 @@ class CMario : public CGameObject
 	int speedLevel = 1;
 	int level = 0;
 	int untouchable;
+	DWORD firing_start = 0;
 	DWORD transform_start = 0;
 	DWORD flying_start = 0;
 	DWORD braking_start;
@@ -47,7 +48,6 @@ class CMario : public CGameObject
 	DWORD speeddown_start;
 	DWORD kicking_start;
 	DWORD spining_start;
-	DWORD hitted_start = 0;
 	DWORD count_down_time_start;
 	bool isSpining = false;
 	bool isJumping = 0;
@@ -64,10 +64,42 @@ class CMario : public CGameObject
 	float start_y;
 	int timetemp = 0;
 	bool isAllowToShowMenuGame = false;
+	bool isSitting = false;
+	bool	switch_scene = false;
+	bool canSetLifeDown = true;
 public:
+	void SetcanSetLifeDown(bool value)
+	{
+		canSetLifeDown = value;
+	}
+	bool GetcanSetLifeDown()
+	{
+		return canSetLifeDown;
+	}
+	void startFiring()
+	{
+		if(firing_start == 0)
+		firing_start = GetTickCount();
+	}
+	bool Getswitch_scene()
+	{
+		return switch_scene;
+	}
+	void Setswitch_scene(bool value)
+	{
+		switch_scene = value;
+	}
 	DWORD Getswitch_scene_start()
 	{
 		return switch_scene_start;
+	}
+	bool GetisSitting()
+	{
+		return isAllowToShowMenuGame;
+	}
+	void SetisSitting(bool isAllowToShowMenuGameBool)
+	{
+		isSitting = isAllowToShowMenuGameBool;
 	}
 	bool GetIsAllowToShowMenuGame()
 	{
@@ -260,10 +292,6 @@ public:
 
 	int GetspeedLevel() { return speedLevel; }
 	void SetspeedLevel(int value) { speedLevel = value; }
-	DWORD GetHittedStart()
-	{
-		return hitted_start;
-	}
 	DWORD GetFlyingStart()
 	{
 		return flying_start;
@@ -310,8 +338,6 @@ public:
 	void StartSpeeddown() { speeddown_start = GetTickCount(); }
 
 	void StartFlying() { flying_start = GetTickCount(); }
-
-	void StartHitted() { hitted_start = GetTickCount(); }
 
 	void Reset();
 
