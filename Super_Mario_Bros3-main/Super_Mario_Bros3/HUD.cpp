@@ -92,7 +92,6 @@ void CHUD::Render()
 		ani = HUD_TYPE_STACK_NORMAL_ANI_EMPTY;
 		break;
 	}
-
 	animation_set->at(ani)->Render(x, y);
 	//RenderBoundingBox();
 }

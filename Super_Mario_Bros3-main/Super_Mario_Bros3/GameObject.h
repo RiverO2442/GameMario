@@ -23,6 +23,7 @@ struct CCollisionEvent
 	LPGAMEOBJECT obj;
 	float t, nx, ny;
 
+
 	float dx, dy;		// *RELATIVE* movement distance between this object and obj
 
 	CCollisionEvent(float t, float nx, float ny, float dx = 0, float dy = 0, LPGAMEOBJECT obj = NULL)
@@ -59,12 +60,42 @@ public:
 
 	int state;
 
+
+	bool Actived = false;
+
+	float origin_x, origin_y;
+	int origin_state;
+
 	DWORD dt;
 
 	LPANIMATION_SET animation_set;
 
 public:
+	void reset()
+	{
+		SetState(origin_state);
+		x = origin_x;
+		y = origin_y;
+	}
+
+	void GetOriginLocation(float &x, float &y)
+	{
+		x = origin_x;
+		y = origin_y;
+	}
+
+	void SetActive(bool value)
+	{
+		Actived = value;
+	}
+
+	bool GetActive()
+	{
+		return	Actived;
+	}
+
 	void SetPosition(float x, float y) { this->x = x, this->y = y; }
+	void SetOrigin(float x, float y, int state) { this->origin_x = x, this->origin_y = y; this->origin_state = state; }
 	void SetSpeed(float vx, float vy) { this->vx = vx, this->vy = vy; }
 	void GetPosition(float& x, float& y) { x = this->x; y = this->y; }
 	void GetSpeed(float& vx, float& vy) { vx = this->vx; vy = this->vy; }

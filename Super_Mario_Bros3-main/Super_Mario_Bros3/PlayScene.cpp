@@ -228,6 +228,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	{
 		obj->SetPosition(x, y);
 		obj->SetAnimationSet(ani_set);
+		obj->SetOrigin(x, y, obj->GetState());
 		objects.push_back(obj);
 	}
 
@@ -294,18 +295,39 @@ void CPlayScene::Update(DWORD dt)
 {
 	// We know that Mario is the first object in the list hence we won't add him into the colliable object list
 	// TO-DO: This is a "dirty" way, need a more organized way 
-
+	
 	lv_pre = player->GetLevel();
+
 	StartTimeCounter();
 
-	vector<LPGAMEOBJECT> coObjects;
-	for (size_t i = 0; i < objects.size(); i++)
+	/*if (!CGame::GetInstance()->Getstarted())
 	{
-		if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
-			coObjects.push_back(objects[i]);
-	}
+		for (size_t i = 0; i < objects.size(); i++)
+		{
+			float x, y;
+			objects[i]->GetPosition(x, y);
+			objects[i]->SetOrigin(x, y, objects[i]->GetState());
+		}
+		CGame::GetInstance()->Setstarted(true);
+	}*/
+
 
 	float cx, cy;
+
+	vector<LPGAMEOBJECT> coObjects;
+	DebugOut1(L"Co.size %d/n", coObjects.size());
+	player->GetPosition(cx, cy);
+
+	for (size_t i = 0; i < objects.size(); i++)
+	{
+		float xx, xy;
+		objects[i]->GetPosition(xx, xy);
+		if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
+			if (((abs(xx - cx) <= 170 && abs(xy - cy) <= 200) || dynamic_cast<FIREBALL*>(objects[i]) || dynamic_cast<CFlowerBullet*>(objects[i]) || dynamic_cast<CHUD*>(objects[i]) || dynamic_cast<CMovingRock*>(objects[i])))
+				if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
+				coObjects.push_back(objects[i]);
+	}
+
 
 	player->GetPosition(cx, cy);
 
@@ -342,12 +364,31 @@ void CPlayScene::Update(DWORD dt)
 	for (size_t i = 0; i < objects.size(); i++)
 	{
 		float xx, xy;
-		objects[i]->GetPosition(xx, xy);
-		if ((((xx < cx + game->GetScreenWidth() / 2 && xx > cx - game->GetScreenWidth() / 2 - 16) && abs(xy - cy) <= 500) || dynamic_cast<FIREBALL*>(objects[i]) || dynamic_cast<CFlowerBullet*>(objects[i]) || dynamic_cast<CHUD*>(objects[i]) || dynamic_cast<CMovingRock*>(objects[i]) ))
+		/*if((!player->GetIsTransform() && !player->GetIsSmokeTransform()) || (dynamic_cast<CMario*>(objects[i]) || dynamic_cast<CHUD*>(objects[i])))
+		if (cx <= game->GetScreenWidth() / 2 && xx < cx + game->GetScreenWidth() && abs(xy - cy) <= 300)
 		{
 			if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
 				objects[i]->Update(dt, &coObjects);
 		}
+		else*/
+			objects[i]->GetPosition(xx, xy);
+			if ((abs(xx - cx) <= 170 && abs(xy - cy) <= 200) || (dynamic_cast<FIREBALL*>(objects[i]) || dynamic_cast<CFlowerBullet*>(objects[i]) || dynamic_cast<CHUD*>(objects[i]) || dynamic_cast<CMovingRock*>(objects[i])))
+			{
+				if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
+				{
+					objects[i]->Update(dt, &coObjects);
+				}
+			}
+			else
+			{
+				player->GetPosition(cx, cy);
+				if (abs(xx - cx) <= 300 && abs(xy - cy) <= 300)
+				{
+					objects[i]->GetOriginLocation(xx, xy);
+					if (!(abs(xx - cx) <= 180 && abs(xy - cy) <= 180))
+						objects[i]->reset();
+				}
+			}
 	}
 
 	if (GetTickCount() - time_counter >= 1000 && time_picker > 0 && player->Getswitch_scene_start() == 0)
@@ -399,8 +440,24 @@ void CPlayScene::Update(DWORD dt)
 
 void CPlayScene::Render()
 {
-	for (int i = 0; i < objects.size(); i++)
-		objects[i]->Render();
+	CGame* game = CGame::GetInstance();
+	float cx, cy;
+	player->GetPosition(cx, cy);
+	for (size_t i = 0; i < objects.size(); i++)
+	{
+		float xx, xy;
+		objects[i]->GetPosition(xx, xy);
+		/*if (cx <= game->GetScreenWidth() / 2 && xx < cx + game->GetScreenWidth() && abs(xy - cy) <= 300)
+		{
+				objects[i]->Render();
+		}
+		else*/
+		if ((abs(xx - cx) <= 170 && abs(xy - cy) <= 200) || dynamic_cast<CHUD*>(objects[i]))
+		{
+			//if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
+				objects[i]->Render();
+		}
+	}
 
 	for (size_t i = 0; i < timers.size(); i++)
 	{

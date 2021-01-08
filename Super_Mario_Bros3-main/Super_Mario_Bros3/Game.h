@@ -19,6 +19,7 @@ using namespace std;
 
 class CGame
 {
+
 	static CGame* __instance;
 
 	int life = 3;
@@ -57,8 +58,16 @@ class CGame
 	void _ParseSection_SETTINGS(string line);
 	void _ParseSection_SCENES(string line);
 
+	bool started = false;
 public:
-
+	bool Getstarted()
+	{
+		return started;
+	}
+	void Setstarted(bool value)
+	{
+		started = value;
+	}
 	void InitKeyboard();
 	void SetKeyHandler(LPKEYEVENTHANDLER handler) { keyHandler = handler; }
 	void Init(HWND hWnd);
