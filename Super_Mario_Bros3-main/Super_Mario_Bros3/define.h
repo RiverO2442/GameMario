@@ -494,9 +494,12 @@
 #define SCENE_SECTION_ANIMATIONS 4
 #define SCENE_SECTION_ANIMATION_SETS	5
 #define SCENE_SECTION_OBJECTS	6
+#define SCENE_SECTION_GRID	7
 
-#define PLAY_SCENE_ID 3
+#define SCENE_1_4_ID 4
+#define SCENE_1_1_ID 3
 #define	WORLD_MAP_ID	2
+
 
 #define OBJECT_TYPE_MARIO				 0
 #define OBJECT_TYPE_BRICK				 1
@@ -550,7 +553,10 @@
 
 #define MAX_SCENE_LINE 1024
 
-//
+//GRID
+#define IN_USE_WIDTH 200
+#define IN_USE_HEIGHT 200
+
 class define
 {
 };

@@ -113,7 +113,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		CalcPotentialCollisions(coObjects, coEvents);
 
 	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
-	if (id == PLAY_SCENE_ID)
+	if (id == SCENE_1_1_ID)
 	{
 		if (state == MARIO_STATE_DIE && GetcanSetLifeDown())
 		{

@@ -60,6 +60,8 @@ class CGame
 
 	bool started = false;
 public:
+
+
 	bool Getstarted()
 	{
 		return started;

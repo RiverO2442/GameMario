@@ -29,13 +29,14 @@
 #include "WordsEndScene.h"
 #include "MovingRock.h"
 #include "define.h"
+#include "Grid.h"
 
 class CPlayScene : public CScene
 {
 protected:
-	CMario* player;					// A play scene has to have player, right? 
-
+	CMario* player;			// A play scene has to have player, right? 
 	vector<LPGAMEOBJECT> objects;
+	vector<LPGAMEOBJECT> coObjects;
 
 	vector<CHUD*>  timers;
 	vector<CHUD*>  scores;
@@ -44,8 +45,9 @@ protected:
 	vector<CHUD*>  items;
 	CHUD* max_stack;
 
-	int time_picker = 300;
+	CGrid* grid;
 
+	int time_picker = 300;
 
 	DWORD time_counter = 0;
 
@@ -59,6 +61,7 @@ protected:
 	void _ParseSection_ANIMATIONS(string line);
 	void _ParseSection_ANIMATION_SETS(string line);
 	void _ParseSection_OBJECTS(string line);
+	void _ParseSection_GRID(string line);
 
 
 

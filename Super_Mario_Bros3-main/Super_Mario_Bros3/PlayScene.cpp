@@ -54,6 +54,17 @@ void CPlayScene::_ParseSection_SPRITES(string line)
 	CSprites::GetInstance()->Add(ID, l, t, r, b, tex);
 }
 
+void CPlayScene::_ParseSection_GRID(string line)
+{
+	vector<string> tokens = split(line);
+
+	if (tokens.size() < 1) return;
+
+	wstring file_path = ToWSTR(tokens[0]);
+
+	grid = new CGrid(file_path.c_str());
+}
+
 void CPlayScene::_ParseSection_ANIMATIONS(string line)
 {
 	vector<string> tokens = split(line);
@@ -269,6 +280,9 @@ void CPlayScene::Load()
 		if (line == "[OBJECTS]") {
 			section = SCENE_SECTION_OBJECTS; continue;
 		}
+		if (line == "[GRID]") {
+			section = SCENE_SECTION_GRID; continue;
+		}
 		if (line[0] == '[') { section = SCENE_SECTION_UNKNOWN; continue; }
 
 		//
@@ -281,6 +295,7 @@ void CPlayScene::Load()
 		case SCENE_SECTION_ANIMATIONS: _ParseSection_ANIMATIONS(line); break;
 		case SCENE_SECTION_ANIMATION_SETS: _ParseSection_ANIMATION_SETS(line); break;
 		case SCENE_SECTION_OBJECTS: _ParseSection_OBJECTS(line); break;
+		case SCENE_SECTION_GRID: _ParseSection_GRID(line); break;
 		}
 	}
 
@@ -296,81 +311,84 @@ void CPlayScene::Update(DWORD dt)
 	// We know that Mario is the first object in the list hence we won't add him into the colliable object list
 	// TO-DO: This is a "dirty" way, need a more organized way 
 	
-	lv_pre = player->GetLevel();
+	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
 
-	StartTimeCounter();
-
-	/*if (!CGame::GetInstance()->Getstarted())
+	if (id == SCENE_1_1_ID)
 	{
+		lv_pre = player->GetLevel();
+
+		StartTimeCounter();
+
+		/*if (!CGame::GetInstance()->Getstarted())
+		{
+			for (size_t i = 0; i < objects.size(); i++)
+			{
+				float x, y;
+				objects[i]->GetPosition(x, y);
+				objects[i]->SetOrigin(x, y, objects[i]->GetState());
+			}
+			CGame::GetInstance()->Setstarted(true);
+		}*/
+
+
+		float cx, cy;
+
+		DebugOut1(L"Co.size %d/n", coObjects.size());
+		player->GetPosition(cx, cy);
+
 		for (size_t i = 0; i < objects.size(); i++)
 		{
-			float x, y;
-			objects[i]->GetPosition(x, y);
-			objects[i]->SetOrigin(x, y, objects[i]->GetState());
-		}
-		CGame::GetInstance()->Setstarted(true);
-	}*/
-
-
-	float cx, cy;
-
-	vector<LPGAMEOBJECT> coObjects;
-	DebugOut1(L"Co.size %d/n", coObjects.size());
-	player->GetPosition(cx, cy);
-
-	for (size_t i = 0; i < objects.size(); i++)
-	{
-		float xx, xy;
-		objects[i]->GetPosition(xx, xy);
-		if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
-			if (((abs(xx - cx) <= 170 && abs(xy - cy) <= 200) || dynamic_cast<FIREBALL*>(objects[i]) || dynamic_cast<CFlowerBullet*>(objects[i]) || dynamic_cast<CHUD*>(objects[i]) || dynamic_cast<CMovingRock*>(objects[i])))
-				if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
-				coObjects.push_back(objects[i]);
-	}
-
-
-	player->GetPosition(cx, cy);
-
-	CGame* game = CGame::GetInstance();
-
-	cam_x_pre = game->GetCamX();
-	cam_y_pre = game->GetCamY();
-
-	
-
-	if (player->x >= (game->GetScreenWidth() / 2))
-	{
-		cx -= game->GetScreenWidth() / 2;
-		CGame::GetInstance()->SetCamPos((int)cx);
-
-		if (player->y <= (game->GetScreenHeight() / 3))
-		{
-			cy -= game->GetScreenHeight() / 2;
-			CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
-		}
-	}
-	else
-	{
-		CGame::GetInstance()->SetCamPos(0);
-	}
-
-	if (player->GetIsAtTheTunnel())
-	{
-		CGame::GetInstance()->SetCamPos(1300, 980);
-	}
-
-	player->GetPosition(cx, cy);
-
-	for (size_t i = 0; i < objects.size(); i++)
-	{
-		float xx, xy;
-		/*if((!player->GetIsTransform() && !player->GetIsSmokeTransform()) || (dynamic_cast<CMario*>(objects[i]) || dynamic_cast<CHUD*>(objects[i])))
-		if (cx <= game->GetScreenWidth() / 2 && xx < cx + game->GetScreenWidth() && abs(xy - cy) <= 300)
-		{
+			float xx, xy;
+			objects[i]->GetPosition(xx, xy);
 			if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
-				objects[i]->Update(dt, &coObjects);
+				if (((abs(xx - cx) <= 170 && abs(xy - cy) <= 200) || dynamic_cast<FIREBALL*>(objects[i]) || dynamic_cast<CFlowerBullet*>(objects[i]) || dynamic_cast<CHUD*>(objects[i]) || dynamic_cast<CMovingRock*>(objects[i])))
+					if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
+						coObjects.push_back(objects[i]);
 		}
-		else*/
+
+
+		player->GetPosition(cx, cy);
+
+		CGame* game = CGame::GetInstance();
+
+		cam_x_pre = game->GetCamX();
+		cam_y_pre = game->GetCamY();
+
+
+
+		if (player->x >= (game->GetScreenWidth() / 2))
+		{
+			cx -= game->GetScreenWidth() / 2;
+			CGame::GetInstance()->SetCamPos((int)cx);
+
+			if (player->y <= (game->GetScreenHeight() / 3))
+			{
+				cy -= game->GetScreenHeight() / 2;
+				CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
+			}
+		}
+		else
+		{
+			CGame::GetInstance()->SetCamPos(0);
+		}
+
+		if (player->GetIsAtTheTunnel())
+		{
+			CGame::GetInstance()->SetCamPos(1300, 980);
+		}
+
+		player->GetPosition(cx, cy);
+
+		for (size_t i = 0; i < objects.size(); i++)
+		{
+			float xx, xy;
+			/*if((!player->GetIsTransform() && !player->GetIsSmokeTransform()) || (dynamic_cast<CMario*>(objects[i]) || dynamic_cast<CHUD*>(objects[i])))
+			if (cx <= game->GetScreenWidth() / 2 && xx < cx + game->GetScreenWidth() && abs(xy - cy) <= 300)
+			{
+				if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
+					objects[i]->Update(dt, &coObjects);
+			}
+			else*/
 			objects[i]->GetPosition(xx, xy);
 			if ((abs(xx - cx) <= 170 && abs(xy - cy) <= 200) || (dynamic_cast<FIREBALL*>(objects[i]) || dynamic_cast<CFlowerBullet*>(objects[i]) || dynamic_cast<CHUD*>(objects[i]) || dynamic_cast<CMovingRock*>(objects[i])))
 			{
@@ -389,98 +407,234 @@ void CPlayScene::Update(DWORD dt)
 						objects[i]->reset();
 				}
 			}
-	}
+		}
 
-	if (GetTickCount() - time_counter >= 1000 && time_picker > 0 && player->Getswitch_scene_start() == 0)
+		if (GetTickCount() - time_counter >= 1000 && time_picker > 0 && player->Getswitch_scene_start() == 0)
+		{
+			time_picker--;
+			time_counter = 0;
+		}
+
+		for (size_t i = 0; i < timers.size(); i++)
+		{
+			timers[i]->Update(dt, &coObjects);
+		}
+
+		for (size_t i = 0; i < scores.size(); i++)
+		{
+			scores[i]->Update(dt, &coObjects);
+		}
+
+		for (size_t i = 0; i < moneys.size(); i++)
+		{
+			moneys[i]->Update(dt, &coObjects);
+		}
+
+		for (size_t i = 0; i < normarl_stacks.size(); i++)
+		{
+			normarl_stacks[i]->Update(dt, &coObjects);
+		}
+
+		for (size_t i = 0; i < items.size(); i++)
+		{
+			items[i]->Update(dt, &coObjects);
+		}
+
+		max_stack->Update(dt, &coObjects);
+
+
+		// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
+		if (player == NULL) return;
+
+		// Update camera to follow mario	
+		if (player->Getswitch_scene())
+		{
+			player->Setswitch_scene(false);
+			CGame::GetInstance()->SwitchScene(WORLD_MAP_ID);
+		}
+
+
+	}
+	if (id == SCENE_1_4_ID)
 	{
-		time_picker--;
-		time_counter = 0;
+		lv_pre = player->GetLevel();
+
+		StartTimeCounter();
+
+		float cx, cy;
+
+		player->GetPosition(cx, cy);
+
+		vector<LPGAMEOBJECT> TempObjects;
+
+		for (size_t i = 0; i < coObjects.size(); i++)
+		{
+			TempObjects.push_back(coObjects[i]);
+		}
+
+		coObjects.clear();
+
+		for (size_t i = 0; i < TempObjects.size(); i++)
+		{
+			float Ox, Oy;
+			TempObjects[i]->GetPosition(Ox, Oy);
+			if (abs(Ox - cx) <= 200 && abs(Oy - cy) <= 200)
+			{
+				coObjects.push_back(TempObjects[i]);
+			}
+			else
+				TempObjects[i]->SetActive(false);
+		}
+
+		for (size_t i = 0; i < objects.size(); i++)
+		{
+			if(!objects[i]->GetActive())
+			coObjects.push_back(objects[i]);
+		}
+
+		grid->GetObjects(coObjects, cx, cy);
+
+		CGame* game = CGame::GetInstance();
+
+		cam_x_pre = game->GetCamX();
+		cam_y_pre = game->GetCamY();
+
+		player->GetPosition(cx, cy);
+
+		for (size_t i = 0; i < coObjects.size(); i++)
+		{
+			coObjects[i]->Update(dt, &coObjects);
+		}
+
+		if (GetTickCount() - time_counter >= 1000 && time_picker > 0 && player->Getswitch_scene_start() == 0)
+		{
+			time_picker--;
+			time_counter = 0;
+		}
+
+		for (size_t i = 0; i < timers.size(); i++)
+		{
+			timers[i]->Update(dt, &coObjects);
+		}
+
+		for (size_t i = 0; i < scores.size(); i++)
+		{
+			scores[i]->Update(dt, &coObjects);
+		}
+
+		for (size_t i = 0; i < moneys.size(); i++)
+		{
+			moneys[i]->Update(dt, &coObjects);
+		}
+
+		for (size_t i = 0; i < normarl_stacks.size(); i++)
+		{
+			normarl_stacks[i]->Update(dt, &coObjects);
+		}
+
+		for (size_t i = 0; i < items.size(); i++)
+		{
+			items[i]->Update(dt, &coObjects);
+		}
+
+		max_stack->Update(dt, &coObjects);
+
+		// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
+		if (player == NULL) return;
+
+		// Update camera to follow mario	
+		if (player->Getswitch_scene())
+		{
+			player->Setswitch_scene(false);
+			CGame::GetInstance()->SwitchScene(WORLD_MAP_ID);
+		}
 	}
-
-	for (size_t i = 0; i < timers.size(); i++)
-	{
-		timers[i]->Update(dt, &coObjects);
-	}
-
-	for (size_t i = 0; i < scores.size(); i++)
-	{
-		scores[i]->Update(dt, &coObjects);
-	}
-
-	for (size_t i = 0; i < moneys.size(); i++)
-	{
-		moneys[i]->Update(dt, &coObjects);
-	}
-
-	for (size_t i = 0; i < normarl_stacks.size(); i++)
-	{
-		normarl_stacks[i]->Update(dt, &coObjects);
-	}
-
-	for (size_t i = 0; i < items.size(); i++)
-	{
-		items[i]->Update(dt, &coObjects);
-	}
-
-	max_stack->Update(dt, &coObjects);
-
-
-	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
-	if (player == NULL) return;
-
-	// Update camera to follow mario	
-	if (player->Getswitch_scene())
-	{
-		player->Setswitch_scene(false);
-		CGame::GetInstance()->SwitchScene(WORLD_MAP_ID);
-	}
-
-
+	
 }
 
 void CPlayScene::Render()
 {
-	CGame* game = CGame::GetInstance();
-	float cx, cy;
-	player->GetPosition(cx, cy);
-	for (size_t i = 0; i < objects.size(); i++)
-	{
-		float xx, xy;
-		objects[i]->GetPosition(xx, xy);
-		/*if (cx <= game->GetScreenWidth() / 2 && xx < cx + game->GetScreenWidth() && abs(xy - cy) <= 300)
-		{
-				objects[i]->Render();
-		}
-		else*/
-		if ((abs(xx - cx) <= 170 && abs(xy - cy) <= 200) || dynamic_cast<CHUD*>(objects[i]))
-		{
-			//if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
-				objects[i]->Render();
-		}
-	}
 
-	for (size_t i = 0; i < timers.size(); i++)
-	{
-		timers[i]->Render(i);
-	}
-	for (size_t i = 0; i < scores.size(); i++)
-	{
-		scores[i]->Render(i);
-	}
-	for (size_t i = 0; i < moneys.size(); i++)
-	{
-		moneys[i]->Render(i);
-	}
-	for (size_t i = 0; i < normarl_stacks.size(); i++)
-	{
-		normarl_stacks[i]->Render(i);
-	}
-	max_stack->Render();
+	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
 
-	for (size_t i = 0; i < items.size(); i++)
+	if (id == SCENE_1_1_ID)
 	{
-		items[i]->Render(i);
+		CGame* game = CGame::GetInstance();
+		float cx, cy;
+		player->GetPosition(cx, cy);
+		for (size_t i = 0; i < objects.size(); i++)
+		{
+			float xx, xy;
+			objects[i]->GetPosition(xx, xy);
+			/*if (cx <= game->GetScreenWidth() / 2 && xx < cx + game->GetScreenWidth() && abs(xy - cy) <= 300)
+			{
+					objects[i]->Render();
+			}
+			else*/
+			if ((abs(xx - cx) <= 170 && abs(xy - cy) <= 200) || dynamic_cast<CHUD*>(objects[i]))
+			{
+				//if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
+				objects[i]->Render();
+			}
+		}
+
+		for (size_t i = 0; i < timers.size(); i++)
+		{
+			timers[i]->Render(i);
+		}
+		for (size_t i = 0; i < scores.size(); i++)
+		{
+			scores[i]->Render(i);
+		}
+		for (size_t i = 0; i < moneys.size(); i++)
+		{
+			moneys[i]->Render(i);
+		}
+		for (size_t i = 0; i < normarl_stacks.size(); i++)
+		{
+			normarl_stacks[i]->Render(i);
+		}
+		max_stack->Render();
+
+		for (size_t i = 0; i < items.size(); i++)
+		{
+			items[i]->Render(i);
+		}
 	}
+	if (id == SCENE_1_4_ID)
+	{
+		CGame* game = CGame::GetInstance();
+		float cx, cy;
+		player->GetPosition(cx, cy);
+		for (size_t i = 0; i < coObjects.size(); i++)
+		{
+			coObjects[i]->Render();
+		}
+
+		for (size_t i = 0; i < timers.size(); i++)
+		{
+			timers[i]->Render(i);
+		}
+		for (size_t i = 0; i < scores.size(); i++)
+		{
+			scores[i]->Render(i);
+		}
+		for (size_t i = 0; i < moneys.size(); i++)
+		{
+			moneys[i]->Render(i);
+		}
+		for (size_t i = 0; i < normarl_stacks.size(); i++)
+		{
+			normarl_stacks[i]->Render(i);
+		}
+		max_stack->Render();
+
+		for (size_t i = 0; i < items.size(); i++)
+		{
+			items[i]->Render(i);
+		}
+	}
+	
 }
 
 /*
