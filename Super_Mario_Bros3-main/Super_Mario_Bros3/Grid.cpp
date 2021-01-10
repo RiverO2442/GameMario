@@ -1,4 +1,4 @@
-#include "Grid.h"
+#include "PlayScene.h"
 
 CGrid::CGrid(LPCWSTR filePath)
 {
@@ -9,6 +9,8 @@ void CGrid::_ParseSection_SETTINGS(string line)
 {
 	vector<string> tokens = split(line);
 	DebugOut(L"--> %s\n", ToWSTR(line).c_str());
+
+	if (tokens.size() < 4) return; // skip invalid lines
 
 	cellWidth = atoi(tokens[0].c_str());
 	cellHeight = atoi(tokens[1].c_str());
@@ -29,13 +31,21 @@ void CGrid::_ParseSection_OBJECTS(string line)
 
 	CAnimationSets* animation_sets = CAnimationSets::GetInstance();
 
-	if (tokens.size() < 1) return; // skip invalid lines
+	if (tokens.size() < 4) return; // skip invalid lines
 
-	int cellX = atoi(tokens[1].c_str());
-	int cellY = atoi(tokens[2].c_str());
+	int x = atoi(tokens[1].c_str());
+	int y = atoi(tokens[2].c_str());
 
-	int x = cellX;
-	int y = cellY;
+	int cellX = (x / cellWidth);
+	if ((x % cellWidth) != 0)
+	{
+		cellX++;
+	}
+	int cellY = (y / cellHeight);
+	if ((y % cellHeight) != 0)
+	{
+		cellY++;
+	}
 
 	int type = atoi(tokens[0].c_str());
 
@@ -93,6 +103,7 @@ void CGrid::_ParseSection_OBJECTS(string line)
 	LPANIMATION_SET ani_set = animation_sets->Get(ani_set_id);
 	if (obj != NULL)
 	{
+		int add = 0;
 		obj->SetPosition(x, y);
 		obj->SetAnimationSet(ani_set);
 		cells[cellX][cellY].Add(obj);
@@ -140,13 +151,23 @@ void CGrid::Load(LPCWSTR filePath)
 
 void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int playerX, int playerY)
 {
+	listObject.clear();
+
 	int left, top, right, bottom;
 	int i, j, k;
 
-	left = playerX - IN_USE_WIDTH;
-	right = playerX + IN_USE_WIDTH;
-	top = playerY - IN_USE_HEIGHT;
-	bottom = playerY + IN_USE_HEIGHT;
+	left = (playerX - IN_USE_WIDTH)/cellWidth;
+	right = (playerX + IN_USE_WIDTH)/cellWidth;
+	if (((playerX + IN_USE_WIDTH) % cellWidth) != 0)
+	{
+		right++;
+	}
+	top = (playerY - IN_USE_HEIGHT)/cellHeight;
+	bottom = (playerY + IN_USE_HEIGHT)/cellHeight;
+	if (((playerY + IN_USE_HEIGHT) % cellHeight) != 0)
+	{
+		bottom++;
+	}
 
 	LPGAMEOBJECT obj;
 
@@ -167,10 +188,13 @@ void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int playerX, int player
 	{
 		left = 0;
 	}
-	if (top > 0)
+	if (top < 0)
 	{
 		top = 0;
 	}
+
+	//DebugOut1(L"So Luong CooBJ %d \n", (right - left));
+	//DebugOut1(L"So Luong CooBJ %d \n", (bottom - top));
 
 	for (i = left; i < right; i++)
 	{
@@ -183,9 +207,11 @@ void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int playerX, int player
 					for (k = 0; k < cells[i][j].GetListObjects().size(); k++)
 					{
 						obj = cells[i][j].GetListObjects().at(k);
-						if (obj->Actived == true) continue;
-						listObject.push_back(obj);
-						obj->SetActive(true);
+						//if (!obj->Actived)
+						{
+							listObject.push_back(obj);
+							obj->SetActive(true);
+						}
 					}
 				}
 			}

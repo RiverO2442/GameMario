@@ -20,7 +20,7 @@ CMario::CMario(int ctype, float x, float y) : CGameObject()
 	type = ctype;
 	level = MARIO_LEVEL_SMALL;
 	untouchable = 0;
-	SetState(MARIO_STATE_IDLE);
+	SetState(MARIO_STATE_WALKING_RIGHT);
 	start_x = x;
 	start_y = y;
 	this->x = x;

@@ -177,7 +177,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_WORDS_END_SCENE_YOU_GOT_A_CARD: obj = new CWordsEndScene(222); break;
 	case OBJECT_TYPE_WORDS_END_SCENE_ITEM: obj = new CWordsEndScene(333); break;
 	case OBJECT_TYPE_MOVING_ROCK: obj = new CMovingRock(); break;
-		
+
 	case OBJECT_TYPE_HUD_PANEL:
 		obj = new CHUD(11);
 		break;
@@ -310,7 +310,7 @@ void CPlayScene::Update(DWORD dt)
 {
 	// We know that Mario is the first object in the list hence we won't add him into the colliable object list
 	// TO-DO: This is a "dirty" way, need a more organized way 
-	
+
 	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
 
 	if (id == SCENE_1_1_ID)
@@ -463,38 +463,59 @@ void CPlayScene::Update(DWORD dt)
 
 		float cx, cy;
 
-		player->GetPosition(cx, cy);
+		//player->GetPosition(cx, cy);
+
+		CGame* game = CGame::GetInstance();
+
+		//	cx -= game->GetScreenWidth() / 2;
+		CGame::GetInstance()->SetCamPos(0, 220);
 
 		vector<LPGAMEOBJECT> TempObjects;
 
-		for (size_t i = 0; i < coObjects.size(); i++)
+		/*for (size_t i = 0; i < coObjects.size(); i++)
 		{
 			TempObjects.push_back(coObjects[i]);
-		}
+		}*/
 
 		coObjects.clear();
 
-		for (size_t i = 0; i < TempObjects.size(); i++)
+		/*for (size_t i = 0; i < TempObjects.size(); i++)
 		{
 			float Ox, Oy;
 			TempObjects[i]->GetPosition(Ox, Oy);
-			if (abs(Ox - cx) <= 200 && abs(Oy - cy) <= 200)
+			if (abs(Ox - cx) <= 50 && abs(Oy - cy) <= 50)
 			{
 				coObjects.push_back(TempObjects[i]);
 			}
 			else
+			{
 				TempObjects[i]->SetActive(false);
-		}
+				player->GetPosition(cx, cy);
+				TempObjects[i]->GetOriginLocation(Ox, Oy);
+				if (!(abs(Ox - cx) <= 180 && !abs(Oy - cy) <= 180))
+				{
+					TempObjects[i]->reset();
+				}
+			}
+		}*/
+		player->GetPosition(cx, cy);
+
+		//TempObjects.clear();
+		grid->GetObjects(coObjects, cx, cy);
 
 		for (size_t i = 0; i < objects.size(); i++)
 		{
-			if(!objects[i]->GetActive())
-			coObjects.push_back(objects[i]);
+			//if (!objects[i]->GetActive())
+			{
+				coObjects.push_back(objects[i]);
+				objects[i]->SetActive(true);
+			}
 		}
 
-		grid->GetObjects(coObjects, cx, cy);
+		
 
-		CGame* game = CGame::GetInstance();
+		//DebugOut1(L"So Luong CooBJ %d \n", coObjects.size());
+		//DebugOut1(L"So Luong CooBJ %d \n", objects.size());
 
 		cam_x_pre = game->GetCamX();
 		cam_y_pre = game->GetCamY();
@@ -503,8 +524,14 @@ void CPlayScene::Update(DWORD dt)
 
 		for (size_t i = 0; i < coObjects.size(); i++)
 		{
-			coObjects[i]->Update(dt, &coObjects);
+			TempObjects.push_back(coObjects[i]);
 		}
+
+		for (size_t i = 0; i < coObjects.size(); i++)
+		{
+			coObjects[i]->Update(dt, &TempObjects);
+		}
+		DebugOut1(L"So Luong CooBJ %d \n", coObjects.size());
 
 		if (GetTickCount() - time_counter >= 1000 && time_picker > 0 && player->Getswitch_scene_start() == 0)
 		{
@@ -514,30 +541,30 @@ void CPlayScene::Update(DWORD dt)
 
 		for (size_t i = 0; i < timers.size(); i++)
 		{
-			timers[i]->Update(dt, &coObjects);
+			timers[i]->Update(dt, NULL);
 		}
 
 		for (size_t i = 0; i < scores.size(); i++)
 		{
-			scores[i]->Update(dt, &coObjects);
+			scores[i]->Update(dt, NULL);
 		}
 
 		for (size_t i = 0; i < moneys.size(); i++)
 		{
-			moneys[i]->Update(dt, &coObjects);
+			moneys[i]->Update(dt, NULL);
 		}
 
 		for (size_t i = 0; i < normarl_stacks.size(); i++)
 		{
-			normarl_stacks[i]->Update(dt, &coObjects);
+			normarl_stacks[i]->Update(dt, NULL);
 		}
 
 		for (size_t i = 0; i < items.size(); i++)
 		{
-			items[i]->Update(dt, &coObjects);
+			items[i]->Update(dt, NULL);
 		}
 
-		max_stack->Update(dt, &coObjects);
+		max_stack->Update(dt, NULL);
 
 		// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
 		if (player == NULL) return;
@@ -549,7 +576,7 @@ void CPlayScene::Update(DWORD dt)
 			CGame::GetInstance()->SwitchScene(WORLD_MAP_ID);
 		}
 	}
-	
+
 }
 
 void CPlayScene::Render()
@@ -560,6 +587,7 @@ void CPlayScene::Render()
 	if (id == SCENE_1_1_ID)
 	{
 		CGame* game = CGame::GetInstance();
+
 		float cx, cy;
 		player->GetPosition(cx, cy);
 		for (size_t i = 0; i < objects.size(); i++)
@@ -634,7 +662,7 @@ void CPlayScene::Render()
 			items[i]->Render(i);
 		}
 	}
-	
+
 }
 
 /*
@@ -716,7 +744,7 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 			mario->StartSpining();
 			mario->SetisFiring(true);
 			if (mario->GetLevel() == MARIO_LEVEL_FIRE)
-			mario->startFiring();
+				mario->startFiring();
 			break;
 		case DIK_R:
 			CGame::GetInstance()->SwitchScene(WORLD_MAP_ID);
