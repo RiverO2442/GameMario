@@ -143,15 +143,15 @@ void CGrid::Load(LPCWSTR filePath)
 
 void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int playerX, int playerY)
 {
-	listObject.clear();
+	//listObject.clear();
 
 	int left, top, right, bottom;
 	int i, j, k;
 
-	left = (playerX - IN_USE_WIDTH)/cellWidth;
-	right = (playerX + IN_USE_WIDTH)/cellWidth;
-	top = (playerY - IN_USE_HEIGHT)/cellHeight;
-	bottom = (playerY + IN_USE_HEIGHT)/cellHeight;
+	left = (playerX - IN_USE_WIDTH) / cellWidth;
+	right = (playerX + IN_USE_WIDTH) / cellWidth;
+	top = (playerY - IN_USE_HEIGHT) / cellHeight;
+	bottom = (playerY + IN_USE_HEIGHT) / cellHeight;
 
 	LPGAMEOBJECT obj;
 
@@ -177,29 +177,21 @@ void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int playerX, int player
 		top = 0;
 	}
 
-	//DebugOut1(L"So Luong CooBJ %d \n", (right - left));
-	//DebugOut1(L"So Luong CooBJ %d \n", (bottom - top));
-
 	for (i = left; i < right; i++)
 	{
 		for (j = top; j < bottom; j++)
 		{
-			if (cells)
+			if (!cells[i][j].GetListObjects().empty())
 			{
-				if (cells[i][j].GetListObjects().size() != 0)
+				for (k = 0; k < cells[i][j].GetListObjects().size(); k++)
 				{
-					for (k = 0; k < cells[i][j].GetListObjects().size(); k++)
+					if (!cells[i][j].GetListObjects().at(k)->Actived)
 					{
-						obj = cells[i][j].GetListObjects().at(k);
-						//if (!obj->Actived)
-						{
-							listObject.push_back(obj);
-							obj->SetActive(true);
-						}
+						listObject.push_back(cells[i][j].GetListObjects().at(k));
+						cells[i][j].GetListObjects().at(k)->SetActive(true);
 					}
 				}
 			}
-
 		}
 	}
 }

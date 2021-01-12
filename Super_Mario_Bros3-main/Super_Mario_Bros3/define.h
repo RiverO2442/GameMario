@@ -564,6 +564,9 @@
 #define IN_USE_WIDTH 200
 #define IN_USE_HEIGHT 200
 
+//WMAP
+#define SCENE_SECTION_MAP				8
+
 class define
 {
 };

@@ -15,8 +15,7 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath) :
 	}
 	if (id == SCENE_1_1_ID)
 	{
-		cam_state = 1;
-		CGame::GetInstance()->SetCamPos(0, -50);
+		CGame::GetInstance()->SetCamPos(0, 221);
 	}
 	
 }
@@ -63,6 +62,25 @@ void CPlayScene::_ParseSection_SPRITES(string line)
 	}
 
 	CSprites::GetInstance()->Add(ID, l, t, r, b, tex);
+}
+
+void CPlayScene::_ParseSection_MAP(string line)
+{
+	vector<string> tokens = split(line);
+
+	if (tokens.size() < 7) return; // skip invalid lines
+
+	int idTileSet = atoi(tokens[0].c_str());
+	int totalRowsTileSet = atoi(tokens[1].c_str());
+	int totalColumnsTileSet = atoi(tokens[2].c_str());
+	int totalRowsMap = atoi(tokens[3].c_str());
+	int totalColumnsMap = atoi(tokens[4].c_str());
+	int totalTiles = atoi(tokens[5].c_str());
+	wstring file_path = ToWSTR(tokens[6]);
+
+	map = new Map(idTileSet, totalRowsTileSet, totalColumnsTileSet, totalRowsMap, totalColumnsMap, totalTiles);
+	map->LoadMap(file_path.c_str());
+	map->ExtractTileFromTileSet();
 }
 
 void CPlayScene::_ParseSection_GRID(string line)
@@ -287,6 +305,9 @@ void CPlayScene::Load()
 		if (line == "[SPRITES]") {
 			section = SCENE_SECTION_SPRITES; continue;
 		}
+
+		if (line == "[MAP]") { section = SCENE_SECTION_MAP; continue; }
+
 		if (line == "[ANIMATIONS]") {
 			section = SCENE_SECTION_ANIMATIONS; continue;
 		}
@@ -306,6 +327,7 @@ void CPlayScene::Load()
 		//
 		switch (section)
 		{
+		case SCENE_SECTION_MAP: _ParseSection_MAP(line); break;
 		case SCENE_SECTION_TEXTURES: _ParseSection_TEXTURES(line); break;
 		case SCENE_SECTION_SPRITES: _ParseSection_SPRITES(line); break;
 		case SCENE_SECTION_ANIMATIONS: _ParseSection_ANIMATIONS(line); break;
@@ -349,13 +371,13 @@ void CPlayScene::Update(DWORD dt)
 			if (player->x >= (game->GetScreenWidth() / 2))
 			{
 				cx -= game->GetScreenWidth() / 2;
-				CGame::GetInstance()->SetCamPos((int)cx);
-
-				if (player->y <= (game->GetScreenHeight() / 3))
-				{
-					cy -= game->GetScreenHeight() / 2;
-					CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
-				}
+				CGame::GetInstance()->SetCamPos((int)cx, 352 - game->GetScreenHeight() / 2);
+				DebugOut1(L"%i \n", 352 - game->GetScreenHeight() / 2);
+				//if (player->y <= (game->GetScreenHeight() / 3))
+				//{
+				//	cy -= game->GetScreenHeight() / 2;
+				//	CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
+				//}
 			}
 		}
 		else if(id == SCENE_1_4_ID)
@@ -378,15 +400,21 @@ void CPlayScene::Update(DWORD dt)
 			// cap nhat cam mario.
 		}
 
+		//vector<LPGAMEOBJECT> TempObjects;
+		player->GetPosition(cx, cy);
 
-		vector<LPGAMEOBJECT> TempObjects;
-
-		/*for (size_t i = 0; i < coObjects.size(); i++)
+		for (size_t i = 0; i < coObjects.size(); i++)
 		{
-			TempObjects.push_back(coObjects[i]);
-		}*/
+			float Ox, Oy;
+			coObjects[i]->GetPosition(Ox, Oy);
+			if (abs(Ox - cx) >= 200 && abs(Oy - cy) >= 200)
+			{
+				coObjects[i]->SetActive(false);
+				coObjects.erase(coObjects.begin() + i);
+			}
+		}
 
-		coObjects.clear();
+		//coObjects.clear();
 
 		/*for (size_t i = 0; i < TempObjects.size(); i++)
 		{
@@ -407,14 +435,13 @@ void CPlayScene::Update(DWORD dt)
 				}
 			}
 		}*/
-		player->GetPosition(cx, cy);
 
 		//TempObjects.clear();
 		grid->GetObjects(coObjects, cx, cy);
 
 		for (size_t i = 0; i < objects.size(); i++)
 		{
-			//if (!objects[i]->GetActive())
+			if (!objects[i]->GetActive())
 			{
 				coObjects.push_back(objects[i]);
 				objects[i]->SetActive(true);
@@ -430,14 +457,14 @@ void CPlayScene::Update(DWORD dt)
 
 		player->GetPosition(cx, cy);
 
-		for (size_t i = 0; i < coObjects.size(); i++)
+		/*for (size_t i = 0; i < coObjects.size(); i++)
 		{
 			TempObjects.push_back(coObjects[i]);
-		}
+		}*/
 
 		for (size_t i = 0; i < coObjects.size(); i++)
 		{
-			coObjects[i]->Update(dt, &TempObjects);
+			coObjects[i]->Update(dt, &coObjects);
 		}
 		DebugOut1(L"So Luong CooBJ %d \n", coObjects.size());
 
@@ -490,9 +517,15 @@ void CPlayScene::Render()
 
 	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
 
+	if (map)
+	{
+		this->map->Render();
+	}
+
 		CGame* game = CGame::GetInstance();
 		float cx, cy;
 		player->GetPosition(cx, cy);
+
 		for (size_t i = 0; i < coObjects.size(); i++)
 		{
 			coObjects[i]->Render();
@@ -527,6 +560,7 @@ void CPlayScene::Render()
 */
 void CPlayScene::Unload()
 {
+	
 	for (int i = 0; i < objects.size(); i++)
 		delete objects[i];
 
@@ -559,6 +593,9 @@ void CPlayScene::Unload()
 	timers.clear();
 
 	player = NULL;
+
+	delete map;
+	map = nullptr;
 
 	DebugOut(L"[INFO] Scene %s unloaded! \n", sceneFilePath);
 }
