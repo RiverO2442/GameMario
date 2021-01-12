@@ -91,14 +91,7 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	if (!isBeingHold && isAppear)
 	{
 		vy += KOOPAS_GRAVITY * dt;
-	}
-	if (type == KOOPAS_XANH_WALK && isAppear)
-	{
-		float x, y;
-		GetPosition(x, y);
-		DebugOut(L"[INFO] kOOPAS APPEARED!%f\n", y);
-	}
-		
+	}	
 	vector<LPCOLLISIONEVENT> coEvents;
 	vector<LPCOLLISIONEVENT> coEventsResult;
 
@@ -146,7 +139,6 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	{
 		vy = -GOOMBA_JUMP_SPEED;
 		jumpingStart = GetTickCount();
-
 	}
 	if (type != KOOPAS_BLACK)
 	{
@@ -161,7 +153,11 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 					isKickedRevive = false;
 				}
 			}
-
+			//if (reviveStart != 0 && !isKickedRevive)
+			//{
+			//	if(state =! KOOPAS_STATE_SHELLING)
+			//		StartRevive();
+			//}
 			if (GetTickCount() - reviveStart >= 5000)
 			{
 				if (state == KOOPAS_STATE_SHELLING)
