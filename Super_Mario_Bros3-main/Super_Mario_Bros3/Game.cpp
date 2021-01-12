@@ -351,7 +351,7 @@ void CGame::_ParseSection_SCENES(string line)
 	else
 	{
 		scene = new CPlayScene(id, path);
-		CGame::GetInstance()->SetCamPos((int)0, (int)-50);
+		//CGame::GetInstance()->SetCamPos((int)0, (int)-50);
 	}
 	scenes[id] = scene;
 }

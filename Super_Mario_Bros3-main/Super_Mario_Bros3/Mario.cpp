@@ -20,7 +20,7 @@ CMario::CMario(int ctype, float x, float y) : CGameObject()
 	type = ctype;
 	level = MARIO_LEVEL_SMALL;
 	untouchable = 0;
-	SetState(MARIO_STATE_IDLE);
+	SetState(MARIO_STATE_WALKING_RIGHT);
 	start_x = x;
 	start_y = y;
 	this->x = x;
@@ -109,12 +109,11 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		vx = 0;
 		vy = 0;
 	}
-
 	if (state != MARIO_STATE_DIE && state != MARIO_STATE_PIPE_DOWNING && state != MARIO_STATE_PIPE_UPPING)
 		CalcPotentialCollisions(coObjects, coEvents);
 
 	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
-	if (id == PLAY_SCENE_ID)
+	if (id == SCENE_1_1_ID)
 	{
 		if (state == MARIO_STATE_DIE && GetcanSetLifeDown())
 		{
@@ -123,7 +122,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			SetcanSetLifeDown(false);
 		}
 		if(switch_scene_start != 0)
-		if (GetTickCount() - switch_scene_start >= 2000)
+		if (state == MARIO_STATE_DIE && GetTickCount() - switch_scene_start >= 2000)
 		{
 			switch_scene_start = 0;
 			switch_scene = true;
@@ -164,6 +163,12 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				}
 			}
 
+			if (GetTickCount() - switch_scene_start >= 8000)
+			{
+				switch_scene_start = 0;
+				switch_scene = true;
+			}
+
 			DebugOut1(L"[INFO] level La : %d \n", GetTickCount() - switch_scene_start);
 		}
 			
@@ -199,6 +204,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 					pipe_upping_start = 0;
 					setPositionOutOfTunnel = false;
 				}
+				
 				DEACCELERETING();
 			}
 			// reset untouchable timer if untouchable time has passed
@@ -677,6 +683,11 @@ void CMario::CalcPotentialCollisions(
 	{
 		LPCOLLISIONEVENT e = SweptAABBEx(coObjects->at(i));
 		if (dynamic_cast<CRECT*>(e->obj))
+		{
+			if (mario->dy < 0)// || mario->nx != 0)
+				continue;
+		}
+		if (dynamic_cast<PIPE*>(e->obj))
 		{
 			if (mario->dy < 0)// || mario->nx != 0)
 				continue;

@@ -8,6 +8,17 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath) :
 	CScene(id, filePath)
 {
 	key_handler = new CPlayScenceKeyHandler(this);
+	if (id == SCENE_1_4_ID)
+	{
+		cam_state = 1;
+		CGame::GetInstance()->SetCamPos(0, 220);
+	}
+	if (id == SCENE_1_1_ID)
+	{
+		cam_state = 1;
+		CGame::GetInstance()->SetCamPos(0, -50);
+	}
+	
 }
 
 /*
@@ -52,6 +63,17 @@ void CPlayScene::_ParseSection_SPRITES(string line)
 	}
 
 	CSprites::GetInstance()->Add(ID, l, t, r, b, tex);
+}
+
+void CPlayScene::_ParseSection_GRID(string line)
+{
+	vector<string> tokens = split(line);
+
+	if (tokens.size() < 1) return;
+
+	wstring file_path = ToWSTR(tokens[0]);
+
+	grid = new CGrid(file_path.c_str());
 }
 
 void CPlayScene::_ParseSection_ANIMATIONS(string line)
@@ -122,6 +144,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 
 	CHUD* HUD_items = NULL;
 
+	CNewMapCam* new_map_cam = NULL;
 
 	switch (object_type)
 	{
@@ -134,6 +157,10 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		obj = new CMario(1, x, y);
 		player = (CMario*)obj;
 		DebugOut(L"[INFO] Player object created!\n");
+		break;
+	case OBJECT_TYPE_NEW_MAP_CAM:
+		new_map_cam = new CNewMapCam(x, y, ani_set_id);
+		new_map_cams.push_back(new_map_cam);
 		break;
 	case OBJECT_TYPE_GOOMBA_NORMAL: obj = new CGoomba(888); break;
 	case OBJECT_TYPE_GOOMBA_RED_FLY: obj = new CGoomba(999); break;
@@ -166,7 +193,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_WORDS_END_SCENE_YOU_GOT_A_CARD: obj = new CWordsEndScene(222); break;
 	case OBJECT_TYPE_WORDS_END_SCENE_ITEM: obj = new CWordsEndScene(333); break;
 	case OBJECT_TYPE_MOVING_ROCK: obj = new CMovingRock(); break;
-		
+
 	case OBJECT_TYPE_HUD_PANEL:
 		obj = new CHUD(11);
 		break;
@@ -228,6 +255,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	{
 		obj->SetPosition(x, y);
 		obj->SetAnimationSet(ani_set);
+		obj->SetOrigin(x, y, obj->GetState());
 		objects.push_back(obj);
 	}
 
@@ -268,6 +296,9 @@ void CPlayScene::Load()
 		if (line == "[OBJECTS]") {
 			section = SCENE_SECTION_OBJECTS; continue;
 		}
+		if (line == "[GRID]") {
+			section = SCENE_SECTION_GRID; continue;
+		}
 		if (line[0] == '[') { section = SCENE_SECTION_UNKNOWN; continue; }
 
 		//
@@ -280,6 +311,7 @@ void CPlayScene::Load()
 		case SCENE_SECTION_ANIMATIONS: _ParseSection_ANIMATIONS(line); break;
 		case SCENE_SECTION_ANIMATION_SETS: _ParseSection_ANIMATION_SETS(line); break;
 		case SCENE_SECTION_OBJECTS: _ParseSection_OBJECTS(line); break;
+		case SCENE_SECTION_GRID: _ParseSection_GRID(line); break;
 		}
 	}
 
@@ -295,135 +327,199 @@ void CPlayScene::Update(DWORD dt)
 	// We know that Mario is the first object in the list hence we won't add him into the colliable object list
 	// TO-DO: This is a "dirty" way, need a more organized way 
 
-	lv_pre = player->GetLevel();
-	StartTimeCounter();
+	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
 
-	vector<LPGAMEOBJECT> coObjects;
-	for (size_t i = 0; i < objects.size(); i++)
-	{
-		if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
-			coObjects.push_back(objects[i]);
-	}
 
-	float cx, cy;
+		lv_pre = player->GetLevel();
 
-	player->GetPosition(cx, cy);
+		StartTimeCounter();
 
-	CGame* game = CGame::GetInstance();
+		float cx, cy;
 
-	cam_x_pre = game->GetCamX();
-	cam_y_pre = game->GetCamY();
+		player->GetPosition(cx, cy);
 
-	
+		CGame* game = CGame::GetInstance();
 
-	if (player->x >= (game->GetScreenWidth() / 2))
-	{
-		cx -= game->GetScreenWidth() / 2;
-		CGame::GetInstance()->SetCamPos((int)cx);
+		cam_x_pre = game->GetCamX();
+		cam_y_pre = game->GetCamY();
 
-		if (player->y <= (game->GetScreenHeight() / 3))
+		//	cx -= game->GetScreenWidth() / 2;
+		if (id == SCENE_1_1_ID)
 		{
-			cy -= game->GetScreenHeight() / 2;
-			CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
+			if (player->x >= (game->GetScreenWidth() / 2))
+			{
+				cx -= game->GetScreenWidth() / 2;
+				CGame::GetInstance()->SetCamPos((int)cx);
+
+				if (player->y <= (game->GetScreenHeight() / 3))
+				{
+					cy -= game->GetScreenHeight() / 2;
+					CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
+				}
+			}
 		}
-	}
-	else
-	{
-		CGame::GetInstance()->SetCamPos(0);
-	}
-
-	if (player->GetIsAtTheTunnel())
-	{
-		CGame::GetInstance()->SetCamPos(1300, 980);
-	}
-
-	player->GetPosition(cx, cy);
-
-	for (size_t i = 0; i < objects.size(); i++)
-	{
-		float xx, xy;
-		objects[i]->GetPosition(xx, xy);
-		if ((((xx < cx + game->GetScreenWidth() / 2 && xx > cx - game->GetScreenWidth() / 2 - 16) && abs(xy - cy) <= 500) || dynamic_cast<FIREBALL*>(objects[i]) || dynamic_cast<CFlowerBullet*>(objects[i]) || dynamic_cast<CHUD*>(objects[i]) || dynamic_cast<CMovingRock*>(objects[i]) ))
+		else if(id == SCENE_1_4_ID)
+		if (cam_state == 1)
 		{
-			if (!dynamic_cast<CNoCollisionObject*>(objects[i]))
-				objects[i]->Update(dt, &coObjects);
+			StartTimeCamMove();
+			if (time_cam_move != 0)
+			{
+				if (GetTickCount() - time_cam_move >= 10)
+				{
+					time_cam_move = 0;
+					float cam_x_update = UpdateCamMoveX(dt);
+					CGame::GetInstance()->SetCamPos(cam_x_update, 220);
+
+				}
+			}
 		}
-	}
-
-	if (GetTickCount() - time_counter >= 1000 && time_picker > 0 && player->Getswitch_scene_start() == 0)
-	{
-		time_picker--;
-		time_counter = 0;
-	}
-
-	for (size_t i = 0; i < timers.size(); i++)
-	{
-		timers[i]->Update(dt, &coObjects);
-	}
-
-	for (size_t i = 0; i < scores.size(); i++)
-	{
-		scores[i]->Update(dt, &coObjects);
-	}
-
-	for (size_t i = 0; i < moneys.size(); i++)
-	{
-		moneys[i]->Update(dt, &coObjects);
-	}
-
-	for (size_t i = 0; i < normarl_stacks.size(); i++)
-	{
-		normarl_stacks[i]->Update(dt, &coObjects);
-	}
-
-	for (size_t i = 0; i < items.size(); i++)
-	{
-		items[i]->Update(dt, &coObjects);
-	}
-
-	max_stack->Update(dt, &coObjects);
+		else
+		{
+			// cap nhat cam mario.
+		}
 
 
-	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
-	if (player == NULL) return;
+		vector<LPGAMEOBJECT> TempObjects;
 
-	// Update camera to follow mario	
-	if (player->Getswitch_scene())
-	{
-		player->Setswitch_scene(false);
-		CGame::GetInstance()->SwitchScene(WORLD_MAP_ID);
-	}
+		/*for (size_t i = 0; i < coObjects.size(); i++)
+		{
+			TempObjects.push_back(coObjects[i]);
+		}*/
+
+		coObjects.clear();
+
+		/*for (size_t i = 0; i < TempObjects.size(); i++)
+		{
+			float Ox, Oy;
+			TempObjects[i]->GetPosition(Ox, Oy);
+			if (abs(Ox - cx) <= 50 && abs(Oy - cy) <= 50)
+			{
+				coObjects.push_back(TempObjects[i]);
+			}
+			else
+			{
+				TempObjects[i]->SetActive(false);
+				player->GetPosition(cx, cy);
+				TempObjects[i]->GetOriginLocation(Ox, Oy);
+				if (!(abs(Ox - cx) <= 180 && !abs(Oy - cy) <= 180))
+				{
+					TempObjects[i]->reset();
+				}
+			}
+		}*/
+		player->GetPosition(cx, cy);
+
+		//TempObjects.clear();
+		grid->GetObjects(coObjects, cx, cy);
+
+		for (size_t i = 0; i < objects.size(); i++)
+		{
+			//if (!objects[i]->GetActive())
+			{
+				coObjects.push_back(objects[i]);
+				objects[i]->SetActive(true);
+			}
+		}
 
 
+
+		//DebugOut1(L"So Luong CooBJ %d \n", coObjects.size());
+		//DebugOut1(L"So Luong CooBJ %d \n", objects.size());
+
+
+
+		player->GetPosition(cx, cy);
+
+		for (size_t i = 0; i < coObjects.size(); i++)
+		{
+			TempObjects.push_back(coObjects[i]);
+		}
+
+		for (size_t i = 0; i < coObjects.size(); i++)
+		{
+			coObjects[i]->Update(dt, &TempObjects);
+		}
+		DebugOut1(L"So Luong CooBJ %d \n", coObjects.size());
+
+		if (GetTickCount() - time_counter >= 1000 && time_picker > 0 && player->Getswitch_scene_start() == 0)
+		{
+			time_picker--;
+			time_counter = 0;
+		}
+
+		for (size_t i = 0; i < timers.size(); i++)
+		{
+			timers[i]->Update(dt, NULL);
+		}
+
+		for (size_t i = 0; i < scores.size(); i++)
+		{
+			scores[i]->Update(dt, NULL);
+		}
+
+		for (size_t i = 0; i < moneys.size(); i++)
+		{
+			moneys[i]->Update(dt, NULL);
+		}
+
+		for (size_t i = 0; i < normarl_stacks.size(); i++)
+		{
+			normarl_stacks[i]->Update(dt, NULL);
+		}
+
+		for (size_t i = 0; i < items.size(); i++)
+		{
+			items[i]->Update(dt, NULL);
+		}
+
+		max_stack->Update(dt, NULL);
+
+		// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
+		if (player == NULL) return;
+
+		// Update camera to follow mario	
+		if (player->Getswitch_scene())
+		{
+			player->Setswitch_scene(false);
+			CGame::GetInstance()->SwitchScene(WORLD_MAP_ID);
+		}
 }
 
 void CPlayScene::Render()
 {
-	for (int i = 0; i < objects.size(); i++)
-		objects[i]->Render();
 
-	for (size_t i = 0; i < timers.size(); i++)
-	{
-		timers[i]->Render(i);
-	}
-	for (size_t i = 0; i < scores.size(); i++)
-	{
-		scores[i]->Render(i);
-	}
-	for (size_t i = 0; i < moneys.size(); i++)
-	{
-		moneys[i]->Render(i);
-	}
-	for (size_t i = 0; i < normarl_stacks.size(); i++)
-	{
-		normarl_stacks[i]->Render(i);
-	}
-	max_stack->Render();
+	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
 
-	for (size_t i = 0; i < items.size(); i++)
-	{
-		items[i]->Render(i);
-	}
+		CGame* game = CGame::GetInstance();
+		float cx, cy;
+		player->GetPosition(cx, cy);
+		for (size_t i = 0; i < coObjects.size(); i++)
+		{
+			coObjects[i]->Render();
+		}
+
+		for (size_t i = 0; i < timers.size(); i++)
+		{
+			timers[i]->Render(i);
+		}
+		for (size_t i = 0; i < scores.size(); i++)
+		{
+			scores[i]->Render(i);
+		}
+		for (size_t i = 0; i < moneys.size(); i++)
+		{
+			moneys[i]->Render(i);
+		}
+		for (size_t i = 0; i < normarl_stacks.size(); i++)
+		{
+			normarl_stacks[i]->Render(i);
+		}
+		max_stack->Render();
+
+		for (size_t i = 0; i < items.size(); i++)
+		{
+			items[i]->Render(i);
+		}
 }
 
 /*
@@ -505,13 +601,33 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 			mario->StartSpining();
 			mario->SetisFiring(true);
 			if (mario->GetLevel() == MARIO_LEVEL_FIRE)
-			mario->startFiring();
+				mario->startFiring();
 			break;
 		case DIK_R:
 			CGame::GetInstance()->SwitchScene(WORLD_MAP_ID);
 			break;
 		}
 	}
+}
+
+float CPlayScene::UpdateCamMoveX(DWORD dt)
+{
+
+	float cam_x_end_temp = new_map_cams.at(0)->GetEndCamX();
+
+	float cam_x_game = CGame::GetInstance()->GetCamX();
+
+	if (cam_x_game < cam_x_end_temp)
+	{
+		cam_x_game += MOVE_CAM_X_VX * dt;
+		return cam_x_game;
+	}
+	else
+	{
+		return cam_x_end_temp;
+	}
+
+
 }
 
 void CPlayScenceKeyHandler::OnKeyUp(int KeyCode)

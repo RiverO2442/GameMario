@@ -29,13 +29,37 @@
 #include "WordsEndScene.h"
 #include "MovingRock.h"
 #include "define.h"
+#include "Cell.h"
+#include <iostream>
+#include <fstream>
+#include "NewMapCam.h"
+
+#define GRID_SECTION_SETTINGS	1
+#define GRID_SECTION_OBJECTS	2
+#define MAX_GRID_LINE 1024
+
+class CGrid
+{
+	int numRow, numCol;
+	int cellWidth;
+	int  cellHeight;
+	Cell** cells;
+
+	void _ParseSection_SETTINGS(string line);
+	void _ParseSection_OBJECTS(string line);
+public:
+	CGrid(LPCWSTR filePath);
+	void GetObjects(vector<LPGAMEOBJECT>& listObject, int playerX, int playerY);
+	void Load(LPCWSTR filePath);
+	void Unload();
+};
 
 class CPlayScene : public CScene
 {
 protected:
-	CMario* player;					// A play scene has to have player, right? 
-
+	CMario* player;			// A play scene has to have player, right? 
 	vector<LPGAMEOBJECT> objects;
+	vector<LPGAMEOBJECT> coObjects;
 
 	vector<CHUD*>  timers;
 	vector<CHUD*>  scores;
@@ -44,10 +68,19 @@ protected:
 	vector<CHUD*>  items;
 	CHUD* max_stack;
 
-	int time_picker = 300;
+	CGrid* grid;
 
+	int cam_state;
+
+	vector<CNewMapCam*> new_map_cams;
 
 	DWORD time_counter = 0;
+
+	DWORD time_cam_move = 0;
+
+	float UpdateCamMoveX(DWORD dt);
+
+	int time_picker = 300;
 
 	float cam_x_pre = 0;
 	float cam_y_pre = 0;
@@ -59,6 +92,7 @@ protected:
 	void _ParseSection_ANIMATIONS(string line);
 	void _ParseSection_ANIMATION_SETS(string line);
 	void _ParseSection_OBJECTS(string line);
+	void _ParseSection_GRID(string line);
 
 
 
@@ -71,6 +105,20 @@ public:
 	virtual void Unload();
 
 	CMario* GetPlayer() { return player; }
+
+	void StartTimeCamMove()
+	{
+		if (time_cam_move == 0)
+			time_cam_move = GetTickCount();
+	}
+	void SetCamState(int camStateInt)
+	{
+		cam_state = camStateInt;
+	}
+	int GetCamState()
+	{
+		return cam_state;
+	}
 
 	void SetTimeDown()
 	{

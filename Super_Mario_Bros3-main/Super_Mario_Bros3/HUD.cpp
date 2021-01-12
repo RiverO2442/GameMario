@@ -19,7 +19,7 @@ void CHUD::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	CGameObject::Update(dt);
 
 	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
-	if (id == 3)
+	if (id == SCENE_1_1_ID || id == SCENE_1_4_ID)
 	{
 
 		float cam_x = CGame::GetInstance()->GetCamX();
@@ -43,7 +43,7 @@ void CHUD::Render()
 	CGame* game = CGame::GetInstance();
 
 	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
-	if (id == 3)
+	if (id == SCENE_1_1_ID)
 	{
 		CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
 		int speedlevel = mario->GetspeedLevel();
@@ -92,7 +92,6 @@ void CHUD::Render()
 		ani = HUD_TYPE_STACK_NORMAL_ANI_EMPTY;
 		break;
 	}
-
 	animation_set->at(ani)->Render(x, y);
 	//RenderBoundingBox();
 }
