@@ -344,6 +344,16 @@ void CPlayScene::Load()
 	DebugOut(L"[INFO] Done loading scene resources %s\n", sceneFilePath);
 }
 
+bool IsInUseArea(LPGAMEOBJECT obj, LPGAMEOBJECT player)
+{
+	float x, y, px, py;
+	obj->GetPosition(x, y);
+	player->GetPosition(px, py);
+	if (abs(x - px) <= IN_USE_WIDTH && abs(y - py) <= IN_USE_HEIGHT)
+		return true;
+	return false;
+}
+
 void CPlayScene::Update(DWORD dt)
 {
 	// We know that Mario is the first object in the list hence we won't add him into the colliable object list
@@ -405,9 +415,7 @@ void CPlayScene::Update(DWORD dt)
 
 		for (size_t i = 0; i < coObjects.size(); i++)
 		{
-			float Ox, Oy;
-			coObjects[i]->GetPosition(Ox, Oy);
-			if (abs(Ox - cx) >= 200 && abs(Oy - cy) >= 200)
+			if (!IsInUseArea(coObjects[i], player))
 			{
 				coObjects[i]->SetActive(false);
 				coObjects.erase(coObjects.begin() + i);
@@ -519,7 +527,7 @@ void CPlayScene::Render()
 
 	if (map)
 	{
-		this->map->Render();
+		//this->map->Render();
 	}
 
 		CGame* game = CGame::GetInstance();
@@ -591,11 +599,21 @@ void CPlayScene::Unload()
 	objects.clear();
 	normarl_stacks.clear();
 	timers.clear();
+	coObjects.clear();
 
 	player = NULL;
 
 	delete map;
+
 	map = nullptr;
+
+	grid->Unload();
+
+	grid = nullptr;
+
+	delete grid;
+
+	
 
 	DebugOut(L"[INFO] Scene %s unloaded! \n", sceneFilePath);
 }

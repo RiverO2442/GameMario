@@ -2275,6 +2275,6 @@
 
 [MAP]
 #310	7	10	7	10	67	textures\world-map-1_map.txt
-300	19	7	20	88	133	textures\scene_1_1_map.txt
+300	20	7	20	88	140	textures\scene_1_1_map.txt
 [GRID]
 textures\Grid1-1.txt

@@ -187,6 +187,7 @@ void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int playerX, int player
 				{
 					if (!cells[i][j].GetListObjects().at(k)->Actived)
 					{
+						//cells[i][j].GetListObjects().at(k)->reset();
 						listObject.push_back(cells[i][j].GetListObjects().at(k));
 						cells[i][j].GetListObjects().at(k)->SetActive(true);
 					}
@@ -198,6 +199,7 @@ void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int playerX, int player
 
 void CGrid::Unload()
 {
+	if(this != nullptr)
 	if (cells)
 	{
 		for (int i = 0; i < numCol; i++)
