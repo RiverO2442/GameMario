@@ -63,13 +63,24 @@ public:
 	bool Actived = false;
 
 	float origin_x, origin_y;
+
 	int origin_state;
+
+	bool isOriginObj = false;
 
 	DWORD dt;
 
 	LPANIMATION_SET animation_set;
 
 public:
+	void SetisOriginObj(bool value)
+	{
+		isOriginObj = value;
+	}
+	bool GetisOriginObj()
+	{
+		return isOriginObj;
+	}
 	void reset()
 	{
 		SetState(origin_state);

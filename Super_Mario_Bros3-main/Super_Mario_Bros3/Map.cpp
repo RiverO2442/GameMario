@@ -26,6 +26,44 @@ Map::~Map()
 	}
 }
 
+void Map::Render(int playerX, int playerY)
+{
+	int left, top, right, bottom;
+	int i, j, k;
+
+	left = (playerX - IN_USE_WIDTH) / TILE_WIDTH;
+	right = (playerX + IN_USE_WIDTH) / TILE_WIDTH;
+	top = (playerY - IN_USE_HEIGHT) / TILE_HEIGHT;
+	bottom = (playerY + IN_USE_HEIGHT) / TILE_HEIGHT;
+
+	if (right < 0 || left > TotalColumnsOfMap || bottom < 0 && top > TotalRowsOfMap)
+	{
+		return;
+	}
+
+	if (right > TotalColumnsOfMap)
+	{
+		right = TotalColumnsOfMap;
+	}
+	if (bottom > TotalRowsOfMap)
+	{
+		bottom = TotalRowsOfMap;
+	}
+	if (left < 0)
+	{
+		left = 0;
+	}
+	if (top < 0)
+	{
+		top = 0;
+	}
+	for (int r = top; r < bottom; r++)
+		for (int c = left; c < right; c++)
+		{
+			Tiles[TileMap[r][c] - 1]->Draw(c * TILE_WIDTH, r * TILE_HEIGHT, 255); //(x,y,alpha)
+		}
+}
+
 void Map::Render()
 {
 	for (int r = 0; r < TotalRowsOfMap; r++)
@@ -34,6 +72,8 @@ void Map::Render()
 			Tiles[TileMap[r][c] - 1]->Draw(c * TILE_WIDTH, r * TILE_HEIGHT, 255); //(x,y,alpha)
 		}
 }
+
+
 
 void Map::ExtractTileFromTileSet()
 {

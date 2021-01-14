@@ -285,7 +285,10 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		if (ny < 0)    // Handle Jumping
 		{
 			if (vx == 0)
+			{	
 				control_able = 0;
+			}
+
 			isJumping = false;
 			isFalling = false;
 			canFall = false;
@@ -339,8 +342,8 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				}
 				else
 				{
-					if (ny == 0 && nx != 0)
-						control_able = 1 * nx;
+					/*if (ny == 0 && nx != 0)
+						control_able = 1 * nx;*/
 				}
 			}
 
@@ -349,10 +352,8 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				CMario* mario_green = dynamic_cast<CMario*>(e->obj);
 				if (this->type == MARIO_TYPE_RED && mario_green->type == MARIO_TYPE_GREEN)
 				{
-
 					this->SetState(MARIO_STATE_SITDOWN);
 				}
-
 			}
 
 			if (dynamic_cast<CFlower*>(e->obj))

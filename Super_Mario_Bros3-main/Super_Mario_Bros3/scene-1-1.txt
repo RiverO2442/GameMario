@@ -7,7 +7,7 @@
 40	textures\tiles4.png	4	193	170
 50	textures\enemies-2.png	0	128	128
 60	textures\enemy3.png	255	255	255
-70	textures\map.png	156	252	240
+70	textures\map1.1.png	156	252	240
 80	textures\mario2.png	255	255	255
 90	textures\mario3.png	255	255	255
 100	textures\misc2.png	166	185	255
@@ -2197,9 +2197,9 @@
 #0	1565	345	1
 #0	2765	382	1
 #0	1615	1325	1
-#===== black black		265	
+#===== black black
 35	0	431	107
-#===== BANG HUD		265	
+#===== BANG HUD	
 25	0	438	100
 #=====	ANYTHING ELSE (CANT UPDATE)	265	
 #===== WORLD		265	

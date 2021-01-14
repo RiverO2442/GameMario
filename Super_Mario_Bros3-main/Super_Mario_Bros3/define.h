@@ -563,8 +563,9 @@
 #define MAX_SCENE_LINE 1024
 
 //GRID
-#define IN_USE_WIDTH 200
-#define IN_USE_HEIGHT 200
+
+#define IN_USE_WIDTH 250
+#define IN_USE_HEIGHT 250
 
 //WMAP
 #define SCENE_SECTION_MAP				8

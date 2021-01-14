@@ -274,6 +274,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		obj->SetPosition(x, y);
 		obj->SetAnimationSet(ani_set);
 		obj->SetOrigin(x, y, obj->GetState());
+		obj->SetisOriginObj(true);
 		objects.push_back(obj);
 	}
 
@@ -344,10 +345,9 @@ void CPlayScene::Load()
 	DebugOut(L"[INFO] Done loading scene resources %s\n", sceneFilePath);
 }
 
-bool IsInUseArea(LPGAMEOBJECT obj, LPGAMEOBJECT player)
+bool CPlayScene::IsInUseArea(float x, float y)
 {
-	float x, y, px, py;
-	obj->GetPosition(x, y);
+	float px, py;
 	player->GetPosition(px, py);
 	if (abs(x - px) <= IN_USE_WIDTH && abs(y - py) <= IN_USE_HEIGHT)
 		return true;
@@ -375,7 +375,6 @@ void CPlayScene::Update(DWORD dt)
 		cam_x_pre = game->GetCamX();
 		cam_y_pre = game->GetCamY();
 
-		//	cx -= game->GetScreenWidth() / 2;
 		if (id == SCENE_1_1_ID)
 		{
 			if (player->x >= (game->GetScreenWidth() / 2))
@@ -410,71 +409,31 @@ void CPlayScene::Update(DWORD dt)
 			// cap nhat cam mario.
 		}
 
-		//vector<LPGAMEOBJECT> TempObjects;
 		player->GetPosition(cx, cy);
 
-		for (size_t i = 0; i < coObjects.size(); i++)
-		{
-			if (!IsInUseArea(coObjects[i], player))
-			{
-				coObjects[i]->SetActive(false);
-				coObjects.erase(coObjects.begin() + i);
-			}
-		}
-
-		//coObjects.clear();
-
-		/*for (size_t i = 0; i < TempObjects.size(); i++)
-		{
-			float Ox, Oy;
-			TempObjects[i]->GetPosition(Ox, Oy);
-			if (abs(Ox - cx) <= 50 && abs(Oy - cy) <= 50)
-			{
-				coObjects.push_back(TempObjects[i]);
-			}
-			else
-			{
-				TempObjects[i]->SetActive(false);
-				player->GetPosition(cx, cy);
-				TempObjects[i]->GetOriginLocation(Ox, Oy);
-				if (!(abs(Ox - cx) <= 180 && !abs(Oy - cy) <= 180))
-				{
-					TempObjects[i]->reset();
-				}
-			}
-		}*/
-
-		//TempObjects.clear();
-		grid->GetObjects(coObjects, cx, cy);
+		grid->GetObjects(objects, cx, cy);
 
 		for (size_t i = 0; i < objects.size(); i++)
 		{
-			if (!objects[i]->GetActive())
+			float Ox, Oy;
+			objects[i]->GetPosition(Ox, Oy);
+			if (!IsInUseArea(Ox, Oy) && !objects[i]->GetisOriginObj())
 			{
-				coObjects.push_back(objects[i]);
-				objects[i]->SetActive(true);
+				objects[i]->SetActive(false);
+				objects.erase(objects.begin() + i);
 			}
 		}
 
-
-
-		//DebugOut1(L"So Luong CooBJ %d \n", coObjects.size());
 		//DebugOut1(L"So Luong CooBJ %d \n", objects.size());
-
-
+		//DebugOut1(L"So Luong CooBJ %d \n", objects.size());
 
 		player->GetPosition(cx, cy);
 
-		/*for (size_t i = 0; i < coObjects.size(); i++)
+		for (size_t i = 0; i < objects.size(); i++)
 		{
-			TempObjects.push_back(coObjects[i]);
-		}*/
-
-		for (size_t i = 0; i < coObjects.size(); i++)
-		{
-			coObjects[i]->Update(dt, &coObjects);
+			objects[i]->Update(dt, &objects);
 		}
-		DebugOut1(L"So Luong CooBJ %d \n", coObjects.size());
+		DebugOut1(L"So Luong CooBJ %d \n", objects.size());
 
 		if (GetTickCount() - time_counter >= 1000 && time_picker > 0 && player->Getswitch_scene_start() == 0)
 		{
@@ -525,19 +484,28 @@ void CPlayScene::Render()
 
 	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
 
+	float cx, cy;
+
+	player->GetPosition(cx, cy);
+
 	if (map)
 	{
-		//this->map->Render();
+		this->map->Render(cx , cy);
 	}
 
 		CGame* game = CGame::GetInstance();
-		float cx, cy;
+
 		player->GetPosition(cx, cy);
 
-		for (size_t i = 0; i < coObjects.size(); i++)
+		for (size_t i = 0; i < objects.size(); i++)
 		{
-			coObjects[i]->Render();
+			objects[i]->Render();
 		}
+
+		//for (size_t i = 0; i < objects.size(); i++)
+		//{
+		//	objects[i]->Render();
+		//}
 
 		for (size_t i = 0; i < timers.size(); i++)
 		{
@@ -555,6 +523,7 @@ void CPlayScene::Render()
 		{
 			normarl_stacks[i]->Render(i);
 		}
+
 		max_stack->Render();
 
 		for (size_t i = 0; i < items.size(); i++)
@@ -568,14 +537,15 @@ void CPlayScene::Render()
 */
 void CPlayScene::Unload()
 {
-	
-	for (int i = 0; i < objects.size(); i++)
-		delete objects[i];
+	//
+	//for (int i = 0; i < objects.size(); i++)
+	//	delete objects[i];
 
 	for (size_t i = 0; i < scores.size(); i++)
 	{
 		delete scores[i];
 	}
+
 	for (size_t i = 0; i < moneys.size(); i++)
 	{
 		delete moneys[i];
@@ -592,14 +562,13 @@ void CPlayScene::Unload()
 	{
 		delete normarl_stacks[i];
 	}
-	objects.clear();
 	items.clear();
 	moneys.clear();
 	scores.clear();
-	objects.clear();
+	//objects.clear();
 	normarl_stacks.clear();
 	timers.clear();
-	coObjects.clear();
+	objects.clear();
 
 	player = NULL;
 
@@ -632,6 +601,11 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 				break;*/
 		case DIK_B:
 			mario->SetLevel(MARIO_LEVEL_BIG);
+			break;
+		case DIK_L:
+			float x, y;
+			mario->GetPosition(x,y);
+			mario->SetPosition(x + mario->nx*200, 220);
 			break;
 		case DIK_M:
 			mario->SetLevel(MARIO_LEVEL_SMALL);

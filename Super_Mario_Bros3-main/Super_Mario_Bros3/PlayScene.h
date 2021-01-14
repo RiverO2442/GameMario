@@ -60,7 +60,7 @@ class CPlayScene : public CScene
 protected:
 	CMario* player;			// A play scene has to have player, right? 
 	vector<LPGAMEOBJECT> objects;
-	vector<LPGAMEOBJECT> coObjects;
+	//vector<LPGAMEOBJECT> coObjects;
 
 	Map* map;
 
@@ -104,6 +104,9 @@ public:
 	CPlayScene(int id, LPCWSTR filePath);
 
 	virtual void Load();
+
+	virtual bool IsInUseArea(float x, float y);
+
 	virtual void Update(DWORD dt);
 	virtual void Render();
 	virtual void Unload();

@@ -98,6 +98,7 @@ void CGrid::_ParseSection_OBJECTS(string line)
 		int add = 0;
 		obj->SetPosition(x, y);
 		obj->SetAnimationSet(ani_set);
+		obj->SetOrigin(x, y, obj->GetState());
 		cells[cellX][cellY].Add(obj);
 	}
 
@@ -187,7 +188,10 @@ void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int playerX, int player
 				{
 					if (!cells[i][j].GetListObjects().at(k)->Actived)
 					{
-						//cells[i][j].GetListObjects().at(k)->reset();
+						float Ox, Oy;
+						cells[i][j].GetListObjects().at(k)->GetOriginLocation(Ox, Oy);
+						if(!((CPlayScene*)(CGame::GetInstance()->GetCurrentScene()))->IsInUseArea(Ox, Oy))
+						cells[i][j].GetListObjects().at(k)->reset();
 						listObject.push_back(cells[i][j].GetListObjects().at(k));
 						cells[i][j].GetListObjects().at(k)->SetActive(true);
 					}
