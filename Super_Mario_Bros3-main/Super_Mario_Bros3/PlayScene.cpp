@@ -345,11 +345,15 @@ void CPlayScene::Load()
 	DebugOut(L"[INFO] Done loading scene resources %s\n", sceneFilePath);
 }
 
-bool CPlayScene::IsInUseArea(float x, float y)
+bool CPlayScene::IsInUseArea(float Ox, float Oy)
 {
-	float px, py;
-	player->GetPosition(px, py);
-	if (abs(x - px) <= IN_USE_WIDTH && abs(y - py) <= IN_USE_HEIGHT)
+	float CamX, CamY;
+
+	CamX = CGame::GetInstance()->GetCamX();
+
+	CamY = CGame::GetInstance()->GetCamY();
+
+	if (((CamX < Ox) && (Ox < CamX + IN_USE_WIDTH)) && ((CamY < Oy) && (Oy < CamY + IN_USE_HEIGHT)))
 		return true;
 	return false;
 }
@@ -382,11 +386,11 @@ void CPlayScene::Update(DWORD dt)
 				cx -= game->GetScreenWidth() / 2;
 				CGame::GetInstance()->SetCamPos((int)cx, 352 - game->GetScreenHeight() / 2);
 				DebugOut1(L"%i \n", 352 - game->GetScreenHeight() / 2);
-				//if (player->y <= (game->GetScreenHeight() / 3))
-				//{
-				//	cy -= game->GetScreenHeight() / 2;
-				//	CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
-				//}
+				if (player->y <= (game->GetScreenHeight() / 3))
+				{
+					cy -= game->GetScreenHeight() / 2;
+					CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
+				}
 			}
 		}
 		else if(id == SCENE_1_4_ID)
@@ -400,7 +404,6 @@ void CPlayScene::Update(DWORD dt)
 					time_cam_move = 0;
 					float cam_x_update = UpdateCamMoveX(dt);
 					CGame::GetInstance()->SetCamPos(cam_x_update, 220);
-
 				}
 			}
 		}
@@ -409,7 +412,9 @@ void CPlayScene::Update(DWORD dt)
 			// cap nhat cam mario.
 		}
 
-		player->GetPosition(cx, cy);
+		cx = game->GetCamX();
+
+		cy = game->GetCamY();
 
 		grid->GetObjects(objects, cx, cy);
 
@@ -426,8 +431,6 @@ void CPlayScene::Update(DWORD dt)
 
 		//DebugOut1(L"So Luong CooBJ %d \n", objects.size());
 		//DebugOut1(L"So Luong CooBJ %d \n", objects.size());
-
-		player->GetPosition(cx, cy);
 
 		for (size_t i = 0; i < objects.size(); i++)
 		{
@@ -484,18 +487,17 @@ void CPlayScene::Render()
 
 	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
 
+	CGame* game = CGame::GetInstance();
+
 	float cx, cy;
 
 	player->GetPosition(cx, cy);
 
 	if (map)
 	{
-		this->map->Render(cx , cy);
+		this->map->Render(game->GetCamX() , game->GetCamY());
 	}
 
-		CGame* game = CGame::GetInstance();
-
-		player->GetPosition(cx, cy);
 
 		for (size_t i = 0; i < objects.size(); i++)
 		{
@@ -550,25 +552,34 @@ void CPlayScene::Unload()
 	{
 		delete moneys[i];
 	}
+
 	for (size_t i = 0; i < items.size(); i++)
 	{
 		delete items[i];
 	}
+
 	for (size_t i = 0; i < timers.size(); i++)
 	{
 		delete timers[i];
 	}
+
 	for (size_t i = 0; i < normarl_stacks.size(); i++)
 	{
 		delete normarl_stacks[i];
 	}
+
+	for (size_t i = 0; i < new_map_cams.size(); i++)
+	{
+		delete new_map_cams[i];
+	}
+
+	new_map_cams.clear();
 	items.clear();
 	moneys.clear();
 	scores.clear();
-	//objects.clear();
+	objects.clear();
 	normarl_stacks.clear();
 	timers.clear();
-	objects.clear();
 
 	player = NULL;
 
@@ -581,8 +592,6 @@ void CPlayScene::Unload()
 	grid = nullptr;
 
 	delete grid;
-
-	
 
 	DebugOut(L"[INFO] Scene %s unloaded! \n", sceneFilePath);
 }

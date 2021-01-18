@@ -2,7 +2,7 @@
 [TEXTURES]
 0	textures\world_map_1.png	255	255	255
 10	textures\world_map_sprites.png	248	236	160
-20	Scene\WMap\world_map_1_bank.png	255	255	255
+20	textures\world_map_1_bank.png	255	255	255
 30	textures\mario2.png	255	255	255
 40	textures\world_map_sprites_2.png	248	236	160
 50	textures\HUD.png	0	224	142

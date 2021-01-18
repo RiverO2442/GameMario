@@ -142,17 +142,17 @@ void CGrid::Load(LPCWSTR filePath)
 	DebugOut(L"[INFO] Done loading scene resources %s\n", filePath);
 }
 
-void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int playerX, int playerY)
+void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int CamX, int CamY)
 {
 	//listObject.clear();
 
 	int left, top, right, bottom;
 	int i, j, k;
 
-	left = (playerX - IN_USE_WIDTH) / cellWidth;
-	right = (playerX + IN_USE_WIDTH) / cellWidth;
-	top = (playerY - IN_USE_HEIGHT) / cellHeight;
-	bottom = (playerY + IN_USE_HEIGHT) / cellHeight;
+	left = (CamX) / cellWidth;
+	right = (CamX + IN_USE_WIDTH) / cellWidth;
+	top = (CamY) / cellHeight;
+	bottom = (CamY + IN_USE_HEIGHT) / cellHeight;
 
 	LPGAMEOBJECT obj;
 
@@ -190,7 +190,7 @@ void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int playerX, int player
 					{
 						float Ox, Oy;
 						cells[i][j].GetListObjects().at(k)->GetOriginLocation(Ox, Oy);
-						if(!((CPlayScene*)(CGame::GetInstance()->GetCurrentScene()))->IsInUseArea(Ox, Oy))
+						if(!((CPlayScene*)(CGame::GetInstance()->GetCurrentScene()))->IsInUseArea(Ox, Oy) && cells[i][j].GetListObjects().at(k)->GetState() > 10)
 						cells[i][j].GetListObjects().at(k)->reset();
 						listObject.push_back(cells[i][j].GetListObjects().at(k));
 						cells[i][j].GetListObjects().at(k)->SetActive(true);

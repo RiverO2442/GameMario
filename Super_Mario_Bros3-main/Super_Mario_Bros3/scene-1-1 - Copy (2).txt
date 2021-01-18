@@ -1,6 +1,6 @@
 # id	file_path	transparent_color_r	g	b
 [TEXTURES]
-400	Scene\1-4\Map1-4_bank.png	255	255	255
+500	Scene\1-1\Map1-1_bank.png	255	255	255
 0	textures\mario.png	255	255	255
 20	textures\misc.png	176	224	248
 10	textures\enemies.png	3	26	110
@@ -1778,9 +1778,6 @@
 
 18	40	270	218
 
-#===== black black
-35	0	431	107
-
 #===== NEW MAP CAM
 #=== THU 1
 47	0	1733	1
@@ -1873,6 +1870,6 @@
 46	12000	12000	1222
 
 [MAP]
-400	4	18	14	80	64	Scene\1-4\Map-1-4.txt
+500	4	18	14	80	64	Scene\1-1\Map-1-1.txt
 [GRID]
-Scene\1-4\Grid1-4.txt
+Scene\1-1\Grid1-1.txt

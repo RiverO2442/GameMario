@@ -76,6 +76,17 @@ void CAnimations::Clear()
 	animations.clear();
 }
 
+void CAnimationSets::Clear()
+{
+	for (auto x : animation_sets)
+	{
+		LPANIMATION_SET ani = x.second;
+		delete ani;
+	}
+
+	animation_sets.clear();
+}
+
 CAnimationSets::CAnimationSets()
 {
 

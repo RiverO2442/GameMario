@@ -402,19 +402,22 @@ void CWorldMap::Unload()
 	for (int i = 0; i < objects.size(); i++)
 		delete objects[i];
 
-
 	for (size_t i = 0; i < scores.size(); i++)
 	{
 		delete scores[i];
 	}
+
 	for (size_t i = 0; i < moneys.size(); i++)
 	{
 		delete moneys[i];
 	}
+
 	for (size_t i = 0; i < items.size(); i++)
 	{
 		delete items[i];
-	}for (size_t i = 0; i < Nodes.size(); i++)
+	}
+	
+	for (size_t i = 0; i < Nodes.size(); i++)
 	{
 		delete Nodes[i];
 	}

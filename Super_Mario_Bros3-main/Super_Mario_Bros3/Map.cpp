@@ -26,15 +26,15 @@ Map::~Map()
 	}
 }
 
-void Map::Render(int playerX, int playerY)
+void Map::Render(int CamX, int CamY)
 {
 	int left, top, right, bottom;
 	int i, j, k;
 
-	left = (playerX - IN_USE_WIDTH) / TILE_WIDTH;
-	right = (playerX + IN_USE_WIDTH) / TILE_WIDTH;
-	top = (playerY - IN_USE_HEIGHT) / TILE_HEIGHT;
-	bottom = (playerY + IN_USE_HEIGHT) / TILE_HEIGHT;
+	left = (CamX) / TILE_WIDTH;
+	right = (CamX + IN_USE_WIDTH) / TILE_WIDTH;
+	top = (CamY) / TILE_HEIGHT;
+	bottom = (CamY + IN_USE_HEIGHT) / TILE_HEIGHT;
 
 	if (right < 0 || left > TotalColumnsOfMap || bottom < 0 && top > TotalRowsOfMap)
 	{
@@ -45,18 +45,22 @@ void Map::Render(int playerX, int playerY)
 	{
 		right = TotalColumnsOfMap;
 	}
+
 	if (bottom > TotalRowsOfMap)
 	{
 		bottom = TotalRowsOfMap;
 	}
+
 	if (left < 0)
 	{
 		left = 0;
 	}
+
 	if (top < 0)
 	{
 		top = 0;
 	}
+
 	for (int r = top; r < bottom; r++)
 		for (int c = left; c < right; c++)
 		{
@@ -77,7 +81,7 @@ void Map::Render()
 
 void Map::ExtractTileFromTileSet()
 {
-	for (int TileNumber = 0; TileNumber < TotalTiles; TileNumber++) //total tiles = 91
+	for (int TileNumber = 0; TileNumber < TotalTiles; TileNumber++) 
 	{
 		int left = TileNumber % TotalColumnsOfTileSet * TILE_WIDTH;
 		int top = TileNumber / TotalColumnsOfTileSet * TILE_HEIGHT;
