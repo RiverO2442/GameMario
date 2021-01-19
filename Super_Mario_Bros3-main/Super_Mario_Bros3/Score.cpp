@@ -20,48 +20,27 @@ void CScore::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
 	CGameObject::Update(dt);
 
-	CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
+	CPlayScene* playscene = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene());
 
-
-	for (UINT i = 0; i < coObjects->size(); i++)
+	if (playscene->CheckScoreMng() && !isUsed)
 	{
-		LPGAMEOBJECT obj = coObjects->at(i);
-		if (dynamic_cast<CQuestionBrick*>(obj) || dynamic_cast<CGoomba*>(obj) || dynamic_cast<CKoopas*>(obj) || dynamic_cast<CFlower*>(obj) || dynamic_cast<CLeaf*>(obj) || dynamic_cast<CMushRoom*>(obj) || dynamic_cast<FIREBALL*>(obj))
+		this->SetPosition(playscene->GetScoreManager()->getScorePoisitionX(), playscene->GetScoreManager()->getScorePoisitionY());
+		value = playscene->GetScoreManager()->getScore();
+		playscene->DeleteScore();
+		isUsed = true;
+		SetState(SCORE_STATE_UP);
+		StartTiming();
+	}
+
+	if (state == SCORE_STATE_UP)
+	{
+		if (GetTickCount() - timing_start >= 600)
 		{
-			CQuestionBrick* question_brick = dynamic_cast<CQuestionBrick*>(obj);
-			CGoomba* goomba = dynamic_cast<CGoomba*>(obj);
-			CKoopas* koopas = dynamic_cast<CKoopas*>(obj);
-			CFlower* flower = dynamic_cast<CFlower*>(obj);
-			CLeaf* leaf = dynamic_cast<CLeaf*>(obj);
-			CMushRoom* mushroom = dynamic_cast<CMushRoom*>(obj);
-			FIREBALL* fireball = dynamic_cast<FIREBALL*>(obj);
-			//if (state == SCORE_STATE_IDLE && (question_brick->GetIsAllowToShowScore() || goomba->GetIsAllowToShowScore() || koopas->GetIsAllowToShowScore() || flower->GetIsAllowToShowScore() || leaf->GetIsAllowToShowScore() || mushroom->GetIsAllowToShowScore() || fire_bullet->GetIsAllowToShowScore()) && isUsed)
-			/*{
-				StartTiming();
-				this->x = mario->GetShowPointX() + 5;
-				this->y = mario->GetShowPointY() - 10;
-				SetState(SCORE_STATE_UP);
-			}*/
-
-
-			/*if (state == SCORE_STATE_UP)
-			{
-				if (GetTickCount() - timing_start >= 600)
-				{
-					isUsed = false;
-					SetPosition(6000, 6000);
-					SetState(SCORE_STATE_IDLE);
-					question_brick->SetIsAllowToShowScore(false);
-					goomba->SetIsAllowToShowScore(false);
-					koopas->SetIsAllowToShowScore(false);
-					flower->SetIsAllowToShowScore(false);
-					leaf->SetIsAllowToShowScore(false);
-					mushroom->SetIsAllowToShowScore(false);
-					fire_bullet->SetIsAllowToShowScore(false);
-					timing_start = 0;
-					value = 0;
-				}
-			}*/
+			isUsed = false;
+			SetPosition(6000, 6000);
+			SetState(SCORE_STATE_IDLE);
+			timing_start = 0;
+			value = 0;
 		}
 	}
 

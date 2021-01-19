@@ -118,52 +118,64 @@ public:
 		if (count_down_time_start == 0)
 			count_down_time_start = GetTickCount();
 	}
+
 	bool GetIsAllowToShowWordsEndScene()
 	{
 		return isAllowToShowWordsEndScene;
 	}
+
 	void SetIsAllowToShowWordsEndScene(bool isAllowToShowWordsEndSceneBool)
 	{
 		isAllowToShowWordsEndScene = isAllowToShowWordsEndSceneBool;
 	}
+
 	void StartPipeDowning()
 	{
 		if (pipe_downing_start == 0)
 			pipe_downing_start = GetTickCount();
 	}
+
 	void StartPipeUpping()
 	{
 		if (pipe_upping_start == 0)
 			pipe_upping_start = GetTickCount();
 	}
+
 	bool GetCanPipeDowning()
 	{
 		return canPipeDowning;
 	}
+
 	void SetCanPipeDowning(bool canPipeDowningBool)
 	{
 		this->canPipeDowning = canPipeDowningBool;
 	}
+
 	bool GetCanPipeUpping()
 	{
 		return canPipeUpping;
 	}
+
 	void SetCanPipeUpping(bool canPipeUppingBool)
 	{
 		this->canPipeUpping = canPipeUppingBool;
 	}
+
 	bool GetIsTransform()
 	{
 		return isTransform;
 	}
+
 	void SetIsTransform(bool value)
 	{
 		this->isTransform = value;
 	}
+
 	bool GetIsSmokeTransform()
 	{
 		return isSmokeTransform;
 	}
+
 	void SetIsSmokeTransform(bool value)
 	{
 		this->isSmokeTransform = value;
@@ -292,6 +304,7 @@ public:
 
 	int GetspeedLevel() { return speedLevel; }
 	void SetspeedLevel(int value) { speedLevel = value; }
+
 	DWORD GetFlyingStart()
 	{
 		return flying_start;

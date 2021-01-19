@@ -34,6 +34,8 @@
 #include <fstream>
 #include "NewMapCam.h"
 #include "Map.h"
+#include "ScoreManager.h"
+#include "Score.h"
 
 #define GRID_SECTION_SETTINGS	1
 #define GRID_SECTION_OBJECTS	2
@@ -60,10 +62,13 @@ class CPlayScene : public CScene
 protected:
 	CMario* player;			// A play scene has to have player, right? 
 	vector<LPGAMEOBJECT> objects;
-	//vector<LPGAMEOBJECT> coObjects;
+
+	bool camYMove = false;
 
 	Map* map;
 
+	vector<LPGAMEOBJECT> scores_panel;
+	vector<ScoreManager*> scoreMng;
 	vector<CHUD*>  timers;
 	vector<CHUD*>  scores;
 	vector<CHUD*>  moneys;
@@ -107,12 +112,32 @@ public:
 
 	virtual bool IsInUseArea(float x, float y);
 
+	bool CheckCamY();
+
 	virtual void Update(DWORD dt);
 	virtual void Render();
 	virtual void Unload();
 
 	CMario* GetPlayer() { return player; }
-
+	void AddScore(float x, float y, int score)
+	{
+		ScoreManager* sm = new ScoreManager(x, y, score);
+		this->scoreMng.push_back(sm);
+	}
+	ScoreManager* GetScoreManager()
+	{
+		return scoreMng.at(0);
+	}
+	bool CheckScoreMng()
+	{
+		if (scoreMng.size() != 0)
+			return true;
+		return false;
+	}
+	void DeleteScore()
+	{
+		this->scoreMng.erase(scoreMng.begin());
+	}
 	void StartTimeCamMove()
 	{
 		if (time_cam_move == 0)

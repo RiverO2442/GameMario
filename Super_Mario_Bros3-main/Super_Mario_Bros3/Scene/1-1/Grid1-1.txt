@@ -1,6 +1,6 @@
 [SETTINGS]
 #cell_size(width)	cell_size(height)	num_col_cells	num_row_cells
-50	50	60	40
+150	100	20	20
 # type :0 = Mario , 1 = Brick, 2 = Goomba, 3 = Koopas, 4 = NoCollisionObjects, 5= RECT, 6=PIPE NORMAL, 7= koopas xanh_bay, 8= koopas ??_b?, 9= koopas ??_bay, 10=Coin NORMAL, 11=Goomba red bay, 12= Fire Bullet,13= FLOWER RED,14=Flower Bullet, 15=COIN CAN MOVE, 16=Leaf ,17=Mushroom Red,18=Question Brick Have Leaf, 19=Mushroom Green ,20=Question Brick Just Have Mushroom , 21= FLOWER GREEN , 22= FLOWER GREEN CAN SHOOT , 23= BREAKABLE BRICK , 24=BELL
 #	25=HUD PANEL , 26=MARIO_LUIGI_HUD , 27=LIFE, 28= MONEY, 29=SCORE , 30=TIME_PICKER , 31= WORLD , 32=STACK NORMAL, 33=STACK MAX, 34=ITEM , 35= black black , 36=special item
 #	37=PIPE DOWN , 38= PIPE UP , 39= SCORE AND 1VP ,40= WORDS END SCENE COURSE CLEAR , 41=WORDS END SCENE YOU GOT A CARD , 42=WORDS END SCENE ITEM

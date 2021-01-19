@@ -565,9 +565,14 @@
 
 #define IN_USE_WIDTH 330
 #define IN_USE_HEIGHT 300
+#define CAM_X_BONUS 20
+
 
 //WMAP
 #define SCENE_SECTION_MAP				8
+
+//ScoreManager
+#define SCORE_FIX_PST_Y		10
 
 class define
 {

@@ -266,6 +266,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		float rdx = 0;
 		float rdy = 0;
 
+		CPlayScene* playscene = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene());
 		// TODO: This is a very ugly designed function!!!!
 		FilterCollision(coEvents, coEventsResult, min_tx, min_ty, nx, ny, rdx, rdy);
 
@@ -479,10 +480,12 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 						if (goomba->GetType() != GOOMBA_RED_FLY)
 						{
 							goomba->SetState(GOOMBA_STATE_DIE);
+							playscene->AddScore(this->x,this->y + SCORE_FIX_PST_Y, 100);
 						}
 						else
 						{
 							goomba->SetState(GOOMBA_STATE_RED_LOSE_WINGS);
+							playscene->AddScore(this->x, this->y + SCORE_FIX_PST_Y, 100);
 						}
 					}
 					else if (e->nx != 0)
@@ -493,7 +496,6 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 							if (level == MARIO_LEVEL_TAIL)
 							{
 								level = MARIO_LEVEL_BIG;
-
 							}
 							else
 								if (level == MARIO_LEVEL_SMALL)

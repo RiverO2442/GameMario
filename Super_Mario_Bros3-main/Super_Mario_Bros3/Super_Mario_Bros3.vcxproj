@@ -171,6 +171,7 @@
     <ClInclude Include="QuestionBrick.h" />
     <ClInclude Include="RECT.h" />
     <ClInclude Include="Score.h" />
+    <ClInclude Include="ScoreManager.h" />
     <ClInclude Include="ScrollingStage.h" />
     <ClInclude Include="Special_Item.h" />
     <ClInclude Include="Star.h" />
@@ -221,6 +222,7 @@
     <ClCompile Include="RECT.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Score.cpp" />
+    <ClCompile Include="ScoreManager.cpp" />
     <ClCompile Include="ScrollingStage.cpp" />
     <ClCompile Include="Special_Item.cpp" />
     <ClCompile Include="Star.cpp" />

@@ -149,8 +149,10 @@ void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int CamX, int CamY)
 	int left, top, right, bottom;
 	int i, j, k;
 
-	left = (CamX) / cellWidth;
+	left = ((CamX) / cellWidth);
 	right = (CamX + IN_USE_WIDTH) / cellWidth;
+	if (((CamX + IN_USE_WIDTH) % cellWidth) != 0)
+	right++;
 	top = (CamY) / cellHeight;
 	bottom = (CamY + IN_USE_HEIGHT) / cellHeight;
 

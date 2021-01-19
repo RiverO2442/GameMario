@@ -8,6 +8,7 @@
 class CNewMapCam : public CGameObject
 {
 	int id;
+	float y_limit;
 	float start_cam_x;
 	float end_cam_x;
 
@@ -15,7 +16,7 @@ public:
 	virtual void GetBoundingBox(float& left, float& top, float& right, float& bottom) {};
 	virtual void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {};
 	virtual void Render() {};
-	CNewMapCam(int id, float start_cam_x, float end_cam_x);
+	CNewMapCam(int id, float start_cam_x, float y_limit, float end_cam_x);
 	virtual void SetState(int state) {};
 	float GetStartCamX()
 	{

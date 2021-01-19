@@ -176,10 +176,17 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		player = (CMario*)obj;
 		DebugOut(L"[INFO] Player object created!\n");
 		break;
-	case OBJECT_TYPE_NEW_MAP_CAM:
-		new_map_cam = new CNewMapCam(x, y, ani_set_id);
-		new_map_cams.push_back(new_map_cam);
+	case OBJECT_TYPE_SCORE_AND_1LV:
+		obj = new CScore();
+		scores_panel.push_back(obj);
 		break;
+	case OBJECT_TYPE_NEW_MAP_CAM:
+	{
+		float y_limit = atof(tokens[4].c_str());
+		new_map_cam = new CNewMapCam(x, y, y_limit, ani_set_id);
+		new_map_cams.push_back(new_map_cam);
+	}
+	break;
 	case OBJECT_TYPE_GOOMBA_NORMAL: obj = new CGoomba(888); break;
 	case OBJECT_TYPE_GOOMBA_RED_FLY: obj = new CGoomba(999); break;
 	case OBJECT_TYPE_BRICK: obj = new CBrick(); break;
@@ -280,9 +287,6 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 
 	if (HUD_items != NULL)
 		HUD_items->SetAnimationSet(ani_set);
-
-
-
 }
 
 void CPlayScene::Load()
@@ -353,9 +357,16 @@ bool CPlayScene::IsInUseArea(float Ox, float Oy)
 
 	CamY = CGame::GetInstance()->GetCamY();
 
-	if (((CamX < Ox) && (Ox < CamX + IN_USE_WIDTH)) && ((CamY < Oy) && (Oy < CamY + IN_USE_HEIGHT)))
+	if (((CamX - CAM_X_BONUS < Ox) && (Ox < CamX + IN_USE_WIDTH)) && ((CamY < Oy) && (Oy < CamY + IN_USE_HEIGHT)))
 		return true;
 	return false;
+}
+
+bool CPlayScene::CheckCamY()
+{
+	float px, py;
+	player->GetPosition(px, py);
+	if(px )
 }
 
 void CPlayScene::Update(DWORD dt)
@@ -378,6 +389,8 @@ void CPlayScene::Update(DWORD dt)
 
 		cam_x_pre = game->GetCamX();
 		cam_y_pre = game->GetCamY();
+
+
 
 		if (id == SCENE_1_1_ID)
 		{
@@ -422,7 +435,7 @@ void CPlayScene::Update(DWORD dt)
 		{
 			float Ox, Oy;
 			objects[i]->GetPosition(Ox, Oy);
-			if (!IsInUseArea(Ox, Oy) && !objects[i]->GetisOriginObj())
+			if (!IsInUseArea(Ox, Oy) && !objects[i]->GetisOriginObj() )
 			{
 				objects[i]->SetActive(false);
 				objects.erase(objects.begin() + i);
@@ -436,6 +449,7 @@ void CPlayScene::Update(DWORD dt)
 		{
 			objects[i]->Update(dt, &objects);
 		}
+
 		DebugOut1(L"So Luong CooBJ %d \n", objects.size());
 
 		if (GetTickCount() - time_counter >= 1000 && time_picker > 0 && player->Getswitch_scene_start() == 0)
@@ -504,23 +518,21 @@ void CPlayScene::Render()
 			objects[i]->Render();
 		}
 
-		//for (size_t i = 0; i < objects.size(); i++)
-		//{
-		//	objects[i]->Render();
-		//}
-
 		for (size_t i = 0; i < timers.size(); i++)
 		{
 			timers[i]->Render(i);
 		}
+
 		for (size_t i = 0; i < scores.size(); i++)
 		{
 			scores[i]->Render(i);
 		}
+
 		for (size_t i = 0; i < moneys.size(); i++)
 		{
 			moneys[i]->Render(i);
 		}
+
 		for (size_t i = 0; i < normarl_stacks.size(); i++)
 		{
 			normarl_stacks[i]->Render(i);

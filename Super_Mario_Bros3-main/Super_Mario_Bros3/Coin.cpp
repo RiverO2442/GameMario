@@ -72,7 +72,6 @@ void CCoin::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 						StartTiming();
 						isAppear = true;
 						question_brick->SetIsUsed(true);
-
 					}
 
 				}
@@ -92,11 +91,12 @@ void CCoin::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		}
 	}
 
-	if (state == COIN_STATE_DOWN)
+	if (state == COIN_STATE_DOWN && isAppear)
 	{
 		if (GetTickCount() - timing_start >= 300)
 		{
 			isAppear = false;
+			((CPlayScene*)(CGame::GetInstance()->GetCurrentScene()))->AddScore(this->x, this->y + SCORE_FIX_PST_Y, 100);
 		}
 
 	}
