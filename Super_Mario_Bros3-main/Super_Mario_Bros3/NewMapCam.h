@@ -26,5 +26,9 @@ public:
 	{
 		return start_cam_x;
 	}
+	float GetCamYLimit()
+	{
+		return y_limit;
+	}
 
 };

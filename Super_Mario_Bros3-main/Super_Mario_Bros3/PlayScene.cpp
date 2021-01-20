@@ -11,11 +11,12 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath) :
 	if (id == SCENE_1_4_ID)
 	{
 		cam_state = 1;
-		CGame::GetInstance()->SetCamPos(0, 220);
+		CGame::GetInstance()->SetCamPos(0, 0);
 	}
 	if (id == SCENE_1_1_ID)
 	{
-		CGame::GetInstance()->SetCamPos(0, 221);
+		cam_state = 1;
+		CGame::GetInstance()->SetCamPos(0, 0);
 	}
 	
 }
@@ -366,7 +367,11 @@ bool CPlayScene::CheckCamY()
 {
 	float px, py;
 	player->GetPosition(px, py);
-	if(px )
+	if (py > new_map_cams[cam_state - 1]->GetCamYLimit()- 60)
+		camYMove = false;
+	if (py < new_map_cams[cam_state - 1]->GetCamYLimit() - 60 || player->GetIsFlying())
+		camYMove = true;
+	return camYMove;
 }
 
 void CPlayScene::Update(DWORD dt)
@@ -397,12 +402,16 @@ void CPlayScene::Update(DWORD dt)
 			if (player->x >= (game->GetScreenWidth() / 2))
 			{
 				cx -= game->GetScreenWidth() / 2;
-				CGame::GetInstance()->SetCamPos((int)cx, 352 - game->GetScreenHeight() / 2);
+				//CGame::GetInstance()->SetCamPos((int)cx, 352 - game->GetScreenHeight() / 2);
 				DebugOut1(L"%i \n", 352 - game->GetScreenHeight() / 2);
-				if (player->y <= (game->GetScreenHeight() / 3))
+				if (CheckCamY())
 				{
 					cy -= game->GetScreenHeight() / 2;
 					CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
+				}
+				else
+				{
+					CGame::GetInstance()->SetCamPos((int)cx, 352 - game->GetScreenHeight() / 2);
 				}
 			}
 		}
@@ -663,7 +672,7 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 float CPlayScene::UpdateCamMoveX(DWORD dt)
 {
 
-	float cam_x_end_temp = new_map_cams.at(0)->GetEndCamX();
+	float cam_x_end_temp = new_map_cams.at(cam_state - 1)->GetEndCamX();
 
 	float cam_x_game = CGame::GetInstance()->GetCamX();
 
