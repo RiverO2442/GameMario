@@ -186,19 +186,27 @@ void CHUD::Render(int id)
 		}
 	}
 
-	CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
-	int speed_level_count = mario->GetspeedLevel();
-
-
-
-	if (id < speed_level_count)
+	if (id == SCENE_1_4_ID)
 	{
-		stack_alive = true;
+		CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
+
+		int speed_level_count = mario->GetspeedLevel();
+
+		if (id < speed_level_count)
+		{
+			stack_alive = true;
+		}
+		else
+		{
+			stack_alive = false;
+		}
 	}
 	else
 	{
 		stack_alive = false;
 	}
+
+
 
 
 	vector<int> items_type = CGame::GetInstance()->GetItemsTypeRender();

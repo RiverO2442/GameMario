@@ -36,7 +36,7 @@ class CMario : public CGameObject
 	bool isAppear = true;
 	int heightLimit;
 	bool isBraking;
-	int speedLevel = 1;
+	int speedLevel = 0;
 	int level = 0;
 	int untouchable;
 	DWORD firing_start = 0;
@@ -302,7 +302,7 @@ public:
 	bool GetIsSpining() { return isSpining; }
 	void SetIsSpining(bool value) { isSpining = value; }
 
-	int GetspeedLevel() { return speedLevel; }
+	int GetspeedLevel() { if(this != NULL) return speedLevel; }
 	void SetspeedLevel(int value) { speedLevel = value; }
 
 	DWORD GetFlyingStart()

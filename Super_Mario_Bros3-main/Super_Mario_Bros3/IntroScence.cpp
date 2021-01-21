@@ -11,7 +11,7 @@ CIntroScence::CIntroScence(int id, LPCWSTR filePath) :
 	CScene(id, filePath)
 {
 	key_handler = new CIntroScenceKeyHandler(this);
-	CGame::GetInstance()->SetCamPos(70, -20);
+	cam_state = 1;
 }
 
 CIntroScence::~CIntroScence()
@@ -141,7 +141,7 @@ void CIntroScence::_ParseSection_OBJECTS(string line)
 	int object_type = atoi(tokens[0].c_str());
 	float x = atof(tokens[1].c_str());
 	float y = atof(tokens[2].c_str());
-
+	CNewMapCam* new_map_cam = NULL;
 	int ani_set_id = atoi(tokens[3].c_str());
 
 	CAnimationSets* animation_sets = CAnimationSets::GetInstance();
@@ -150,6 +150,13 @@ void CIntroScence::_ParseSection_OBJECTS(string line)
 
 	switch (object_type)
 	{
+	case OBJECT_TYPE_NEW_MAP_CAM:
+	{
+		float y_limit = atof(tokens[4].c_str());
+		float y_start = atof(tokens[5].c_str());
+		new_map_cam = new CNewMapCam(ani_set_id, x, y, y_limit, y_start);
+		new_map_cams.push_back(new_map_cam);
+	}
 	case OBJECT_TYPE_BRICK: obj = new CBrick(); break;
 	case OBJECT_TYPE_BACKGROUND_STAGE_BLACK:  obj = new CBackGroundStage(111); break;
 	case OBJECT_TYPE_BACKGROUND_STAGE_COLOR:  obj = new CBackGroundStage(222); break;
@@ -231,6 +238,10 @@ void CIntroScence::Update(DWORD dt)
 {
 	StartTimeCount();
 
+	CGame* game = CGame::GetInstance();
+
+	if (game->GetCamX() == CAM_START && game->GetCamY() == CAM_START)
+		CGame::GetInstance()->SetCamPos(new_map_cams[cam_state - 1]->GetStartCamX(), new_map_cams[cam_state - 1]->GetYStart());
 
 	vector<LPGAMEOBJECT> coObjects;
 	for (size_t i = 0; i < objects.size(); i++)
@@ -262,7 +273,12 @@ void CIntroScence::Unload()
 {
 	for (int i = 0; i < objects.size(); i++)
 		delete objects[i];
+	for (size_t i = 0; i < new_map_cams.size(); i++)
+	{
+		delete new_map_cams[i];
+	}
 
+	new_map_cams.clear();
 	objects.clear();
 
 	DebugOut(L"[INFO] Scene %s unloaded! \n", sceneFilePath);

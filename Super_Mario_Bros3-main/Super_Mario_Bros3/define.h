@@ -490,7 +490,7 @@
 #define PIPING_LIMIT_RIGHT	16
 
 //PLAYSCENE
-
+#define CAM_START 0
 
 #define SCENE_SECTION_UNKNOWN -1
 #define SCENE_SECTION_TEXTURES 2
@@ -503,6 +503,7 @@
 #define SCENE_1_4_ID 4
 #define SCENE_1_1_ID 3
 #define	WORLD_MAP_ID	2
+#define	INTRO_SCENE_ID	1
 
 
 #define OBJECT_TYPE_MARIO				 0

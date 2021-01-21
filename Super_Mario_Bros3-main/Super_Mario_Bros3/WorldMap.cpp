@@ -146,6 +146,8 @@ void CWorldMap::_ParseSection_OBJECTS(string line)
 	float x = atof(tokens[1].c_str());
 	float y = atof(tokens[2].c_str());
 
+	CNewMapCam* new_map_cam = NULL;
+
 	int ani_set_id = atoi(tokens[3].c_str());
 
 	CAnimationSets* animation_sets = CAnimationSets::GetInstance();
@@ -156,6 +158,14 @@ void CWorldMap::_ParseSection_OBJECTS(string line)
 
 	switch (object_type)
 	{
+	case OBJECT_TYPE_NEW_MAP_CAM:
+	{
+		float y_limit = atof(tokens[4].c_str());
+		float y_start = atof(tokens[5].c_str());
+		new_map_cam = new CNewMapCam(ani_set_id, x, y, y_limit, y_start);
+		new_map_cams.push_back(new_map_cam);
+	}
+	break;
 	case OBJECT_TYPE_MARIO:
 		obj = new CWorldMapObjects(11);
 		break;
@@ -317,6 +327,9 @@ void CWorldMap::Load()
 void CWorldMap::Update(DWORD dt)
 {
 
+	if (CGame::GetInstance()->GetCamX() == CAM_START && CGame::GetInstance()->GetCamY() == CAM_START)
+		CGame::GetInstance()->SetCamPos(new_map_cams[0]->GetStartCamX(), new_map_cams[0]->GetYStart());
+
 	vector<LPGAMEOBJECT> coObjects;
 	for (size_t i = 0; i < objects.size(); i++)
 	{
@@ -416,11 +429,17 @@ void CWorldMap::Unload()
 	{
 		delete items[i];
 	}
-	
+
 	for (size_t i = 0; i < Nodes.size(); i++)
 	{
 		delete Nodes[i];
 	}
+	for (size_t i = 0; i < new_map_cams.size(); i++)
+	{
+		delete new_map_cams[i];
+	}
+
+	new_map_cams.clear();
 
 	items.clear();
 	moneys.clear();
@@ -444,7 +463,7 @@ void CWorldMapKeyHandler::OnKeyDown(int KeyCode)
 
 	Node* current_node = ((CWorldMap*)scence)->GetCurrentNode();
 
-	
+
 
 	if (world_map_scene->GetKeyControl())
 	{
@@ -503,12 +522,10 @@ void CWorldMapKeyHandler::OnKeyDown(int KeyCode)
 			if (world_map_scene->GetCurrentNode()->GetNodeId() == 2)
 			{
 				CGame::GetInstance()->SwitchScene(SCENE_1_1_ID);
-				CGame::GetInstance()->SetCamPos(0, 221);
 			}
 			if (world_map_scene->GetCurrentNode()->GetNodeId() == 8)
 			{
 				CGame::GetInstance()->SwitchScene(SCENE_1_4_ID);
-				CGame::GetInstance()->SetCamPos(0, 220);
 			}
 			break;
 		}

@@ -8,6 +8,7 @@
 #include "Node.h"
 #include <vector>
 #include "HUD.h"
+#include "NewMapCam.h"
 using namespace std;
 
 class CWorldMap : public  CScene
@@ -15,7 +16,10 @@ class CWorldMap : public  CScene
 
 protected:
 
+	vector<CNewMapCam*> new_map_cams;
+
 	vector<LPGAMEOBJECT> objects;
+
 	Map* map;
 
 	Node* current_node;

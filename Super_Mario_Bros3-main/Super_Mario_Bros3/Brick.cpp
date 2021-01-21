@@ -2,8 +2,9 @@
 #include "Game.h"
 void CBrick::Render()
 {
-
-	//animation_set->at(0)->Render(x, y);
+	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
+	if(id == INTRO_SCENE_ID)
+	animation_set->at(0)->Render(x, y);
 
 	//RenderBoundingBox();
 }

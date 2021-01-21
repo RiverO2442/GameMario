@@ -399,6 +399,8 @@ void CGame::SwitchScene(int scene_id)
 {
 	DebugOut(L"[INFO] Switching to scene %d\n", scene_id);
 
+	SetCamPos();
+
 	scenes[current_scene]->Unload();;
 
 	CTextures::GetInstance()->Clear();

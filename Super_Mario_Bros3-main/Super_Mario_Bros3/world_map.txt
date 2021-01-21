@@ -457,7 +457,10 @@
 4	274	150	1	20	1	-1	-1	-1	100
 
 
-
+#===== NEW MAP CAM
+#id	start_x		end_x		cam_state	y_limit	y_start
+#=== THU 1
+47	0	0	1	0	0
 
 #===== BANG HUD
 5	0	222	2

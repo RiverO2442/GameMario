@@ -9,8 +9,13 @@
 #include "BackGroundStage.h"
 #include "Star.h"
 #include "MenuGame.h"
+#include "NewMapCam.h"
 class CIntroScence : public  CScene
 {
+	int cam_state;
+
+	vector<CNewMapCam*> new_map_cams;
+
 	bool showmenugame = false;
 public:
 	bool menu_game_key_handler;

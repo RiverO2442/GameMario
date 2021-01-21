@@ -8,17 +8,9 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath) :
 	CScene(id, filePath)
 {
 	key_handler = new CPlayScenceKeyHandler(this);
-	if (id == SCENE_1_4_ID)
-	{
-		cam_state = 1;
-		CGame::GetInstance()->SetCamPos(0, 0);
-	}
-	if (id == SCENE_1_1_ID)
-	{
-		cam_state = 1;
-		CGame::GetInstance()->SetCamPos(0, 0);
-	}
-	
+	cam_state = 1;
+	//CGame::GetInstance()->SetCamPos(0, 220);
+
 }
 
 /*
@@ -184,7 +176,8 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_NEW_MAP_CAM:
 	{
 		float y_limit = atof(tokens[4].c_str());
-		new_map_cam = new CNewMapCam(x, y, y_limit, ani_set_id);
+		float y_start = atof(tokens[5].c_str());
+		new_map_cam = new CNewMapCam(ani_set_id, x, y, y_limit, y_start);
 		new_map_cams.push_back(new_map_cam);
 	}
 	break;
@@ -367,9 +360,9 @@ bool CPlayScene::CheckCamY()
 {
 	float px, py;
 	player->GetPosition(px, py);
-	if (py > new_map_cams[cam_state - 1]->GetCamYLimit()- 60)
+	if (py > new_map_cams[cam_state - 1]->GetCamYLimit())
 		camYMove = false;
-	if (py < new_map_cams[cam_state - 1]->GetCamYLimit() - 60 || player->GetIsFlying())
+	if (py < new_map_cams[cam_state - 1]->GetCamYLimit() || player->GetIsFlying())
 		camYMove = true;
 	return camYMove;
 }
@@ -381,6 +374,10 @@ void CPlayScene::Update(DWORD dt)
 
 	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
 
+	CGame* game = CGame::GetInstance();
+
+	if(game->GetCamX() == CAM_START && game->GetCamY() == CAM_START)
+	CGame::GetInstance()->SetCamPos(new_map_cams[cam_state - 1]->GetStartCamX(), new_map_cams[cam_state - 1]->GetYStart());
 
 		lv_pre = player->GetLevel();
 
@@ -390,20 +387,14 @@ void CPlayScene::Update(DWORD dt)
 
 		player->GetPosition(cx, cy);
 
-		CGame* game = CGame::GetInstance();
-
 		cam_x_pre = game->GetCamX();
 		cam_y_pre = game->GetCamY();
 
-
-
 		if (id == SCENE_1_1_ID)
 		{
+			cx -= game->GetScreenWidth() / 2;
 			if (player->x >= (game->GetScreenWidth() / 2))
 			{
-				cx -= game->GetScreenWidth() / 2;
-				//CGame::GetInstance()->SetCamPos((int)cx, 352 - game->GetScreenHeight() / 2);
-				DebugOut1(L"%i \n", 352 - game->GetScreenHeight() / 2);
 				if (CheckCamY())
 				{
 					cy -= game->GetScreenHeight() / 2;
@@ -411,11 +402,12 @@ void CPlayScene::Update(DWORD dt)
 				}
 				else
 				{
-					CGame::GetInstance()->SetCamPos((int)cx, 352 - game->GetScreenHeight() / 2);
+					CGame::GetInstance()->SetCamPos((int)cx, new_map_cams[cam_state - 1]->GetYStart());
 				}
 			}
 		}
-		else if(id == SCENE_1_4_ID)
+		else 
+		if(id == SCENE_1_4_ID)
 		if (cam_state == 1)
 		{
 			StartTimeCamMove();
@@ -459,7 +451,7 @@ void CPlayScene::Update(DWORD dt)
 			objects[i]->Update(dt, &objects);
 		}
 
-		DebugOut1(L"So Luong CooBJ %d \n", objects.size());
+		//DebugOut1(L"So Luong CooBJ %d \n", objects.size());
 
 		if (GetTickCount() - time_counter >= 1000 && time_picker > 0 && player->Getswitch_scene_start() == 0)
 		{
@@ -655,6 +647,7 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 			}
 			break;
 		case DIK_A:
+			mario->SetisHolding(true);
 			if (mario->GetLevel() == MARIO_LEVEL_TAIL)
 				mario->SetIsSpining(true);
 			mario->StartSpining();
@@ -699,10 +692,8 @@ void CPlayScenceKeyHandler::OnKeyUp(int KeyCode)
 			/*case DIK_DOWN:
 				mario->FIXPS(0, 9);
 				break;*/
-		case DIK_C:
-			mario->SetisHolding(false);
-			break;
 		case DIK_A:
+			mario->SetisHolding(false);
 			mario->SetisFiring(false);
 			mario->SetisAlreadyFired(false);
 			break;
@@ -837,10 +828,6 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 			}
 			else
 				mario->SetisSitting(false);
-		}
-		if (game->IsKeyDown(DIK_C))
-		{
-			mario->SetisHolding(true);
 		}
 		if (game->IsKeyDown(DIK_A))
 		{
