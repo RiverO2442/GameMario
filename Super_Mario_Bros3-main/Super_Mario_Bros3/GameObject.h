@@ -46,6 +46,8 @@ class CGameObject
 {
 public:
 
+	int renderLayer = 1;
+
 	float x;
 	float y;
 
@@ -73,6 +75,24 @@ public:
 	LPANIMATION_SET animation_set;
 
 public:
+	/*
+	void SetA(type value)
+	{
+		A = value;
+	}
+	type GetA()
+	{
+		return A;
+	}
+	*/
+	int GetrenderLayer()
+	{
+		return renderLayer;
+	}
+	void SetrenderLayer(int value)
+	{
+		renderLayer = value;
+	}
 	void SetisOriginObj(bool value)
 	{
 		isOriginObj = value;

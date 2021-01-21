@@ -9,8 +9,6 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath) :
 {
 	key_handler = new CPlayScenceKeyHandler(this);
 	cam_state = 1;
-	//CGame::GetInstance()->SetCamPos(0, 220);
-
 }
 
 /*
@@ -141,13 +139,15 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 
 	//DebugOut(L"--> %s\n",ToWSTR(line).c_str());
 
-	if (tokens.size() < 3) return; // skip invalid lines - an object set must have at least id, x, y
+	if (tokens.size() < 4) return; // skip invalid lines - an object set must have at least id, x, y
 
 	int object_type = atoi(tokens[0].c_str());
 	float x = atof(tokens[1].c_str());
 	float y = atof(tokens[2].c_str());
 
 	int ani_set_id = atoi(tokens[3].c_str());
+
+	int renderLayer = atoi(tokens[4].c_str());
 
 	CAnimationSets* animation_sets = CAnimationSets::GetInstance();
 
@@ -276,6 +276,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		obj->SetAnimationSet(ani_set);
 		obj->SetOrigin(x, y, obj->GetState());
 		obj->SetisOriginObj(true);
+		obj->SetrenderLayer(renderLayer);
 		objects.push_back(obj);
 	}
 
@@ -506,6 +507,13 @@ void CPlayScene::Render()
 
 	float cx, cy;
 
+	vector<LPGAMEOBJECT> render[MAX_RENDER_LAYER];
+
+	for (size_t i = 0; i < objects.size(); i++)
+	{
+		render[objects[i]->GetrenderLayer() - 1].push_back(objects[i]);
+	}
+
 	player->GetPosition(cx, cy);
 
 	if (map)
@@ -513,10 +521,10 @@ void CPlayScene::Render()
 		this->map->Render(game->GetCamX() , game->GetCamY());
 	}
 
-
-		for (size_t i = 0; i < objects.size(); i++)
+		for (int i = 0; i < MAX_RENDER_LAYER; i++)
 		{
-			objects[i]->Render();
+			for (size_t j = 0; j < render[i].size(); j++)
+				render[i][j]->Render();
 		}
 
 		for (size_t i = 0; i < timers.size(); i++)

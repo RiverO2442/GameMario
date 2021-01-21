@@ -43,6 +43,8 @@ void CGrid::_ParseSection_OBJECTS(string line)
 
 	int ani_set_id = atoi(tokens[3].c_str());
 
+	int renderLayer = atoi(tokens[4].c_str());
+
 	CGameObject* obj = NULL;
 
 	switch (type)
@@ -99,6 +101,7 @@ void CGrid::_ParseSection_OBJECTS(string line)
 		obj->SetPosition(x, y);
 		obj->SetAnimationSet(ani_set);
 		obj->SetOrigin(x, y, obj->GetState());
+		obj->SetrenderLayer(renderLayer);
 		cells[cellX][cellY].Add(obj);
 	}
 

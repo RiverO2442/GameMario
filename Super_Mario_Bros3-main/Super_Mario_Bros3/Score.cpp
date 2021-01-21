@@ -9,8 +9,6 @@ CScore::CScore()
 }
 
 
-
-
 void CScore::GetBoundingBox(float& l, float& t, float& r, float& b)
 {
 	l = t = r = b = 0;
@@ -44,15 +42,8 @@ void CScore::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		}
 	}
 
-
-
-
-
 	x += dx;
 	y += dy;
-
-
-
 }
 
 void CScore::Render()
