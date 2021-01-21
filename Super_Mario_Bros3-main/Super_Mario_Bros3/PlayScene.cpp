@@ -181,8 +181,8 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		new_map_cams.push_back(new_map_cam);
 	}
 	break;
-	case OBJECT_TYPE_GOOMBA_NORMAL: obj = new CGoomba(888); break;
-	case OBJECT_TYPE_GOOMBA_RED_FLY: obj = new CGoomba(999); break;
+	case OBJECT_TYPE_GOOMBA_NORMAL: obj = new CGoomba(888, 3); break;
+	case OBJECT_TYPE_GOOMBA_RED_FLY: obj = new CGoomba(999, 3); break;
 	case OBJECT_TYPE_BRICK: obj = new CBrick(); break;
 	case OBJECT_TYPE_KOOPAS_XANH_WALK: obj = new CKoopas(111, 3); break;
 	case OBJECT_TYPE_RECTANGLE: obj = new CRECT(); break;

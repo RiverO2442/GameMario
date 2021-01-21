@@ -8,6 +8,7 @@ PIPE::PIPE(int ctype)
 
 void PIPE::Render()
 {
+	return;
 	animation_set->at(0)->Render(x, y);
 
 	//RenderBoundingBox();

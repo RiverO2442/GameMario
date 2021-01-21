@@ -87,31 +87,17 @@ void CMario::FilterCollision(vector<LPCOLLISIONEVENT>& coEvents, vector<LPCOLLIS
 	if (min_ix >= 0) coEventsResult.push_back(coEvents[min_ix]);
 	if (min_iy >= 0) coEventsResult.push_back(coEvents[min_iy]);
 }
-void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
+
+void CMario::TimingAndStateBasedEventCal(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
-
-	// Calculate dx, dy 
-	CGameObject::Update(dt);
-
-
 	// Simple fall down
 	if (state != MARIO_STATE_PIPE_DOWNING && state != MARIO_STATE_PIPE_UPPING && !isTransform && !isSmokeTransform)
 		vy += MARIO_GRAVITY * dt;
-
-
-	vector<LPCOLLISIONEVENT> coEvents;
-	vector<LPCOLLISIONEVENT> coEventsResult;
-
-	coEvents.clear();
-
 	if (isTransform || isSmokeTransform)
 	{
 		vx = 0;
 		vy = 0;
 	}
-	if (state != MARIO_STATE_DIE && state != MARIO_STATE_PIPE_DOWNING && state != MARIO_STATE_PIPE_UPPING)
-		CalcPotentialCollisions(coObjects, coEvents);
-
 	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
 	if (id != INTRO_SCENE_ID)
 	{
@@ -121,13 +107,13 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			CGame::GetInstance()->LifeDown();
 			SetcanSetLifeDown(false);
 		}
-		if(switch_scene_start != 0)
-		if (state == MARIO_STATE_DIE && GetTickCount() - switch_scene_start >= 2000)
-		{
-			switch_scene_start = 0;
-			switch_scene = true;
-		}
-			
+		if (switch_scene_start != 0)
+			if (state == MARIO_STATE_DIE && GetTickCount() - switch_scene_start >= 2000)
+			{
+				switch_scene_start = 0;
+				switch_scene = true;
+			}
+
 		int time_picker = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetTimePicker();
 
 		if (time_picker == 0 && state != MARIO_STATE_DIE && switch_scene_start == 0)
@@ -171,87 +157,108 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 			DebugOut1(L"[INFO] level La : %d \n", GetTickCount() - switch_scene_start);
 		}
-			
-			if (state == MARIO_STATE_PIPE_DOWNING)
+
+		if (state == MARIO_STATE_PIPE_DOWNING)
+		{
+			if (GetTickCount() - pipe_downing_start >= 3000)
 			{
-				if (GetTickCount() - pipe_downing_start >= 3000)
+				this->SetPosition(1330, 1050);
+				canPipeDowning = false;
+				isAtTheTunnel = true;
+				SetState(MARIO_STATE_IDLE);
+				pipe_downing_start = 0;
+			}
+			DEACCELERETING();
+		}
+
+		if (state == MARIO_STATE_PIPE_UPPING)
+		{
+			if (GetTickCount() - pipe_upping_start >= 3100)
+			{
+				isAtTheTunnel = false;
+				if (!setPositionOutOfTunnel)
 				{
-					this->SetPosition(1330, 1050);
-					canPipeDowning = false;
-					isAtTheTunnel = true;
-					SetState(MARIO_STATE_IDLE);
-					pipe_downing_start = 0;
-				}
-				DEACCELERETING();
-			}
-
-			if (state == MARIO_STATE_PIPE_UPPING)
-			{
-				if (GetTickCount() - pipe_upping_start >= 3100)
-				{
-					isAtTheTunnel = false;
-					if (!setPositionOutOfTunnel)
-					{
-						this->SetPosition(2330, 122);
-						setPositionOutOfTunnel = true;
-					}
-				}
-
-				if (GetTickCount() - pipe_upping_start >= 6350)
-				{
-					canPipeUpping = false;
-					SetState(MARIO_STATE_IDLE);
-					pipe_upping_start = 0;
-					setPositionOutOfTunnel = false;
-				}
-				
-				DEACCELERETING();
-			}
-			// reset untouchable timer if untouchable time has passed
-			if (GetTickCount() - untouchable_start > MARIO_UNTOUCHABLE_TIME)
-			{
-				untouchable_start = 0;
-				untouchable = 0;
-			}
-
-			if (GetTickCount() - firing_start > MARIO_FIRING_TIME)
-			{
-				isFiring = 0;
-				firing_start = 0;
-			}
-
-			if (GetTickCount() - transform_start > MARIO_TRANSFORM_TIME)
-			{
-				transform_start = 0;
-				isTransform = false;
-				isSmokeTransform = false;
-			}
-
-			if (GetTickCount() - kicking_start > MARIO_KICKING_TIME)
-			{
-				SetIsKicking(false);
-			}
-
-
-			if (GetTickCount() - spining_start > MARIO_SPINING_TIME)
-			{
-				SetIsSpining(false);
-			}
-
-			if (flying_start != 0)
-			{
-				if (GetTickCount() - flying_start >= 7000)
-				{
-					canFly = false;
-					isFlying = false;
-					flying_start = 0;
-					speedLevel = 0;
+					this->SetPosition(2330, 122);
+					setPositionOutOfTunnel = true;
 				}
 			}
+
+			if (GetTickCount() - pipe_upping_start >= 6350)
+			{
+				canPipeUpping = false;
+				SetState(MARIO_STATE_IDLE);
+				pipe_upping_start = 0;
+				setPositionOutOfTunnel = false;
+			}
+
+			DEACCELERETING();
+		}
+		// reset untouchable timer if untouchable time has passed
+		if (GetTickCount() - untouchable_start > MARIO_UNTOUCHABLE_TIME)
+		{
+			untouchable_start = 0;
+			untouchable = 0;
+		}
+
+		if (GetTickCount() - firing_start > MARIO_FIRING_TIME)
+		{
+			isFiring = 0;
+			firing_start = 0;
+		}
+
+		if (GetTickCount() - transform_start > MARIO_TRANSFORM_TIME)
+		{
+			transform_start = 0;
+			isTransform = false;
+			isSmokeTransform = false;
+		}
+
+		if (GetTickCount() - kicking_start > MARIO_KICKING_TIME)
+		{
+			SetIsKicking(false);
+		}
+
+
+		if (GetTickCount() - spining_start > MARIO_SPINING_TIME)
+		{
+			SetIsSpining(false);
+		}
+
+		if (flying_start != 0)
+		{
+			if (GetTickCount() - flying_start >= 7000)
+			{
+				canFly = false;
+				isFlying = false;
+				flying_start = 0;
+				speedLevel = 0;
+			}
+		}
 
 		if (abs(y - heightLimit) >= 1)
 			isJumping = true;
 	}
+}
+
+void CMario::coEventCal(vector<LPGAMEOBJECT>* coObjects)
+{}
+
+void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
+{
+
+	// Calculate dx, dy 
+	CGameObject::Update(dt);
+
+	TimingAndStateBasedEventCal(dt, coObjects);
+
+	vector<LPCOLLISIONEVENT> coEvents;
+	vector<LPCOLLISIONEVENT> coEventsResult;
+
+	coEvents.clear();
+
+	if (state != MARIO_STATE_DIE && state != MARIO_STATE_PIPE_DOWNING && state != MARIO_STATE_PIPE_UPPING)
+		CalcPotentialCollisions(coObjects, coEvents);
+	
 
 	// No collision occured, proceed normally
 	if (coEvents.size() == 0)
@@ -297,7 +304,6 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 		for (UINT i = 0; i < coEventsResult.size(); i++)
 		{
-
 			LPCOLLISIONEVENT e = coEventsResult[i];
 			if (ny < 0)
 			{
@@ -477,6 +483,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				else
 					if (e->ny < 0)
 					{
+						if(goomba->GetState() != GOOMBA_STATE_DIE)
 						if (goomba->GetType() != GOOMBA_RED_FLY)
 						{
 							goomba->SetState(GOOMBA_STATE_DIE);
