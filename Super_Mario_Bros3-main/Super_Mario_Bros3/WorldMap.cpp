@@ -11,7 +11,7 @@ CWorldMap::CWorldMap(int id, LPCWSTR filePath) :
 	CScene(id, filePath)
 {
 	key_handler = new CWorldMapKeyHandler(this);
-
+	cam_state = 1;
 }
 
 CWorldMap::~CWorldMap()
@@ -43,7 +43,8 @@ CWorldMap::~CWorldMap()
 #define OBJECT_TYPE_STACK_NORMAL		12
 #define OBJECT_TYPE_STACK_MAX			13
 #define OBJECT_TYPE_ITEM				14
-
+#define OBJECT_TYPE_STAGE_1				15
+#define OBJECT_TYPE_STAGE_2				16
 
 #define MAX_SCENE_LINE					1024
 
@@ -146,8 +147,6 @@ void CWorldMap::_ParseSection_OBJECTS(string line)
 	float x = atof(tokens[1].c_str());
 	float y = atof(tokens[2].c_str());
 
-	CNewMapCam* new_map_cam = NULL;
-
 	int ani_set_id = atoi(tokens[3].c_str());
 
 	CAnimationSets* animation_sets = CAnimationSets::GetInstance();
@@ -155,19 +154,18 @@ void CWorldMap::_ParseSection_OBJECTS(string line)
 	CGameObject* obj = NULL;
 	Node* node = NULL;
 	CHUD* HUD_items = NULL;
+	CNewMapCam* new_map_cam = NULL;
 
 	switch (object_type)
 	{
-	case OBJECT_TYPE_NEW_MAP_CAM:
-	{
-		float y_limit = atof(tokens[4].c_str());
-		float y_start = atof(tokens[5].c_str());
-		new_map_cam = new CNewMapCam(ani_set_id, x, y, y_limit, y_start);
-		new_map_cams.push_back(new_map_cam);
-	}
-	break;
 	case OBJECT_TYPE_MARIO:
 		obj = new CWorldMapObjects(11);
+		break;
+	case OBJECT_TYPE_STAGE_1:
+		obj = new CWorldMapObjects(55);
+		break;
+	case OBJECT_TYPE_STAGE_2:
+		obj = new CWorldMapObjects(66);
 		break;
 	case OBJECT_TYPE_HELP:
 		obj = new CWorldMapObjects(22);
@@ -214,6 +212,14 @@ void CWorldMap::_ParseSection_OBJECTS(string line)
 		items.push_back(HUD_items);
 		HUD_items->SetPosition(x, y);
 		break;
+	case OBJECT_TYPE_NEW_MAP_CAM:
+	{
+		float y_limit = atof(tokens[4].c_str());
+		float y_start = atof(tokens[5].c_str());
+		new_map_cam = new CNewMapCam(ani_set_id, x, y, y_limit, y_start);
+		new_map_cams.push_back(new_map_cam);
+	}
+	break;
 	case  OBJECT_TYPE_NODE:
 	{
 		int node_id = atof(tokens[4].c_str());
@@ -327,9 +333,6 @@ void CWorldMap::Load()
 void CWorldMap::Update(DWORD dt)
 {
 
-	if (CGame::GetInstance()->GetCamX() == CAM_START && CGame::GetInstance()->GetCamY() == CAM_START)
-		CGame::GetInstance()->SetCamPos(new_map_cams[0]->GetStartCamX(), new_map_cams[0]->GetYStart());
-
 	vector<LPGAMEOBJECT> coObjects;
 	for (size_t i = 0; i < objects.size(); i++)
 	{
@@ -376,10 +379,14 @@ void CWorldMap::Update(DWORD dt)
 	//	}
 	//}
 
+	CGame* game = CGame::GetInstance();
+
+	if (game->GetCamX() == 0 && game->GetCamY() == 0)
+		CGame::GetInstance()->SetCamPos(new_map_cams[cam_state - 1]->GetStartCamX(), new_map_cams[cam_state - 1]->GetYStart());
 
 	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
 
-	CGame::GetInstance()->SetCamPos(0, 0);
+
 
 }
 
@@ -415,36 +422,34 @@ void CWorldMap::Unload()
 	for (int i = 0; i < objects.size(); i++)
 		delete objects[i];
 
+
 	for (size_t i = 0; i < scores.size(); i++)
 	{
 		delete scores[i];
 	}
-
 	for (size_t i = 0; i < moneys.size(); i++)
 	{
 		delete moneys[i];
 	}
-
 	for (size_t i = 0; i < items.size(); i++)
 	{
 		delete items[i];
-	}
-
-	for (size_t i = 0; i < Nodes.size(); i++)
+	}for (size_t i = 0; i < Nodes.size(); i++)
 	{
 		delete Nodes[i];
 	}
+
+	items.clear();
+	moneys.clear();
+	scores.clear();
+	Nodes.clear();
+
 	for (size_t i = 0; i < new_map_cams.size(); i++)
 	{
 		delete new_map_cams[i];
 	}
 
 	new_map_cams.clear();
-
-	items.clear();
-	moneys.clear();
-	scores.clear();
-	Nodes.clear();
 
 	objects.clear();
 	delete map;
@@ -457,15 +462,13 @@ void CWorldMapKeyHandler::OnKeyDown(int KeyCode)
 {
 
 	vector<LPGAMEOBJECT>  objects = ((CWorldMap*)scence)->GetObjects();
-	CWorldMapObjects* mario = (CWorldMapObjects*)objects.at(0);
+	CWorldMapObjects* mario = (CWorldMapObjects*)objects.at(2);
 
 	CWorldMap* world_map_scene = (CWorldMap*)CGame::GetInstance()->GetCurrentScene();
 
 	Node* current_node = ((CWorldMap*)scence)->GetCurrentNode();
 
-
-
-	if (world_map_scene->GetKeyControl())
+	if (world_map_scene->GetKeyControl() && !CGame::GetInstance()->GetIsControlMarioRenderWorldMap())
 	{
 		switch (KeyCode)
 		{
@@ -521,16 +524,20 @@ void CWorldMapKeyHandler::OnKeyDown(int KeyCode)
 		case DIK_G:
 			if (world_map_scene->GetCurrentNode()->GetNodeId() == 2)
 			{
-				CGame::GetInstance()->SwitchScene(SCENE_1_1_ID);
+				CGame::GetInstance()->SetSavedNodeID(world_map_scene->GetCurrentNode()->GetNodeId());
+				CGame::GetInstance()->SwitchScene(3);
+				((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->SetTimePicker(300);
 			}
-			if (world_map_scene->GetCurrentNode()->GetNodeId() == 8)
+			else if (world_map_scene->GetCurrentNode()->GetNodeId() == 8)
 			{
-				CGame::GetInstance()->SwitchScene(SCENE_1_4_ID);
+				CGame::GetInstance()->SetSavedNodeID(world_map_scene->GetCurrentNode()->GetNodeId());
+				CGame::GetInstance()->SwitchScene(4);
+				((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->SetTimePicker(300);
 			}
 			break;
 		}
 	}
-	DebugOut(L"id node hien tai la: %d \n", ((CWorldMap*)scence)->GetCurrentNode()->GetNodeId());
+	//DebugOut(L"id node hien tai la: %d \n", ((CWorldMap*)scence)->GetCurrentNode()->GetNodeId());
 }
 void CWorldMapKeyHandler::OnKeyUp(int KeyCode)
 {

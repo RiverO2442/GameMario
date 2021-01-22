@@ -38,6 +38,12 @@ void CScore::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			SetPosition(6000, 6000);
 			SetState(SCORE_STATE_IDLE);
 			timing_start = 0;
+			if(value != 0)
+			CGame::GetInstance()->ScoreUp(value);
+			else
+			{
+				CGame::GetInstance()->SetLifeUp();
+			}
 			value = 0;
 		}
 	}

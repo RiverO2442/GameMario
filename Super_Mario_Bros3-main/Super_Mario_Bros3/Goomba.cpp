@@ -2,17 +2,10 @@
 #include "FIREBALL.h"
 CGoomba::CGoomba(int ctype, int scene_id)
 {
+	SetisAlive(true);
 	nx = -1;
-	if (scene_id == 1)
-	{
-		isAppear = false;
-		SetState(GOOMBA_STATE_IDLE);
-	}
-	else
-	{
-		isAppear = true;
-		SetState(GOOMBA_STATE_WALKING);
-	}
+	isAppear = true;
+	SetState(GOOMBA_STATE_WALKING);
 	type = ctype;
 
 
@@ -139,71 +132,9 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 	coEvents.clear();
 
-
-
 	CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
-	/*if (mario->GetIsSpining())
-	{
-		if (GetTickCount() - mario->GetIsSpining() <= 200)
-		{
-			if (mario->nx > 0)
-			{
-				leftRec = mario->x;
-				topRec = mario->y + 5;
-				rightRec = leftRec + 24;
-				bottomRec = topRec + 8;
-			}
-			else
-			{
-				leftRec = mario->x - 25;
-				topRec = mario->y + 5;
-				rightRec = mario->x;
-				bottomRec = topRec + 8;
-			}
-		}
-		else
-		{
-			if (mario->nx > 0)
-			{
-				leftRec = mario->x - 25;
-				topRec = mario->y + 5;
-				rightRec = mario->x;
-				bottomRec = topRec + 8;
-			}
-			else
-			{
-				leftRec = mario->x;
-				topRec = mario->y + 5;
-				rightRec = leftRec + 24;
-				bottomRec = topRec + 8;
-			}
-		}
-	}
-	else
-	{
-		leftRec = topRec = rightRec = bottomRec = 0;
-	}
 
-	if (bottomRec != 0 && topRec != 0 && leftRec != 0 && rightRec != 0)
-	{
-		if ((this->x >= leftRec && this->x <= rightRec) && (this->y >= topRec && this->y <= bottomRec))
-		{
-			if (state != GOOMBA_STATE_DIE_2)
-			{
-				SetState(GOOMBA_STATE_DIE_2);
-				CGame::GetInstance()->ScoreUp(100);
-			}
-		}
-	}*/
-	//DebugOut(L"gia tri topRec la: %d \n",topRec);
-	//DebugOut(L"gia tri bottomRec la: %d \n",bottomRec);
-	//DebugOut(L"gia tri y goomba la: %f \n",this->y);
-
-	/*DebugOut(L"gia tri leftRec la: %d \n", leftRec);
-	DebugOut(L"gia tri rightRec la: %d \n", rightRec);
-	DebugOut(L"gia tri x goomba la: %f \n", this->x);
-*/
-	if (type == GOOMBA_RED_FLY)
+	if (type == GOOMBA_RED_FLY && state != GOOMBA_STATE_DIE_2)
 	{
 		StartTimeSwitchingState();
 		if (state == GOOMBA_STATE_WALKING)
@@ -232,30 +163,29 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				control_flying = false;
 			}
 		}
-	}
-
-	if (state == GOOMBA_STATE_GEARING)
-	{
-		StartJumping();
-		if (GetTickCount() - jumpingStart >= 400)
+		if (state == GOOMBA_STATE_GEARING)
 		{
-			jumpingStart = 0;
-			if (control_jump_time == 0)
-				control_jump_time++;
+			StartJumping();
+			if (GetTickCount() - jumpingStart >= 400)
+			{
+				jumpingStart = 0;
+				if (control_jump_time == 0)
+					control_jump_time++;
+			}
+			if (control_jump_time == 1)
+			{
+				vy = -0.2f;
+				control_jump_time = 0;
+			}
 		}
-		if (control_jump_time == 1)
-		{
-			vy = -0.2f;
-			control_jump_time = 0;
-		}
-	}
 
-	if (state == GOOMBA_STATE_FLYING)
-	{
-		if (!control_flying)
+		if (state == GOOMBA_STATE_FLYING)
 		{
-			vy = -0.4f;
-			control_flying = true;
+			if (!control_flying)
+			{
+				vy = -0.4f;
+				control_flying = true;
+			}
 		}
 	}
 
@@ -269,21 +199,6 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			StartDying();
 		if (GetTickCount() - dyingStart >= 500)
 			SetState(GOOMBA_STATE_DISAPPEAR);
-	}
-
-
-	for (UINT i = 0; i < coObjects->size(); i++)
-	{
-		LPGAMEOBJECT obj = coObjects->at(i);
-		if (dynamic_cast<CBackGroundStage*>(obj))
-		{
-			CBackGroundStage* background_stage = dynamic_cast<CBackGroundStage*>(obj);
-			if (background_stage->GetType() == BACKGROUND_STAGE_TYPE_FINAL && background_stage->GetIsAppear())
-			{
-				isAppear = true;
-
-			}
-		}
 	}
 
 
@@ -315,7 +230,7 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 		if (ny < 0)
 		{
-			if (type == GOOMBA_RED_FLY)
+			if (type == GOOMBA_RED_FLY && state != GOOMBA_STATE_DIE_2)
 			{
 				if (state == GOOMBA_STATE_FLYING && (GetTickCount() - time_switch_state >= 500))
 				{
@@ -362,6 +277,16 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	{
 		x = 0;
 		vx = -vx;
+	}
+
+	if (mario->GetIsSpining())
+	{
+		if (mario->HitByTail(this, GOOMBA_STATE_DIE_2, true))
+		{
+			CPlayScene* playscene = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene());
+			playscene->AddScore(this->x, this->y + SCORE_FIX_PST_Y, 100);
+			this->SetisAlive(false);
+		}
 	}
 
 
@@ -444,8 +369,6 @@ void CGoomba::SetState(int state)
 		vy = 0;
 		break;
 	case GOOMBA_STATE_DIE_2:
-		vy = -GOOMBA_DIE_DEFLECT_SPEED;
-		vx = -vx;
 		break;
 	case GOOMBA_STATE_RED_LOSE_WINGS:
 		vy = 0;

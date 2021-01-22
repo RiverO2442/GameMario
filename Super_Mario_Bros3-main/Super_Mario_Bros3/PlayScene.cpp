@@ -169,6 +169,31 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		player = (CMario*)obj;
 		DebugOut(L"[INFO] Player object created!\n");
 		break;
+	case OBJECT_TYPE_HIT_EFFECT_TURN_TAIL:
+		obj = new CHitEffect(HIT_EFFECT_TURN_TAIL);
+		hit_effects_turn_tail.push_back(obj);
+		break;
+	case OBJECT_TYPE_HIT_EFFECT_FIRE_BULLET:
+		obj = new CHitEffect(HIT_EFFECT_FIRE_BULLET);
+		hit_effects_fire_bullet.push_back(obj);
+		break;
+	case OBJECT_TYPE_BOOMERANG_ENEMY:
+		obj = new CBoomerangEnemy();
+		break;
+	case OBJECT_TYPE_BOOMERANG:
+	{
+		int boomerang_id = atof(tokens[4].c_str());
+		obj = new CBoomerang(boomerang_id);
+	}
+	break;
+	case OBJECT_TYPE_MOVING_HORIZONTAL_RECTANGLE:
+	{
+		int moving_horizontal_rectangle_id = atof(tokens[4].c_str());
+		obj = new CMovingHorizontalRectangle(moving_horizontal_rectangle_id);
+	}
+	case OBJECT_TYPE_QUESTION_BRICK_HAVE_MULTIPLE_LIFE:
+		obj = new CQuestionBrick(QUESTION_BRICK_HAVE_COIN_MULTIPLE_LIFE);
+		break;
 	case OBJECT_TYPE_SCORE_AND_1LV:
 		obj = new CScore();
 		scores_panel.push_back(obj);
@@ -255,13 +280,13 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		items.push_back(HUD_items);
 		HUD_items->SetPosition(x, y);
 		break;
-	case OBJECT_TYPE_PORTAL:
+	/*case OBJECT_TYPE_PORTAL:
 	{
 		float r = atof(tokens[4].c_str());
 		float b = atof(tokens[5].c_str());
 		int scene_id = atoi(tokens[6].c_str());
 		obj = new CPortal(x, y, r, b, scene_id);
-	}
+	}*/
 	break;
 	default:
 		DebugOut(L"[ERR] Invalid object type: %d\n", object_type);
@@ -279,7 +304,6 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		obj->SetrenderLayer(renderLayer);
 		objects.push_back(obj);
 	}
-
 	if (HUD_items != NULL)
 		HUD_items->SetAnimationSet(ani_set);
 }
@@ -394,7 +418,7 @@ void CPlayScene::Update(DWORD dt)
 		if (id == SCENE_1_1_ID)
 		{
 			cx -= game->GetScreenWidth() / 2;
-			if (player->x >= (game->GetScreenWidth() / 2))
+			if (player->x >= (game->GetScreenWidth() / 2 + new_map_cams[cam_state - 1]->GetStartCamX()))
 			{
 				if (CheckCamY())
 				{
@@ -406,8 +430,20 @@ void CPlayScene::Update(DWORD dt)
 					CGame::GetInstance()->SetCamPos((int)cx, new_map_cams[cam_state - 1]->GetYStart());
 				}
 			}
+			else
+			{
+				if (CheckCamY())
+				{
+					cy -= game->GetScreenHeight() / 2;
+					CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
+				}
+				else
+				{
+					CGame::GetInstance()->SetCamPos((int)new_map_cams[cam_state - 1]->GetStartCamX(), new_map_cams[cam_state - 1]->GetYStart());
+				}
+			}
 		}
-		else 
+		else
 		if(id == SCENE_1_4_ID)
 		if (cam_state == 1)
 		{
@@ -424,8 +460,37 @@ void CPlayScene::Update(DWORD dt)
 		}
 		else
 		{
-			// cap nhat cam mario.
+			if (cam_state == 2)
+			{
+				cx -= game->GetScreenWidth() / 2;
+				if (player->x >= (game->GetScreenWidth() / 2 + new_map_cams[cam_state - 1]->GetStartCamX()))
+				{
+					if (CheckCamY())
+					{
+						cy -= game->GetScreenHeight() / 2;
+						CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
+					}
+					else
+					{
+						CGame::GetInstance()->SetCamPos((int)cx, new_map_cams[cam_state - 1]->GetYStart());
+					}
+				}
+				else
+				{
+					if (CheckCamY())
+					{
+						cy -= game->GetScreenHeight() / 2;
+						CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
+					}
+					else
+					{
+						CGame::GetInstance()->SetCamPos((int)new_map_cams[cam_state - 1]->GetStartCamX(), new_map_cams[cam_state - 1]->GetYStart());
+					}
+				}
+			}
 		}
+		if (game->GetCamX() >= new_map_cams[cam_state - 1]->GetEndCamX())
+			game->SetCamX((int)new_map_cams[cam_state - 1]->GetEndCamX());
 
 		cx = game->GetCamX();
 
@@ -437,7 +502,7 @@ void CPlayScene::Update(DWORD dt)
 		{
 			float Ox, Oy;
 			objects[i]->GetPosition(Ox, Oy);
-			if (!IsInUseArea(Ox, Oy) && !objects[i]->GetisOriginObj() )
+			if (!IsInUseArea(Ox, Oy) && !objects[i]->GetisOriginObj())
 			{
 				objects[i]->SetActive(false);
 				objects.erase(objects.begin() + i);
@@ -454,7 +519,7 @@ void CPlayScene::Update(DWORD dt)
 
 		//DebugOut1(L"So Luong CooBJ %d \n", objects.size());
 
-		if (GetTickCount() - time_counter >= 1000 && time_picker > 0 && player->Getswitch_scene_start() == 0)
+		if (GetTickCount() - time_counter >= 1000 && time_picker > 0 && player->GetControl() != LOSE_ALL_CONTROL)
 		{
 			time_picker--;
 			time_counter = 0;
@@ -491,11 +556,6 @@ void CPlayScene::Update(DWORD dt)
 		if (player == NULL) return;
 
 		// Update camera to follow mario	
-		if (player->Getswitch_scene())
-		{
-			player->Setswitch_scene(false);
-			CGame::GetInstance()->SwitchScene(WORLD_MAP_ID);
-		}
 }
 
 void CPlayScene::Render()
@@ -558,6 +618,7 @@ void CPlayScene::Render()
 /*
 	Unload current scene
 */
+
 void CPlayScene::Unload()
 {
 	//
@@ -649,9 +710,11 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 		case DIK_S:
 			if (mario->GetIsJumping() == false)
 			{
-				mario->SetIsJumping(true);
 				mario->SetState(MARIO_STATE_JUMP);
-				break;
+				mario->SetIsJumping(true);
+				mario->SetIsOnMovingHorizontalRectangle(false);
+				mario->SetMarioMovingHorizotalRecID(-1);
+				mario->SetControlMarioColliWithMovingRec(false);
 			}
 			break;
 		case DIK_A:
@@ -717,7 +780,7 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 {
 	CGame* game = CGame::GetInstance();
 	CMario* mario = ((CPlayScene*)scence)->GetPlayer();
-	if (mario->GetState() != MARIO_STATE_PIPE_UPPING && mario->GetState() != MARIO_STATE_PIPE_DOWNING && !mario->GetIsTransform() && !mario->GetIsSmokeTransform())
+	if (mario->GetState() != MARIO_STATE_PIPE_UPPING && mario->GetState() != MARIO_STATE_PIPE_DOWNING && !mario->GetIsTransform() && !mario->GetIsSmokeTransform() && mario->GetControl() != LOSE_ALL_CONTROL)
 	{
 		// disable control key when Mario die 
 		if (mario->GetState() == MARIO_STATE_DIE) return;
@@ -735,10 +798,6 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 				else
 				{
 					mario->SetState(MARIO_STATE_FLYING_LEFT);
-				}
-				if (mario->GetFlyingStart() == 0)
-				{
-					mario->StartFlying();
 				}
 				mario->SetIsFlying(true);
 			}

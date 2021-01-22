@@ -22,8 +22,6 @@ void CAnimation::Add(int spriteId, DWORD time)
 // NOTE: sometimes Animation object is NULL ??? HOW ??? 
 void CAnimation::Render(float x, float y, int alpha)
 {
-	x = round(x);
-	y = round(y);
 	DWORD now = GetTickCount();
 	if (currentFrame == -1)
 	{
@@ -40,8 +38,18 @@ void CAnimation::Render(float x, float y, int alpha)
 			if (currentFrame == frames.size()) currentFrame = 0;
 		}
 	}
+	CSprite* sprite = frames[currentFrame]->GetSprite();
+	if (sprite->GetIdSprite() == 17012)
+	{
+		frames[currentFrame]->GetSprite()->Draw(x - 9, y, alpha);
+	}
+	else if (sprite->GetIdSprite() == 17009 || sprite->GetIdSprite() == 17010 || sprite->GetIdSprite() == 17011 || sprite->GetIdSprite() == 19013 || sprite->GetIdSprite() == 20013 || sprite->GetIdSprite() == 18020 || sprite->GetIdSprite() == 18022 || sprite->GetIdSprite() == 18023 || sprite->GetIdSprite() == 18014 || sprite->GetIdSprite() == 23012 || sprite->GetIdSprite() == 21013 || sprite->GetIdSprite() == 24004 || sprite->GetIdSprite() == 24005 || sprite->GetIdSprite() == 24006 || sprite->GetIdSprite() == 18020 || sprite->GetIdSprite() == 35000 || sprite->GetIdSprite() == 20014)
+	{
+		frames[currentFrame]->GetSprite()->Draw(x - 5, y, alpha);
+	}
+	else
+		frames[currentFrame]->GetSprite()->Draw(x, y, alpha);
 
-	frames[currentFrame]->GetSprite()->Draw(x, y, alpha);
 }
 
 CAnimations* CAnimations::__instance = NULL;
@@ -74,17 +82,6 @@ void CAnimations::Clear()
 	}
 
 	animations.clear();
-}
-
-void CAnimationSets::Clear()
-{
-	for (auto x : animation_sets)
-	{
-		LPANIMATION_SET ani = x.second;
-		delete ani;
-	}
-
-	animation_sets.clear();
 }
 
 CAnimationSets::CAnimationSets()

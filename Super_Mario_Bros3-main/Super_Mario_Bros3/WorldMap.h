@@ -8,7 +8,7 @@
 #include "Node.h"
 #include <vector>
 #include "HUD.h"
-#include "NewMapCam.h"
+#include"NewMapCam.h"
 using namespace std;
 
 class CWorldMap : public  CScene
@@ -16,10 +16,7 @@ class CWorldMap : public  CScene
 
 protected:
 
-	vector<CNewMapCam*> new_map_cams;
-
 	vector<LPGAMEOBJECT> objects;
-
 	Map* map;
 
 	Node* current_node;
@@ -31,6 +28,10 @@ protected:
 	vector<CHUD*>  scores;
 	vector<CHUD*>  moneys;
 	vector<CHUD*>  items;
+
+	int cam_state;
+
+	vector<CNewMapCam*> new_map_cams;
 
 	void _ParseSection_TEXTURES(string line);
 	void _ParseSection_SPRITES(string line);
@@ -81,6 +82,10 @@ public:
 		return items;
 	}
 
+	Node* GetNodeById(int idInt)
+	{
+		return Nodes.at(idInt);
+	}
 
 	~CWorldMap();
 };

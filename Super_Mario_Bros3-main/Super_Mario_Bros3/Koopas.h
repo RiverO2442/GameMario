@@ -12,6 +12,10 @@
 
 class CKoopas : public CGameObject
 {
+
+	DWORD pre_get_tick_count = 0;
+	DWORD sub_time = 0;
+
 	int type;
 	bool isBeingHold = false;
 	float CheckPosition_Y;
@@ -19,16 +23,17 @@ class CKoopas : public CGameObject
 	bool reviveRender = false;
 	bool shellUpRender = false;
 	bool isKickedRevive = false;
-	int dieDirection = -1;
 	bool renderRecognization = false;
 
 	bool isAppear = true;
-	int jump_count = 0;
+	bool hitted = false;
 
 	DWORD jumpingStart = 0;
 	DWORD reviveStart = 0;
 
-
+	bool isAllowToSubRecWidth = false;
+	DWORD timingSubRecWidth = 0;
+	bool isControlSubRecWidth = false;
 	
 
 public:
@@ -40,6 +45,19 @@ public:
 	CKoopas(int ctype, int scene_id);
 	void SetisBeingHold(bool value) { isBeingHold = value; }
 	bool GetisBeingHold() { return isBeingHold; }
+	bool GetIsAllowToSubRecWidth()
+	{
+		return isAllowToSubRecWidth;
+	}
+	void SetIsAllowToSubRecWidth(bool isAllowToSubRecWidthBool)
+	{
+		isAllowToSubRecWidth = isAllowToSubRecWidthBool;
+	}
+	void StartTimingSubRecWidth()
+	{
+		if (timingSubRecWidth == 0)
+			timingSubRecWidth = GetTickCount();
+	}
 	int GetType()
 	{
 		return type;

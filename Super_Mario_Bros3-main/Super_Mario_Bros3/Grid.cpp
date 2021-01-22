@@ -36,8 +36,8 @@ void CGrid::_ParseSection_OBJECTS(string line)
 	int x = atoi(tokens[1].c_str());
 	int y = atoi(tokens[2].c_str());
 
-	int cellX = (x / cellWidth);
-	int cellY = (y / cellHeight);
+	int cellX = atoi(tokens[5].c_str());
+	int cellY = atoi(tokens[6].c_str());
 
 	int type = atoi(tokens[0].c_str());
 
@@ -49,6 +49,23 @@ void CGrid::_ParseSection_OBJECTS(string line)
 
 	switch (type)
 	{
+	case OBJECT_TYPE_BOOMERANG_ENEMY:
+		obj = new CBoomerangEnemy();
+		break;
+	case OBJECT_TYPE_BOOMERANG:
+	{
+		int boomerang_id = atof(tokens[7].c_str());
+		obj = new CBoomerang(boomerang_id);
+	}
+	break;
+	case OBJECT_TYPE_MOVING_HORIZONTAL_RECTANGLE:
+	{
+		int moving_horizontal_rectangle_id = atof(tokens[7].c_str());
+		obj = new CMovingHorizontalRectangle(moving_horizontal_rectangle_id);
+	}break;
+	case OBJECT_TYPE_QUESTION_BRICK_HAVE_MULTIPLE_LIFE:
+		obj = new CQuestionBrick(QUESTION_BRICK_HAVE_COIN_MULTIPLE_LIFE);
+		break;
 	case OBJECT_TYPE_GOOMBA_NORMAL: obj = new CGoomba(888, 3); break;
 	case OBJECT_TYPE_GOOMBA_RED_FLY: obj = new CGoomba(999, 3); break;
 	case OBJECT_TYPE_BRICK: obj = new CBrick(); break;
@@ -80,13 +97,13 @@ void CGrid::_ParseSection_OBJECTS(string line)
 	case OBJECT_TYPE_WORDS_END_SCENE_YOU_GOT_A_CARD: obj = new CWordsEndScene(222); break;
 	case OBJECT_TYPE_WORDS_END_SCENE_ITEM: obj = new CWordsEndScene(333); break;
 	case OBJECT_TYPE_MOVING_ROCK: obj = new CMovingRock(); break;
-	case OBJECT_TYPE_PORTAL:
+	/*case OBJECT_TYPE_PORTAL:
 	{
 		float r = atof(tokens[4].c_str());
 		float b = atof(tokens[5].c_str());
 		int scene_id = atoi(tokens[6].c_str());
 		obj = new CPortal(x, y, r, b, scene_id);
-	}
+	}*/
 	break;
 	default:
 		DebugOut(L"[ERR] Invalid object type: %d\n", type);
@@ -153,10 +170,11 @@ void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int CamX, int CamY)
 	int i, j, k;
 
 	left = ((CamX) / cellWidth);
+
 	right = (CamX + IN_USE_WIDTH) / cellWidth;
-	if (((CamX + IN_USE_WIDTH) % cellWidth) != 0)
-	right++;
+
 	top = (CamY) / cellHeight;
+
 	bottom = (CamY + IN_USE_HEIGHT) / cellHeight;
 
 	LPGAMEOBJECT obj;
@@ -183,9 +201,9 @@ void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int CamX, int CamY)
 		top = 0;
 	}
 
-	for (i = left; i < right; i++)
+	for (i = left; i <= right; i++)
 	{
-		for (j = top; j < bottom; j++)
+		for (j = top; j <= bottom; j++)
 		{
 			if (!cells[i][j].GetListObjects().empty())
 			{
@@ -195,7 +213,7 @@ void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int CamX, int CamY)
 					{
 						float Ox, Oy;
 						cells[i][j].GetListObjects().at(k)->GetOriginLocation(Ox, Oy);
-						if (!((CPlayScene*)(CGame::GetInstance()->GetCurrentScene()))->IsInUseArea(Ox, Oy) && cells[i][j].GetListObjects().at(k)->GetState() > 10)
+						if (!((CPlayScene*)(CGame::GetInstance()->GetCurrentScene()))->IsInUseArea(Ox, Oy) && cells[i][j].GetListObjects().at(k)->GetisAlive())
 								cells[i][j].GetListObjects().at(k)->reset();
 						listObject.push_back(cells[i][j].GetListObjects().at(k));
 						cells[i][j].GetListObjects().at(k)->SetActive(true);

@@ -36,6 +36,11 @@
 #include "Map.h"
 #include "ScoreManager.h"
 #include "Score.h"
+#include "MovingHorizontalRectangle.h"
+#include"Boomerang.h"
+#include "BoomerangEnemy.h"
+#include "FireFlower.h"
+#include "HitEffect.h"
 
 #define GRID_SECTION_SETTINGS	1
 #define GRID_SECTION_OBJECTS	2
@@ -61,6 +66,7 @@ class CPlayScene : public CScene
 {
 protected:
 	CMario* player;			// A play scene has to have player, right? 
+
 	vector<LPGAMEOBJECT> objects;
 
 	bool camYMove = false;
@@ -69,6 +75,7 @@ protected:
 
 	vector<LPGAMEOBJECT> scores_panel;
 	vector<ScoreManager*> scoreMng;
+	vector<ScoreManager*> hitMng;
 	vector<CHUD*>  timers;
 	vector<CHUD*>  scores;
 	vector<CHUD*>  moneys;
@@ -81,6 +88,9 @@ protected:
 	int cam_state;
 
 	vector<CNewMapCam*> new_map_cams;
+
+	vector<LPGAMEOBJECT> hit_effects_turn_tail;
+	vector<LPGAMEOBJECT> hit_effects_fire_bullet;
 
 	DWORD time_counter = 0;
 
@@ -119,6 +129,25 @@ public:
 	virtual void Unload();
 
 	CMario* GetPlayer() { return player; }
+	void AddhitMng(float x, float y, int score)
+	{
+		ScoreManager* sm = new ScoreManager(x, y, score);
+		this->hitMng.push_back(sm);
+	}
+	ScoreManager* GethitMng()
+	{
+		return hitMng.at(0);
+	}
+	bool CheckhitMng()
+	{
+		if (hitMng.size() != 0)
+			return true;
+		return false;
+	}
+	void DeletehitMng()
+	{
+		this->hitMng.erase(hitMng.begin());
+	}
 	void AddScore(float x, float y, int score)
 	{
 		ScoreManager* sm = new ScoreManager(x, y, score);

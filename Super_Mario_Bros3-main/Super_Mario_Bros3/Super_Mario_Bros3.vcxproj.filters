@@ -150,6 +150,21 @@
     <ClInclude Include="ScoreManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BoomerangEnemy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Boomerang.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FireFlower.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MovingHorizontalRectangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HitEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -285,6 +300,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ScoreManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BoomerangEnemy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Boomerang.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FireFlower.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MovingHorizontalRectangle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HitEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

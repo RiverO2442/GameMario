@@ -39,11 +39,11 @@ void CHUD::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 void CHUD::Render()
 {
-	int ani = -1;
+	int ani = 0;
 	CGame* game = CGame::GetInstance();
 
 	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
-	if (id == SCENE_1_1_ID)
+	//if (id == SCENE_1_1_ID)
 	{
 		CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
 		int speedlevel = mario->GetspeedLevel();
@@ -186,7 +186,9 @@ void CHUD::Render(int id)
 		}
 	}
 
-	if (id == SCENE_1_4_ID)
+	int scene_id = CGame::GetInstance()->GetCurrentScene()->GetId();
+
+	if (scene_id != WORLD_MAP_ID)
 	{
 		CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
 

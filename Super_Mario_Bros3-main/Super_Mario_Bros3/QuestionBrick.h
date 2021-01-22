@@ -4,7 +4,6 @@
 #include "Mario.h"
 #include "PlayScene.h"
 #include "Leaf.h"
-#include "define.h"
 
 
 #define QUESTION_BRICK_BBOX_WIDTH  16
@@ -19,6 +18,7 @@
 
 #define QUESTION_BRICK_HAVE_LEAF			777
 #define QUESTION_BRICK_JUST_HAVE_MUSHROOM	888
+#define QUESTION_BRICK_HAVE_COIN_MULTIPLE_LIFE	999
 
 
 class CQuestionBrick : public CGameObject
@@ -26,11 +26,19 @@ class CQuestionBrick : public CGameObject
 	int type;
 	bool isAlive = true;
 	bool isUsed = false;
-	int FY = 0;
-	bool isUp = false;
-	bool Calc_Y_Colli = false;
 
-	DWORD upDownTime = 0;
+	bool isAllowQuestionBrickSlide = false;
+
+	int time_Y_Up = 0;
+	bool isUp = false;
+
+	bool isAllowToShowScore = false;
+	DWORD timing_score;
+
+	int life;
+
+	bool controlMultipleCoin = false;
+	bool isAllowToShowMultipleCoin = false;
 
 public:
 	virtual void GetBoundingBox(float& left, float& top, float& right, float& bottom);
@@ -71,17 +79,59 @@ public:
 	{
 		isUp = isUpBool;
 	}
-	bool GetCalcYColli()
+	bool GetIsAllowToShowScore()
 	{
-		return Calc_Y_Colli;
+		if (this != NULL)
+			return isAllowToShowScore;
+		else
+		{
+			return false;
+		}
 	}
-	void SetCalcYColli(bool Calc_Y_Colli_Bool)
+	void SetIsAllowToShowScore(bool isAllowToShowScoreBool)
 	{
-		Calc_Y_Colli = Calc_Y_Colli_Bool;
+		if (this != NULL)
+			isAllowToShowScore = isAllowToShowScoreBool;
 	}
-	void StartTime()
+	void StartTimingScore()
 	{
-		upDownTime = GetTickCount();
+		timing_score = GetTickCount();
 	}
-
+	void SetLifeDown()
+	{
+		if (life >= 0)
+			life--;
+	}
+	int GetLife()
+	{
+		return life;
+	}
+	void SetLife(int lifeInt)
+	{
+		life = lifeInt;
+	}
+	bool GetIsAllowQuestionBrickSlide()
+	{
+		return isAllowQuestionBrickSlide;
+	}
+	void SetIsAllowQuestionBrickSlide(bool isAllowQuestionBrickSlideBool)
+	{
+		isAllowQuestionBrickSlide = isAllowQuestionBrickSlideBool;
+	}
+	bool GetControlMultipleCoin()
+	{
+		return controlMultipleCoin;
+	}
+	void SetControlMultipleCoin(bool controlMultipleCoinBool)
+	{
+		controlMultipleCoin = controlMultipleCoinBool;
+	}
+	bool GetIsAllowToShowMultipleCoin()
+	{
+		return isAllowToShowMultipleCoin;
+	}
+	void SetIsAllowToShowMultipleCoin(bool isAllowToShowMultipleCoinBool)
+	{
+		isAllowToShowMultipleCoin = isAllowToShowMultipleCoinBool;
+	}
 };

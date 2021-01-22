@@ -5,9 +5,11 @@
 #include <Windows.h>
 #include <d3d9.h>
 #include <d3dx9.h>
-
+#include "Node.h"
 
 #define DIRECTINPUT_VERSION 0x0800
+
+
 #include <dinput.h>
 
 #include "Scene.h"
@@ -19,7 +21,6 @@ using namespace std;
 
 class CGame
 {
-
 	static CGame* __instance;
 
 	int life = 3;
@@ -27,6 +28,15 @@ class CGame
 	int score = 0;
 
 	int money = 0;
+
+	bool isPassedScene1_1 = false;
+	bool isPassedScene1_4 = false;
+
+	bool isControlMarioRender = false;
+
+	int saved_level_world_map = 1;
+
+	int saved_Node_Id = -1;
 
 	vector<int> items_type = { 1,1,1 };
 
@@ -47,7 +57,7 @@ class CGame
 	LPKEYEVENTHANDLER keyHandler;
 
 	float cam_x;
-	float cam_y;
+	float cam_y = -50;
 
 	int screen_width;
 	int screen_height;
@@ -58,18 +68,8 @@ class CGame
 	void _ParseSection_SETTINGS(string line);
 	void _ParseSection_SCENES(string line);
 
-	bool started = false;
 public:
 
-
-	bool Getstarted()
-	{
-		return started;
-	}
-	void Setstarted(bool value)
-	{
-		started = value;
-	}
 	void InitKeyboard();
 	void SetKeyHandler(LPKEYEVENTHANDLER handler) { keyHandler = handler; }
 	void Init(HWND hWnd);
@@ -107,10 +107,7 @@ public:
 	void SetCamPos(float x = 0, float y = 0) { cam_x = (int)x; cam_y = (int)y; }
 
 	static CGame* GetInstance();
-	void LifeDown()
-	{
-		life -= 1;
-	}
+
 	int GetLife()
 	{
 		return life;
@@ -121,11 +118,8 @@ public:
 	}
 	void SetLifeDown()
 	{
-		life--;
-	}
-	int GetScore()
-	{
-		return score;
+		if (life >= 1)
+			life--;
 	}
 	int GetMoney()
 	{
@@ -147,13 +141,65 @@ public:
 	{
 		return cam_y;
 	}
+	void SetCamX(float cam_x_FLoat)
+	{
+		cam_x = cam_x_FLoat;
+	}
+	void SetCamY(float cam_y_FLoat)
+	{
+		cam_y = cam_y_FLoat;
+	}
 	void SetItems(vector<int> vector_items)
 	{
 		items_type = vector_items;
 	}
+	int GetScore()
+	{
+		return score;
+	}
 	void ScoreUp(int scoreInt)
 	{
 		score += scoreInt;
+	}
+	bool GetIsPassedScene1_1()
+	{
+		return isPassedScene1_1;
+	}
+	void SetIsPassedScene1_1(bool isPassedScene1_1_Bool)
+	{
+		isPassedScene1_1 = isPassedScene1_1_Bool;
+	}
+	bool GetIsPassedScene1_4()
+	{
+		return isPassedScene1_4;
+	}
+	void SetIsPassedScene1_4(bool isPassedScene1_4_Bool)
+	{
+		isPassedScene1_4 = isPassedScene1_4_Bool;
+	}
+	bool GetIsControlMarioRenderWorldMap()
+	{
+		return isControlMarioRender;
+	}
+	void SetControlMarioRenderWorldMap(bool isControlMarioRenderBool)
+	{
+		isControlMarioRender = isControlMarioRenderBool;
+	}
+	int GetSavedNodeID()
+	{
+		return saved_Node_Id;
+	}
+	void SetSavedNodeID(int saved_Node_Id_Int)
+	{
+		saved_Node_Id = saved_Node_Id_Int;
+	}
+	int GetMarioLevelWorldMap()
+	{
+		return saved_level_world_map;
+	}
+	void SetMarioLevelWorldMap(int saved_level_world_map_Int)
+	{
+		saved_level_world_map = saved_level_world_map_Int;
 	}
 	~CGame();
 };

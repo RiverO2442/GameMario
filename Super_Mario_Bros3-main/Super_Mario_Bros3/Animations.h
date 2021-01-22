@@ -64,7 +64,6 @@ class CAnimationSets
 	unordered_map<int, LPANIMATION_SET> animation_sets;
 
 public:
-	void Clear();
 	CAnimationSets();
 	void Add(int id, LPANIMATION_SET ani);
 	LPANIMATION_SET Get(unsigned int id);

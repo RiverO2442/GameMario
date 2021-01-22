@@ -1,0 +1,3 @@
+if (abs((this->x - mario->x) <= 40) && (abs(this->y - mario->y) <= 70))
+
+FLOWER

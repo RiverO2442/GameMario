@@ -4,6 +4,14 @@
 
 class CMario : public CGameObject
 {
+	bool isAllowToRenderItemAnimation = false;
+
+	int mario_current_moving_horizontal_rec_id = -1;
+
+	bool isOnMovingHorizontalRectangle = false;
+
+	bool isKeepStack = false;
+
 	bool isAllowToShowScore = false;
 
 	bool toEndTheScoreProgress = false;
@@ -30,8 +38,6 @@ class CMario : public CGameObject
 	DWORD pipe_downing_start = 0;
 	DWORD pipe_upping_start = 0;
 
-	DWORD on_the_air_start = 0;
-
 	int type;
 	bool isAppear = true;
 	int heightLimit;
@@ -41,7 +47,6 @@ class CMario : public CGameObject
 	int untouchable;
 	DWORD firing_start = 0;
 	DWORD transform_start = 0;
-	DWORD flying_start = 0;
 	DWORD braking_start;
 	DWORD untouchable_start;
 	DWORD speedup_start;
@@ -49,6 +54,7 @@ class CMario : public CGameObject
 	DWORD kicking_start;
 	DWORD spining_start;
 	DWORD count_down_time_start;
+	DWORD keep_stack_start;
 	bool isSpining = false;
 	bool isJumping = 0;
 	bool isFlying = false;
@@ -67,7 +73,38 @@ class CMario : public CGameObject
 	bool isSitting = false;
 	bool	switch_scene = false;
 	bool canSetLifeDown = true;
+	bool controlMarioColliWithMovingRec = false;
+	float MushroomCheckPosition;
 public:
+	bool GetControlMarioColliWithMovingRec()
+	{
+		return controlMarioColliWithMovingRec;
+	}
+	void SetControlMarioColliWithMovingRec(bool controlMarioColliWithMovingRecBool)
+	{
+		controlMarioColliWithMovingRec = controlMarioColliWithMovingRecBool;
+	}
+	int GetMarioMovingHorizotalRecID()
+	{
+		return mario_current_moving_horizontal_rec_id;
+	}
+	void SetMarioMovingHorizotalRecID(int mario_current_moving_horizontal_rec_id_INT)
+	{
+		this->mario_current_moving_horizontal_rec_id = mario_current_moving_horizontal_rec_id_INT;
+	}
+	bool GetIsOnMovingHorizontalRectangle()
+	{
+		return isOnMovingHorizontalRectangle;
+	}
+	void SetIsOnMovingHorizontalRectangle(bool isOnMovingHorizontalRectangleBool)
+	{
+		isOnMovingHorizontalRectangle = isOnMovingHorizontalRectangleBool;
+	}
+	void Startkeep_stack()
+	{
+		if(keep_stack_start == 0)
+		keep_stack_start = GetTickCount();
+	}
 	void SetcanSetLifeDown(bool value)
 	{
 		canSetLifeDown = value;
@@ -78,6 +115,7 @@ public:
 	}
 	void startFiring()
 	{
+
 		if(firing_start == 0)
 		firing_start = GetTickCount();
 	}
@@ -88,6 +126,10 @@ public:
 	void Setswitch_scene(bool value)
 	{
 		switch_scene = value;
+	}
+	DWORD Getspining_start()
+	{
+		return spining_start;
 	}
 	DWORD Getswitch_scene_start()
 	{
@@ -187,8 +229,6 @@ public:
 			transform_start = GetTickCount(); 
 	}
 
-	void StartOnTheAir() { on_the_air_start = GetTickCount(); }
-
 	void StartSwitchScene()
 	{
 		if (switch_scene_start == 0)
@@ -208,10 +248,12 @@ public:
 	}
 	int GetControl()
 	{
+		if(this != NULL)
 		return control_able;
 	}
 	void SetControl(int value)
 	{
+		if (this != NULL)
 		control_able = value;
 	}
 	bool GetFireRecog()
@@ -290,6 +332,8 @@ public:
 
 	void TimingAndStateBasedEventCal(DWORD dt, vector<LPGAMEOBJECT>* coObjects);
 
+	bool HitByTail(LPGAMEOBJECT obj, int state, bool Impacted);
+
 	void coEventCal(vector<LPGAMEOBJECT>* coObjects);
 
 	void CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents);
@@ -308,11 +352,6 @@ public:
 
 	int GetspeedLevel() { if(this != NULL) return speedLevel; }
 	void SetspeedLevel(int value) { speedLevel = value; }
-
-	DWORD GetFlyingStart()
-	{
-		return flying_start;
-	}
 
 	DWORD Getspeedup_start()
 	{
@@ -348,13 +387,11 @@ public:
 
 	void StartKicking() { kicking_start = GetTickCount(); }
 
-	void StartSpining() { spining_start = GetTickCount(); }
+	void StartSpining() { if(spining_start == 0) spining_start = GetTickCount(); }
 
 	void StartSpeedup() { speedup_start = GetTickCount(); }
 
 	void StartSpeeddown() { speeddown_start = GetTickCount(); }
-
-	void StartFlying() { flying_start = GetTickCount(); }
 
 	void Reset();
 
@@ -385,6 +422,10 @@ public:
 		}
 		return false;
 	}
+	void SetMushRoomCheckPosition(float MushroomCheckPositionFloat)
+	{
+		MushroomCheckPosition = MushroomCheckPositionFloat;
+	}
 	void ACCELERETING()
 	{
 		if (GetTickCount() - Getspeedup_start() > MARIO_SPEEDUP_TIME && GetspeedLevel() < MARIO_MAX_SPEED_LEVEL)
@@ -395,7 +436,7 @@ public:
 	}
 	void DEACCELERETING()
 	{
-		if (GetTickCount() - Getspeeddown_start() > MARIO_SPEEDDOWN_TIME && GetspeedLevel() > MARIO_MIN_SPEED_LEVEL)
+		if (GetTickCount() - Getspeeddown_start() > MARIO_SPEEDDOWN_TIME && GetspeedLevel() > MARIO_MIN_SPEED_LEVEL && !isKeepStack)
 		{
 			SetspeedLevel(GetspeedLevel() - 1);
 			Setspeeddown_start(0);

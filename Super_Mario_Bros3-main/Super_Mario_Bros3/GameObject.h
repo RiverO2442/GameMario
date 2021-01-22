@@ -61,6 +61,7 @@ public:
 
 	int state;
 
+	bool isAlive = false;
 
 	bool Actived = false;
 
@@ -85,6 +86,14 @@ public:
 		return A;
 	}
 	*/
+	void SetisAlive(bool value)
+	{
+		isAlive = value;
+	}
+	bool GetisAlive()
+	{
+		return isAlive;
+	}
 	int GetrenderLayer()
 	{
 		return renderLayer;

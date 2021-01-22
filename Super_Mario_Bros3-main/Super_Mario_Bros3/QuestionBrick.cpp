@@ -3,6 +3,18 @@
 CQuestionBrick::CQuestionBrick(int ctype)
 {
 	type = ctype;
+	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
+	if (id == 4)
+	{
+		if (type == QUESTION_BRICK_HAVE_COIN_MULTIPLE_LIFE)
+			life = 10;
+		else
+			life = 0;
+	}
+	else
+	{
+		life = 0;
+	}
 }
 
 void CQuestionBrick::CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents)
@@ -11,10 +23,11 @@ void CQuestionBrick::CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, ve
 	{
 		LPCOLLISIONEVENT e = SweptAABBEx(coObjects->at(i));
 
-		if (dynamic_cast<CQuestionBrick*>(coObjects->at(i)) || dynamic_cast<CLeaf*>(coObjects->at(i)) || dynamic_cast<CMushRoom*>(coObjects->at(i)))
+		if (dynamic_cast<CQuestionBrick*>(coObjects->at(i)))
 		{
 			continue;
 		}
+
 		if (e->t > 0 && e->t <= 1.0f)
 		{
 			coEvents.push_back(e);
@@ -22,6 +35,7 @@ void CQuestionBrick::CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, ve
 		else
 			delete e;
 	}
+
 	std::sort(coEvents.begin(), coEvents.end(), CCollisionEvent::compare);
 }
 
@@ -54,44 +68,115 @@ void CQuestionBrick::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	CalcPotentialCollisions(coObjects, coEvents);
 
 
-	if (!isAlive && Calc_Y_Colli)
+	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
+	if (id != 1)
+	{
+		CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
+		if (mario->GetIsSpining())
+		{
+				if (mario->HitByTail(this, NO_STATE, false))
+				{
+					int id = CGame::GetInstance()->GetCurrentScene()->GetId();
+					if (id == 3)
+					{
+						if (this->GetIsAlive())
+						{
+							if (!this->GetIsAllowQuestionBrickSlide())
+							{
+								this->SetIsUp(true);
+								this->SetIsAlive(false);
+								mario->SetMushRoomCheckPosition(mario->x);
+								this->SetIsAllowToShowScore(true);
+								this->SetIsAllowQuestionBrickSlide(true);
+							}
+						}
+					}
+					else if (id == 4)
+					{
+						if (this->GetIsAlive())
+						{
+							if (this->GetType() == QUESTION_BRICK_HAVE_COIN_MULTIPLE_LIFE)
+							{
+								if (!this->GetIsAllowQuestionBrickSlide())
+								{
+									this->SetIsUp(true);
+									this->SetIsAllowToShowScore(true);
+									this->SetLifeDown();
+									this->SetIsAllowQuestionBrickSlide(true);
+									this->SetIsAllowToShowMultipleCoin(true);
+									this->SetControlMultipleCoin(false);
+								}
+							}
+							else
+							{
+								if (!this->GetIsAllowQuestionBrickSlide())
+								{
+									this->SetIsUp(true);
+									this->SetIsAlive(false);
+									mario->SetMushRoomCheckPosition(mario->x);
+									this->SetIsAllowToShowScore(true);
+									this->SetIsAllowQuestionBrickSlide(true);
+								}
+							}
+						}
+					}
+				}
+		}
+	}
+
+
+
+
+
+	if (life < 0)
+	{
+		isAlive = false;
+		isAllowToShowMultipleCoin = false;
+	}
+
+
+
+
+
+
+	if (isAllowQuestionBrickSlide)
 	{
 		if (isUp)
 		{
-			if (FY == 5)
+			if (time_Y_Up > 4)
 			{
+				time_Y_Up = 0;
 				isUp = false;
-				StartTime();
 			}
 			else
 			{
-				y -= 1;
-				DebugOut(L"Nhun len \n");
-				FY++;
+				y -= 2;
+				time_Y_Up++;
 			}
 		}
 		else
 		{
-			if (FY == 0)
+			if (time_Y_Up > 4)
 			{
 				vy = 0;
-				Calc_Y_Colli = false;
+				isAllowQuestionBrickSlide = false;
+				time_Y_Up = 0;
 			}
 			else
 			{
-				y += 1;
-				DebugOut(L"Nhun xuong \n");
-				FY--;
+				y += 2;
+				time_Y_Up++;
 			}
 		}
 	}
 
 
+
+
 	// No collision occured, proceed normally
 	if (coEvents.size() == 0)
 	{
-		if (Calc_Y_Colli)
-			y += dy;
+		y += dy;
 	}
 	else
 	{
@@ -106,8 +191,7 @@ void CQuestionBrick::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		// block 
 
 		//x += min_tx * dx + nx * 0.5f;		// nx*0.4f : need to push out a bit to avoid overlapping next frame
-		/*if (Calc_Y_Colli)
-			y += min_ty * dy + ny * 0.5f;*/
+		//y += min_ty * dy + ny * 0.5f;
 
 		if (nx != 0) vx = 0;
 
@@ -115,10 +199,16 @@ void CQuestionBrick::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		for (UINT i = 0; i < coEventsResult.size(); i++)
 		{
 			LPCOLLISIONEVENT e = coEventsResult[i];
+
 		}
 	}
+
+
+
+
 	// clean up collision events
 	for (UINT i = 0; i < coEvents.size(); i++) delete coEvents[i];
+
 }
 
 void CQuestionBrick::Render()
@@ -127,10 +217,18 @@ void CQuestionBrick::Render()
 
 	if (isAlive)
 	{
-		if (type == QUESTION_BRICK_JUST_HAVE_MUSHROOM)
+		int id = CGame::GetInstance()->GetCurrentScene()->GetId();
+		if (id == 3)
+		{
+			if (type == QUESTION_BRICK_JUST_HAVE_MUSHROOM)
+				ani = QUESTION_BRICK_ANI_NEW_TYPE;
+			else
+				ani = QUESTION_BRICK_ANI_ALIVE;
+		}
+		else if (id == 4)
+		{
 			ani = QUESTION_BRICK_ANI_NEW_TYPE;
-		else
-			ani = QUESTION_BRICK_ANI_ALIVE;
+		}
 	}
 	else
 		ani = QUESTION_BRICK_ANI_DEAD;
