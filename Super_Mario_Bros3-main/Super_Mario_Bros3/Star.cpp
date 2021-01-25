@@ -70,8 +70,8 @@ void CStar::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	}
 
 
-	if (this->x >= 300)
-		SetPosition(1000, 1000);
+	if (this->x >= STAR_SHOW_PST_LIMIT)
+		SetPosition(STORING_LOCATION_X, STORING_LOCATION_Y);
 
 
 	// No collision occured, proceed normally
@@ -97,8 +97,8 @@ void CStar::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		//if (nx != 0) vx = 0;
 		if (ny != 0)
 		{
-			vx = 0.2f;
-			vy = -0.4f;
+			vx = STAR_SPEED_VX;
+			vy = -STAR_SPEED_VY;
 		}
 
 		// Collision logic with the others Goombas
@@ -133,7 +133,7 @@ void CStar::SetState(int state)
 	switch (state)
 	{
 	case STAR_STATE_IDLE:
-		vx = vy = 0;
+		vx = vy = STAR_STATE_IDLE_SPEED;
 		break;
 	}
 }

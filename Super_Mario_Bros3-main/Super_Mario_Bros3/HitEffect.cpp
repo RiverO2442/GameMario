@@ -23,16 +23,26 @@ void CHitEffect::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 	CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
 
-	if (this->type == HIT_EFFECT_TURN_TAIL)
-	{
-		
-	}
-	else
-	{
-	}
+	CPlayScene* playscene = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene());
 
-
-
+		if (playscene->CheckhitMng() && !isUsed)
+		{
+			this->SetPosition(playscene->GethitMng()->getScorePoisitionX(), playscene->GethitMng()->getScorePoisitionY());
+			isUsed = true;
+			type = playscene->GethitMng()->getScore();
+			playscene->DeletehitMng();
+			StartTiming();
+		}
+		if (isUsed)
+		{
+			if ((DWORD)GetTickCount64() - timing_start >= HIT_EFFECT_TURN_TAIL_TIME_SHOWING)
+			{
+				isUsed = false;
+				SetPosition(STORING_LOCATION_X, STORING_LOCATION_Y);
+				timing_start = TIMING_START_ORIGIN_VALUE;
+				SetState(HIT_EFFECT_STATE_IDLE);
+			}
+		}
 
 	x += dx;
 	y += dy;
@@ -51,7 +61,7 @@ void CHitEffect::Render()
 		switch (type)
 		{
 		case HIT_EFFECT_TURN_TAIL:
-			if (isAllowToShowHitEffectTurnTail)
+			//if (isAllowToShowHitEffectTurnTail)
 			{
 				if (mario->GetIsSpining())
 				{
@@ -63,15 +73,14 @@ void CHitEffect::Render()
 				else
 					return;
 			}
-			else return;
 			break;
 		case HIT_EFFECT_FIRE_BULLET:
-			if (isAllowToShowHitEffectFireBullet)
+			//if (isAllowToShowHitEffectFireBullet)
 			{
 				ani = HIT_EFFECT_ANI_FIRE_BULLET;
 
 			}
-			else return;
+			//else return;
 			break;
 		}
 	}
@@ -88,7 +97,7 @@ void CHitEffect::SetState(int state)
 	switch (state)
 	{
 	case HIT_EFFECT_STATE_IDLE:
-		vx = vy = 0;
+		vx = vy = HIT_EFFECT_STATE_IDLE_SPEED;
 		break;
 	}
 }

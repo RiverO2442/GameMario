@@ -6,19 +6,7 @@
 #include "Leaf.h"
 
 
-#define QUESTION_BRICK_BBOX_WIDTH  16
-#define QUESTION_BRICK_BBOX_HEIGHT 16
 
-
-
-#define QUESTION_BRICK_ANI_ALIVE	0
-#define QUESTION_BRICK_ANI_DEAD		1
-#define QUESTION_BRICK_ANI_NEW_TYPE	2
-
-
-#define QUESTION_BRICK_HAVE_LEAF			777
-#define QUESTION_BRICK_JUST_HAVE_MUSHROOM	888
-#define QUESTION_BRICK_HAVE_COIN_MULTIPLE_LIFE	999
 
 
 class CQuestionBrick : public CGameObject
@@ -95,7 +83,7 @@ public:
 	}
 	void StartTimingScore()
 	{
-		timing_score = GetTickCount();
+		timing_score = (DWORD)GetTickCount64();
 	}
 	void SetLifeDown()
 	{

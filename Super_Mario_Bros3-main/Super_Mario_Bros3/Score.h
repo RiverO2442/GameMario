@@ -53,7 +53,7 @@ public:
 	void StartTiming()
 	{
 		if (timing_start == 0)
-			timing_start = GetTickCount();
+			timing_start = (DWORD)GetTickCount64();
 	}
 	void SetIsUsed(bool isUsedBool)
 	{

@@ -18,37 +18,6 @@ CWorldMap::~CWorldMap()
 {
 }
 
-
-#define SCENE_SECTION_UNKNOWN			-1
-#define SCENE_SECTION_TEXTURES			2
-#define SCENE_SECTION_SPRITES			3
-#define SCENE_SECTION_ANIMATIONS		4
-#define SCENE_SECTION_ANIMATION_SETS	5
-#define SCENE_SECTION_OBJECTS			6
-#define SCENE_SECTION_MAP				7
-
-#define OBJECT_TYPE_MARIO				0
-#define OBJECT_TYPE_HELP				1
-#define OBJECT_TYPE_GOLD_DIGGER			2
-#define OBJECT_TYPE_BUSH				3
-#define OBJECT_TYPE_NODE				4
-
-#define OBJECT_TYPE_HUD_PANEL			5
-#define OBJECT_TYPE_MARIO_LUIGI			6
-#define OBJECT_TYPE_LIFE				7
-#define OBJECT_TYPE_MONEY				8
-#define OBJECT_TYPE_SCORE				9
-#define OBJECT_TYPE_TIME_PICKER			10
-#define OBJECT_TYPE_WORLD				11
-#define OBJECT_TYPE_STACK_NORMAL		12
-#define OBJECT_TYPE_STACK_MAX			13
-#define OBJECT_TYPE_ITEM				14
-#define OBJECT_TYPE_STAGE_1				15
-#define OBJECT_TYPE_STAGE_2				16
-
-#define MAX_SCENE_LINE					1024
-
-
 void CWorldMap::_ParseSection_TEXTURES(string line)
 {
 	vector<string> tokens = split(line);
@@ -98,7 +67,7 @@ void CWorldMap::_ParseSection_ANIMATIONS(string line)
 	LPANIMATION ani = new CAnimation();
 
 	int ani_id = atoi(tokens[0].c_str());
-	for (int i = 1; i < tokens.size(); i += 2)	// why i+=2 ?  sprite_id | frame_time  
+	for (unsigned int i = 1; i < tokens.size(); i += 2)	// why i+=2 ?  sprite_id | frame_time  
 	{
 		int sprite_id = atoi(tokens[i].c_str());
 		int frame_time = atoi(tokens[i + 1].c_str());
@@ -120,7 +89,7 @@ void CWorldMap::_ParseSection_ANIMATION_SETS(string line)
 
 	CAnimations* animations = CAnimations::GetInstance();
 
-	for (int i = 1; i < tokens.size(); i++)
+	for (unsigned int i = 1; i < tokens.size(); i++)
 	{
 		int ani_id = atoi(tokens[i].c_str());
 
@@ -144,8 +113,8 @@ void CWorldMap::_ParseSection_OBJECTS(string line)
 	if (tokens.size() < 3) return; // skip invalid lines - an object set must have at least id, x, y
 
 	int object_type = atoi(tokens[0].c_str());
-	float x = atof(tokens[1].c_str());
-	float y = atof(tokens[2].c_str());
+	float x = (float)atof(tokens[1].c_str());
+	float y = (float)atof(tokens[2].c_str());
 
 	int ani_set_id = atoi(tokens[3].c_str());
 
@@ -158,76 +127,76 @@ void CWorldMap::_ParseSection_OBJECTS(string line)
 
 	switch (object_type)
 	{
-	case OBJECT_TYPE_MARIO:
+	case OBJECT_WORLDMAP_TYPE_MARIO:
 		obj = new CWorldMapObjects(11);
 		break;
-	case OBJECT_TYPE_STAGE_1:
+	case OBJECT_WORLDMAP_TYPE_STAGE_1:
 		obj = new CWorldMapObjects(55);
 		break;
-	case OBJECT_TYPE_STAGE_2:
+	case OBJECT_WORLDMAP_TYPE_STAGE_2:
 		obj = new CWorldMapObjects(66);
 		break;
-	case OBJECT_TYPE_HELP:
+	case OBJECT_WORLDMAP_TYPE_HELP:
 		obj = new CWorldMapObjects(22);
 		break;
-	case OBJECT_TYPE_GOLD_DIGGER:
+	case OBJECT_WORLDMAP_TYPE_GOLD_DIGGER:
 		obj = new CWorldMapObjects(33);
 		break;
-	case OBJECT_TYPE_BUSH:
+	case OBJECT_WORLDMAP_TYPE_BUSH:
 		obj = new CWorldMapObjects(44);
 		break;
-	case OBJECT_TYPE_HUD_PANEL:
+	case OBJECT_WORLDMAP_TYPE_HUD_PANEL:
 		obj = new CHUD(11);
 		break;
-	case OBJECT_TYPE_WORLD:
+	case OBJECT_WORLDMAP_TYPE_WORLD:
 		obj = new CHUD(22);
 		break;
-	case OBJECT_TYPE_MARIO_LUIGI:
+	case OBJECT_WORLDMAP_TYPE_MARIO_LUIGI:
 		obj = new CHUD(77);
 		break;
-	case OBJECT_TYPE_LIFE:
+	case OBJECT_WORLDMAP_TYPE_LIFE:
 		obj = new CHUD(33);
 		break;
-	case OBJECT_TYPE_TIME_PICKER:
+	case OBJECT_WORLDMAP_TYPE_TIME_PICKER:
 		obj = new CHUD(44);
 		break;
-	case OBJECT_TYPE_SCORE:
+	case OBJECT_WORLDMAP_TYPE_SCORE:
 		HUD_items = new CHUD(55);
 		scores.push_back(HUD_items);
 		HUD_items->SetPosition(x, y);
 		break;
-	case OBJECT_TYPE_MONEY:
+	case OBJECT_WORLDMAP_TYPE_MONEY:
 		HUD_items = new CHUD(66);
 		moneys.push_back(HUD_items);
 		HUD_items->SetPosition(x, y);
 		break;
-	case OBJECT_TYPE_STACK_NORMAL:
+	case OBJECT_WORLDMAP_TYPE_STACK_NORMAL:
 		obj = new CHUD(88);
 		break;
-	case OBJECT_TYPE_STACK_MAX:
+	case OBJECT_WORLDMAP_TYPE_STACK_MAX:
 		obj = new CHUD(99);
 		break;
-	case OBJECT_TYPE_ITEM:
+	case OBJECT_WORLDMAP_TYPE_ITEM:
 		HUD_items = new CHUD(100);
 		items.push_back(HUD_items);
 		HUD_items->SetPosition(x, y);
 		break;
-	case OBJECT_TYPE_NEW_MAP_CAM:
+	case OBJECT_WORLDMAP_TYPE_NEW_MAP_CAM:
 	{
-		float y_limit = atof(tokens[4].c_str());
-		float y_start = atof(tokens[5].c_str());
+		float y_limit = (float)atof(tokens[4].c_str());
+		float y_start = (float)atof(tokens[5].c_str());
 		new_map_cam = new CNewMapCam(ani_set_id, x, y, y_limit, y_start);
 		new_map_cams.push_back(new_map_cam);
 	}
 	break;
-	case  OBJECT_TYPE_NODE:
+	case  OBJECT_WORLDMAP_TYPE_NODE:
 	{
-		int node_id = atof(tokens[4].c_str());
-		int l = atof(tokens[5].c_str());
-		int r = atof(tokens[6].c_str());
-		int t = atof(tokens[7].c_str());
-		int b = atof(tokens[8].c_str());
-		int type = atof(tokens[9].c_str());
+		int node_id = (int)atof(tokens[4].c_str());
+		int l = (int)atof(tokens[5].c_str());
+		int r = (int)atof(tokens[6].c_str());
+		int t = (int)atof(tokens[7].c_str());
+		int b = (int)atof(tokens[8].c_str());
+		int type = (int)atof(tokens[9].c_str());
 		node = new Node(node_id, l, r, t, b, type);
 		Nodes.push_back(node);
 		current_node = Nodes.at(0);
@@ -241,7 +210,7 @@ void CWorldMap::_ParseSection_OBJECTS(string line)
 
 	LPANIMATION_SET ani_set = animation_sets->Get(ani_set_id);
 	// General object setup
-	if (object_type != OBJECT_TYPE_NODE && obj != NULL)
+	if (object_type != OBJECT_WORLDMAP_TYPE_NODE && obj != NULL)
 	{
 		obj->SetPosition(x, y);
 		obj->SetAnimationSet(ani_set);
@@ -360,29 +329,10 @@ void CWorldMap::Update(DWORD dt)
 		items[i]->Update(dt, &coObjects);
 	}
 
-
-	//if (current_node->GetNodeId() == 1)
-	//{
-	//	for (size_t i = 0; i < Nodes.size(); i++)
-	//	{
-	//		if (Nodes[i]->GetType() == 200)
-	//		{
-	//			if (i % 2 == 0)
-	//			{
-	//				Nodes[i]->SetTop(1);
-	//			}
-	//			else
-	//			{
-	//				Nodes[i]->SetBottom(1);
-	//			}
-	//		}
-	//	}
-	//}
-
 	CGame* game = CGame::GetInstance();
 
 	if (game->GetCamX() == 0 && game->GetCamY() == 0)
-		CGame::GetInstance()->SetCamPos(new_map_cams[cam_state - 1]->GetStartCamX(), new_map_cams[cam_state - 1]->GetYStart());
+		CGame::GetInstance()->SetCamPos((int)new_map_cams[cam_state - 1]->GetStartCamX(), (int)new_map_cams[cam_state - 1]->GetYStart());
 
 	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
 
@@ -397,7 +347,7 @@ void CWorldMap::Render()
 		this->map->Render();
 	}
 
-	for (int i = 0; i < objects.size(); i++)
+	for (unsigned int i = 0; i < objects.size(); i++)
 		objects[i]->Render();
 
 	for (size_t i = 0; i < scores.size(); i++)
@@ -419,7 +369,7 @@ void CWorldMap::Render()
 */
 void CWorldMap::Unload()
 {
-	for (int i = 0; i < objects.size(); i++)
+	for (unsigned int i = 0; i < objects.size(); i++)
 		delete objects[i];
 
 
@@ -475,7 +425,7 @@ void CWorldMapKeyHandler::OnKeyDown(int KeyCode)
 		case DIK_DOWN:
 			if (mario->GetMarioMoveControl())
 			{
-				Node* node_result = current_node->FindNode(2);
+				Node* node_result = current_node->FindNode(SEARCH_BOTTOM);
 				if (node_result != NULL && current_node->GetBottom() != -1)
 				{
 					world_map_scene->SetCurrentNode(node_result);
@@ -487,7 +437,7 @@ void CWorldMapKeyHandler::OnKeyDown(int KeyCode)
 		case DIK_UP:
 			if (mario->GetMarioMoveControl())
 			{
-				Node* node_result = current_node->FindNode(1);
+				Node* node_result = current_node->FindNode(SEARCH_TOP);
 				if (node_result != NULL && current_node->GetTop() != -1)
 				{
 					world_map_scene->SetCurrentNode(node_result);
@@ -499,7 +449,7 @@ void CWorldMapKeyHandler::OnKeyDown(int KeyCode)
 		case DIK_LEFT:
 			if (mario->GetMarioMoveControl())
 			{
-				Node* node_result = current_node->FindNode(4);
+				Node* node_result = current_node->FindNode(SEARCH_LEFT);
 				if (node_result != NULL && current_node->GetLeft() != -1)
 				{
 					world_map_scene->SetCurrentNode(node_result);
@@ -511,7 +461,7 @@ void CWorldMapKeyHandler::OnKeyDown(int KeyCode)
 		case DIK_RIGHT:
 			if (mario->GetMarioMoveControl())
 			{
-				Node* node_result = current_node->FindNode(3);
+				Node* node_result = current_node->FindNode(SEARCH_RIGHT);
 				if (node_result != NULL && current_node->GetRight() != -1)
 				{
 					world_map_scene->SetCurrentNode(node_result);
@@ -522,16 +472,16 @@ void CWorldMapKeyHandler::OnKeyDown(int KeyCode)
 			}
 			break;
 		case DIK_G:
-			if (world_map_scene->GetCurrentNode()->GetNodeId() == 2)
+			if (world_map_scene->GetCurrentNode()->GetNodeId() == SCENE_1_1_NODE)
 			{
 				CGame::GetInstance()->SetSavedNodeID(world_map_scene->GetCurrentNode()->GetNodeId());
-				CGame::GetInstance()->SwitchScene(3);
+				CGame::GetInstance()->SwitchScene(SCENE_1_1_ID);
 				((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->SetTimePicker(300);
 			}
-			else if (world_map_scene->GetCurrentNode()->GetNodeId() == 8)
+			else if (world_map_scene->GetCurrentNode()->GetNodeId() == SCENE_1_4_NODE)
 			{
 				CGame::GetInstance()->SetSavedNodeID(world_map_scene->GetCurrentNode()->GetNodeId());
-				CGame::GetInstance()->SwitchScene(4);
+				CGame::GetInstance()->SwitchScene(SCENE_1_4_ID);
 				((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->SetTimePicker(300);
 			}
 			break;

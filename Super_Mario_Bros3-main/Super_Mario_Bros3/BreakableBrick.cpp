@@ -59,6 +59,14 @@ void CBreakableBrick::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		CalcPotentialCollisions(coObjects, coEvents);
 
 	CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
+	if(state != BREAKABLE_BRICK_STATE_BREAK)
+	if (mario->GetIsSpining())
+	{
+		if (mario->HitByTail(this, BREAKABLE_BRICK_STATE_BREAK, false))
+		{
+		}
+	}
+
 
 
 	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
@@ -68,7 +76,7 @@ void CBreakableBrick::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 	if (state == BREAKABLE_BRICK_STATE_COIN)
 	{
-		if (GetTickCount() - reviveTime >= 5000)
+		if ((DWORD)GetTickCount64() - reviveTime >= BREABLE_BRICK_REVIVE_TIME)
 		{
 			SetState(BREAKABLE_BRICK_STATE_NORMAL);
 		}
@@ -78,20 +86,20 @@ void CBreakableBrick::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	{
 		if (isUp)
 		{
-			if (time_Y_Up > 4)
+			if (time_Y_Up > BREABLE_BRICK_MOVE_LIMIT)
 			{
 				time_Y_Up = 0;
 				isUp = false;
 			}
 			else
 			{
-				y -= 2;
+				y -= BREABLE_BRICK_MOVE_SPEED;
 				time_Y_Up++;
 			}
 		}
 		else
 		{
-			if (time_Y_Up > 4)
+			if (time_Y_Up > BREABLE_BRICK_MOVE_LIMIT)
 			{
 				vy = 0;
 				isAllowQuestionBrickSlide = false;
@@ -99,7 +107,7 @@ void CBreakableBrick::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			}
 			else
 			{
-				y += 2;
+				y += BREABLE_BRICK_MOVE_SPEED;
 				time_Y_Up++;
 			}
 		}
@@ -162,7 +170,12 @@ void CBreakableBrick::SetState(int state)
 	switch (state)
 	{
 	case BREAKABLE_BRICK_STATE_NORMAL:
+		break;
 	case BREAKABLE_BRICK_STATE_BREAK:
+		isBreaking = true;
+		breakX = x;
+		breakY = y;
+		break;
 	case BREAKABLE_BRICK_STATE_COIN:
 		vx = vy = 0;
 		break;

@@ -4,7 +4,6 @@
 
 CKoopas::CKoopas(int ctype, int scene_id)
 {
-	SetisAlive(true);
 	type = ctype;
 	nx = -1;
 	if (type == KOOPAS_BLACK || scene_id == 1)
@@ -14,7 +13,14 @@ CKoopas::CKoopas(int ctype, int scene_id)
 	}
 	else
 	{
-		SetState(KOOPAS_STATE_WALKING);
+		if (type != KOOPAS_RED_FLY)
+		{
+			SetState(KOOPAS_STATE_WALKING);
+		}
+		else
+		{
+			SetState(KOOPAS_STATE_FLYING_UP_DOWN);
+		}
 	}
 }
 
@@ -41,10 +47,11 @@ void CKoopas::FilterCollision(vector<LPCOLLISIONEVENT>& coEvents, vector<LPCOLLI
 		if (c->t < min_ty && c->ny != 0) {
 			min_ty = c->t; ny = c->ny; min_iy = i; rdy = c->dy;
 		}
-		if (dynamic_cast<CBell*>(c->obj))
+
+		if (dynamic_cast<CBreakableBrick*>(c->obj)->GetState() == BREAKABLE_BRICK_STATE_COIN)
 		{
-			if (dynamic_cast<CBell*>(c->obj)->GetState() == BREAKABLE_BRICK_STATE_COIN)
-				ny = 0;
+			ny = 0;
+			nx = 0;
 		}
 		if (dynamic_cast<CMario*>(c->obj))
 		{
@@ -110,7 +117,8 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			SetShellUpRender(true);
 			SetRenderRegconization(true);
 			CPlayScene* playscene = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene());
-			playscene->AddScore(this->x, this->y + SCORE_FIX_PST_Y, 100);
+			playscene->AddScore(this->x, this->y + SCORE_FIX_PST_Y, KOOPAS_VALUE);
+			playscene->AddhitMng(this->x, this->y, HIT_EFFECT_TURN_TAIL);
 			SetisAlive(false);
 		}
 
@@ -141,7 +149,7 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		else mario->SetrenderHolding(true);
 		if (mario->GetState() == MARIO_STATE_PIPE_DOWNING)
 		{
-			y = mario->y + 10;
+			y = mario->y + MARIO_LEVEL_SMALL_KOOPAS_BONUS_Y;
 			if (mario->GetLevel() != MARIO_LEVEL_SMALL)
 			{
 				x = mario->x;
@@ -149,7 +157,7 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			else
 			{
 				x = mario->x - 1;
-				y = y - 10;
+				y = y - MARIO_LEVEL_SMALL_KOOPAS_BONUS_Y;
 			}
 			mario->SetrenderHolding(true);
 		}
@@ -163,15 +171,49 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		else y = mario->y - 2;
 		vy = 0;
 	}
-	if (GetTickCount() - jumpingStart >= KOOPAS_TIME_JUMPING && type == KOOPAS_XANH_FLY) // KOOPAS XANH FLY JUMP
+	if ((DWORD)GetTickCount64() - jumpingStart >= KOOPAS_TIME_JUMPING && type == KOOPAS_XANH_FLY) // KOOPAS XANH FLY JUMP
 	{
 		vy = -GOOMBA_JUMP_SPEED;
-		jumpingStart = GetTickCount();
+		jumpingStart = (DWORD)GetTickCount64();
 	}
+
+	if (type == KOOPAS_RED_FLY)
+	{
+
+		if (state == KOOPAS_STATE_FLYING_UP_DOWN)
+		{
+			StartSwitchingState();
+			if (isDown)
+			{
+				if (GetTickCount() - switching_state_time >= SWITCHING_STATE_TIME)
+				{
+					isDown = false;
+					switching_state_time = 0;
+				}
+				else
+				{
+					vy = 0.06f;
+				}
+			}
+			else
+			{
+				if (GetTickCount() - switching_state_time >= SWITCHING_STATE_TIME)
+				{
+					isDown = true;
+					switching_state_time = 0;
+				}
+				else
+				{
+					vy = -0.06f;
+				}
+			}
+		}
+	}
+
 	if (type != KOOPAS_BLACK)
 	{
 		int id = CGame::GetInstance()->GetCurrentScene()->GetId();
-		if (id != 1)
+		if (id != INTRO_SCENE_ID)
 		{
 			if (state == KOOPAS_STATE_SHELLING)
 			{
@@ -190,12 +232,12 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			//	if(state =! KOOPAS_STATE_SHELLING)
 			//		StartRevive();
 			//}
-			if (GetTickCount() - reviveStart >= 5000)
+			if ((DWORD)GetTickCount64() - reviveStart >= REVIVE_START_TIME)
 			{
 				if (state == KOOPAS_STATE_SHELLING)
 				{
-					y -= 10;
-					x += 5 * mario->nx;
+					y -= REVIVE_START_Y;
+					x += REVIVE_START_X * mario->nx;
 					SetState(KOOPAS_STATE_WALKING);
 					if (mario->x >= this->x)
 						vx = -vx;
@@ -207,7 +249,7 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			}
 			else
 			{
-				if (GetTickCount() - reviveStart >= 3000)
+				if ((DWORD)GetTickCount64() - reviveStart >= REVIVE_START_TIME_2)
 				{
 					reviveRender = true;
 				}
@@ -236,7 +278,7 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 						this->SetRenderRegconization(true);
 						this->isKickedRevive = true;
 						this->vy = -KOOPAS_DEFLECT_SPEED_Y;
-						this->vx = 0.04f * (-nx);
+						this->vx = KOOPAS_SHELL_DEFLECT_SPEED_VX * (-nx);
 					}
 				}
 			}
@@ -245,7 +287,7 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	}
 	if (isAllowToSubRecWidth)
 	{
-		if (GetTickCount() - timingSubRecWidth >= 300)
+		if ((DWORD)GetTickCount64() - TIMINGSUBRECWIDTH >= TIMINGSUBRECWIDTH)
 		{
 			isAllowToSubRecWidth = false;
 		}
@@ -260,11 +302,11 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			if (y - CheckPosition_Y >= 1.0f)
 			{
 
-				y -= 5;
+				y -= KOOPAS_CHECK_POSITION_MINUS_Y;
 				if (vx < 0)
-					x += 12;
+					x += KOOPAS_CHECK_POSITION_BONUS_X;
 				else
-					x -= 12;
+					x -= KOOPAS_CHECK_POSITION_BONUS_X;
 				vx = -vx;
 			}
 		}
@@ -327,7 +369,7 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 					Koopas->SetShellUpRender(true);
 					Koopas->SetState(KOOPAS_STATE_DIE_2);
 					Koopas->SetSpeed(this->nx * DIE_DEFLECT_SPEED_X, DIE_DEFLECT_SPEED_Y);
-					Koopas->nx = nx;
+					Koopas->nx = (int)nx;
 				}
 			}
 			else if (dynamic_cast<CGoomba*>(e->obj)) // if e->obj is Goomba
@@ -339,7 +381,61 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				if (state == KOOPAS_STATE_SPINNING)
 				{
 					Goomba->SetState(GOOMBA_STATE_DIE_2);
-					Goomba->nx = nx;
+					Goomba->nx = (int)nx;
+				}
+			}
+			else if (dynamic_cast<CQuestionBrick*>(e->obj))
+			{
+				if (e->nx != 0 && ny == 0)
+				{
+					CQuestionBrick* question_brick = dynamic_cast<CQuestionBrick*>(e->obj);
+					if (state == KOOPAS_STATE_SPINNING)
+					{
+						int id = CGame::GetInstance()->GetCurrentScene()->GetId();
+						if (id == SCENE_1_1_ID || id == SCENE_1_4_ID)
+						{
+							if (question_brick->GetIsAlive())
+							{
+								if (!question_brick->GetIsAllowQuestionBrickSlide())
+								{
+									question_brick->SetIsUp(true);
+									question_brick->SetIsAlive(false);
+									question_brick->SetIsAllowQuestionBrickSlide(true);
+								}
+							}
+						}
+						else if (id == 4)
+						{
+							if (question_brick->GetIsAlive())
+							{
+								if (question_brick->GetType() == QUESTION_BRICK_HAVE_COIN_MULTIPLE_LIFE)
+								{
+									if (!question_brick->GetIsAllowQuestionBrickSlide())
+									{
+										question_brick->SetIsUp(true);
+										question_brick->SetIsAllowToShowScore(true);
+										question_brick->SetLifeDown();
+										question_brick->SetIsAllowQuestionBrickSlide(true);
+										question_brick->SetIsAllowToShowMultipleCoin(true);
+										question_brick->SetControlMultipleCoin(false);
+									}
+								}
+								else
+								{
+									if (!question_brick->GetIsAllowQuestionBrickSlide())
+									{
+										question_brick->SetIsUp(true);
+										question_brick->SetIsAlive(false);
+										question_brick->SetIsAllowToShowScore(true);
+										question_brick->SetIsAllowQuestionBrickSlide(true);
+									}
+								}
+							}
+
+						}
+					}
+					vx = -vx;
+
 				}
 			}
 
@@ -350,7 +446,7 @@ void CKoopas::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				{
 					int id = CGame::GetInstance()->GetCurrentScene()->GetId();
 					vx = -vx;
-					if (id == 4)
+					if (id == SCENE_1_4_ID)
 					{
 						if (dynamic_cast<CBrick*>(e->obj) && this->GetState() == KOOPAS_STATE_SPINNING)
 						{
@@ -502,6 +598,9 @@ void CKoopas::Render()
 				ani = KOOPAS_BLACK_UP;
 			}
 			break;
+		case KOOPAS_RED_FLY:
+			ani = KOOPAS_RED_ANI_FLYING_LEFT_NEW;
+			break;
 		}
 	}
 	else return;
@@ -521,16 +620,17 @@ void CKoopas::SetState(int state)
 		if (nx > 0) vx = KOOPAS_SPINNING_SPEED;
 		break;
 	case KOOPAS_STATE_SHELLING:
-		vx = 0;
-		vy = 0;
+		vx = KOOPAS_STATE_SHELL_IDLE_SPEED;
+		vy = KOOPAS_STATE_SHELL_IDLE_SPEED;
 		break;
 	case KOOPAS_STATE_DIE:
 		y += KOOPAS_BBOX_HEIGHT - KOOPAS_BBOX_HEIGHT_SHELL + 1;
-		vx = 0;
-		vy = 0;
+		vx = KOOPAS_STATE_SHELL_IDLE_SPEED;
+		vy = KOOPAS_STATE_SHELL_IDLE_SPEED;
 		break;
 	case KOOPAS_STATE_WALKING:
 		vx = -KOOPAS_WALKING_SPEED;
+		break;
 	}
 
 }

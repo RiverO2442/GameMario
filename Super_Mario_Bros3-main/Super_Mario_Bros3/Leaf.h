@@ -3,19 +3,7 @@
 #include "algorithm"
 #include "Mario.h"
 #include "PlayScene.h"
-
-#define LEAF_BBOX_WIDTH		16
-#define LEAF_BBOX_HEIGHT	14
-
-#define LEAF_STATE_IDLE		0
-#define LEAF_STATE_UP		100
-#define LEAF_STATE_DOWN		200
-
-
-
-#define LEAF_ANI_LEFT		0
-#define LEAF_ANI_RIGHT		1
-
+#include "define.h"
 
 class CLeaf : public CGameObject
 {
@@ -35,11 +23,11 @@ public:
 	virtual void SetState(int state);
 	void StartUpping()
 	{
-		upping_start = GetTickCount();
+		upping_start = (DWORD)GetTickCount64();
 	}
 	void StartDowning()
 	{
-		downing_start = GetTickCount();
+		downing_start = (DWORD)GetTickCount64();
 	}
 
 };

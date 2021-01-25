@@ -3,15 +3,7 @@
 #include "algorithm"
 #include "Mario.h"
 #include "PlayScene.h"
-
-
-#define FIRE_FLOWER_BBOX_WIDTH		16
-#define FIRE_FLOWER_BBOX_HEIGHT		16
-
-#define FIRE_FLOWER_STATE_IDLE		0
-#define FIRE_FLOWER_STATE_UP		100
-
-
+#include "define.h"
 
 
 class CFireFlower : public CGameObject
@@ -34,7 +26,7 @@ public:
 
 	void StartUpping()
 	{
-		upping_start = GetTickCount();
+		upping_start = (DWORD)GetTickCount64();
 	}
 	bool GetIsAllowToShowScore()
 	{
@@ -52,7 +44,7 @@ public:
 	}
 	void StartTimingScore()
 	{
-		timing_score = GetTickCount();
+		timing_score = (DWORD)GetTickCount64();
 	}
 
 };

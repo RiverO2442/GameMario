@@ -4,6 +4,10 @@
 
 class CMario : public CGameObject
 {
+	DWORD jumping_long_start = 0;
+
+	int mario_time_jump = 0;
+
 	bool isAllowToRenderItemAnimation = false;
 
 	int mario_current_moving_horizontal_rec_id = -1;
@@ -45,6 +49,7 @@ class CMario : public CGameObject
 	int speedLevel = 0;
 	int level = 0;
 	int untouchable;
+	bool isCamPushRender = false;
 	DWORD firing_start = 0;
 	DWORD transform_start = 0;
 	DWORD braking_start;
@@ -75,7 +80,39 @@ class CMario : public CGameObject
 	bool canSetLifeDown = true;
 	bool controlMarioColliWithMovingRec = false;
 	float MushroomCheckPosition;
+	bool canjumplong = false;
 public:
+	bool main_jump, sub_jump;
+
+	bool Getcanjumplong()
+	{
+		return canjumplong;
+	}
+	void Setcanjumplong(bool value)
+	{
+		canjumplong = value;
+	}
+	int Getmario_time_jump()
+	{
+		return mario_time_jump;
+	}
+	void Setmario_time_jumpt(int value)
+	{
+		mario_time_jump = value;
+	}
+	DWORD Getjumping_long_start()
+	{
+		return jumping_long_start;
+	}
+	void Setjumping_long_start(DWORD value)
+	{
+		jumping_long_start = value;
+	}
+	void Start_jumping_long()
+	{
+		if (jumping_long_start == 0)
+			jumping_long_start = (DWORD)GetTickCount64();
+	}
 	bool GetControlMarioColliWithMovingRec()
 	{
 		return controlMarioColliWithMovingRec;
@@ -103,7 +140,7 @@ public:
 	void Startkeep_stack()
 	{
 		if(keep_stack_start == 0)
-		keep_stack_start = GetTickCount();
+		keep_stack_start = (DWORD)GetTickCount64();
 	}
 	void SetcanSetLifeDown(bool value)
 	{
@@ -117,7 +154,7 @@ public:
 	{
 
 		if(firing_start == 0)
-		firing_start = GetTickCount();
+		firing_start = (DWORD)GetTickCount64();
 	}
 	bool Getswitch_scene()
 	{
@@ -158,7 +195,7 @@ public:
 	void StartCountDownTimePicker()
 	{
 		if (count_down_time_start == 0)
-			count_down_time_start = GetTickCount();
+			count_down_time_start = (DWORD)GetTickCount64();
 	}
 
 	bool GetIsAllowToShowWordsEndScene()
@@ -174,13 +211,13 @@ public:
 	void StartPipeDowning()
 	{
 		if (pipe_downing_start == 0)
-			pipe_downing_start = GetTickCount();
+			pipe_downing_start = (DWORD)GetTickCount64();
 	}
 
 	void StartPipeUpping()
 	{
 		if (pipe_upping_start == 0)
-			pipe_upping_start = GetTickCount();
+			pipe_upping_start = (DWORD)GetTickCount64();
 	}
 
 	bool GetCanPipeDowning()
@@ -205,7 +242,12 @@ public:
 
 	bool GetIsTransform()
 	{
+		if(this != NULL)
 		return isTransform;
+		else
+		{
+			return 0;
+		}
 	}
 
 	void SetIsTransform(bool value)
@@ -226,17 +268,17 @@ public:
 	void StartIsTransform() 
 	{ 
 		if(transform_start == 0)
-			transform_start = GetTickCount(); 
+			transform_start = (DWORD)GetTickCount64(); 
 	}
 
 	void StartSwitchScene()
 	{
 		if (switch_scene_start == 0)
-			switch_scene_start = GetTickCount();
+			switch_scene_start = (DWORD)GetTickCount64();
 	}
 	void StartFireRecog()
 	{
-		fire_recog_start = GetTickCount();
+		fire_recog_start = (DWORD)GetTickCount64();
 	}
 	bool GetIsAtTheTunnel()
 	{
@@ -250,6 +292,10 @@ public:
 	{
 		if(this != NULL)
 		return control_able;
+		else
+		{
+			return 0;
+		}
 	}
 	void SetControl(int value)
 	{
@@ -350,7 +396,10 @@ public:
 	bool GetIsSpining() { return isSpining; }
 	void SetIsSpining(bool value) { isSpining = value; }
 
-	int GetspeedLevel() { if(this != NULL) return speedLevel; }
+	int GetspeedLevel() {
+		if (this != NULL) return speedLevel;
+		else return 0;
+	}
 	void SetspeedLevel(int value) { speedLevel = value; }
 
 	DWORD Getspeedup_start()
@@ -383,15 +432,15 @@ public:
 		LvChanging();
 		level = l;
 	}
-	void StartUntouchable() { untouchable = 1; untouchable_start = GetTickCount(); }
+	void StartUntouchable() { untouchable = 1; untouchable_start = (DWORD)GetTickCount64(); }
 
-	void StartKicking() { kicking_start = GetTickCount(); }
+	void StartKicking() { kicking_start = (DWORD)GetTickCount64(); }
 
-	void StartSpining() { if(spining_start == 0) spining_start = GetTickCount(); }
+	void StartSpining() { if(spining_start == 0) spining_start = (DWORD)GetTickCount64(); }
 
-	void StartSpeedup() { speedup_start = GetTickCount(); }
+	void StartSpeedup() { speedup_start = (DWORD)GetTickCount64(); }
 
-	void StartSpeeddown() { speeddown_start = GetTickCount(); }
+	void StartSpeeddown() { speeddown_start = (DWORD)GetTickCount64(); }
 
 	void Reset();
 
@@ -428,7 +477,7 @@ public:
 	}
 	void ACCELERETING()
 	{
-		if (GetTickCount() - Getspeedup_start() > MARIO_SPEEDUP_TIME && GetspeedLevel() < MARIO_MAX_SPEED_LEVEL)
+		if ((DWORD)GetTickCount64() - Getspeedup_start() > MARIO_SPEEDUP_TIME && GetspeedLevel() < MARIO_MAX_SPEED_LEVEL)
 		{
 			SetspeedLevel(GetspeedLevel() + 1);
 			Setspeedup_start(0);
@@ -436,7 +485,7 @@ public:
 	}
 	void DEACCELERETING()
 	{
-		if (GetTickCount() - Getspeeddown_start() > MARIO_SPEEDDOWN_TIME && GetspeedLevel() > MARIO_MIN_SPEED_LEVEL && !isKeepStack)
+		if ((DWORD)GetTickCount64() - Getspeeddown_start() > MARIO_SPEEDDOWN_TIME && GetspeedLevel() > MARIO_MIN_SPEED_LEVEL && !isKeepStack)
 		{
 			SetspeedLevel(GetspeedLevel() - 1);
 			Setspeeddown_start(0);

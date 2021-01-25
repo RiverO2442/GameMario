@@ -50,6 +50,6 @@ public:
 	void StartTimeRecog()
 	{
 		if (timing_recog_start == 0)
-			timing_recog_start = GetTickCount();
+			timing_recog_start = (DWORD)GetTickCount64();
 	}
 };

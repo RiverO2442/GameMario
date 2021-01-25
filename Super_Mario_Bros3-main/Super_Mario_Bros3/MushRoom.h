@@ -27,6 +27,10 @@ class CMushRoom : public CGameObject
 	bool haveGravity = false;
 	int type;
 	DWORD upping_start = 0;
+	int moveDirection = 1;
+
+	bool isAllowToShowScore = false;
+	DWORD timing_score;
 
 public:
 	virtual void GetBoundingBox(float& left, float& top, float& right, float& bottom);
@@ -46,7 +50,25 @@ public:
 	}
 	void StartUpping()
 	{
-		upping_start = GetTickCount();
+		upping_start = (DWORD)GetTickCount64();
+	}
+	bool GetIsAllowToShowScore()
+	{
+		if (this != NULL)
+			return isAllowToShowScore;
+		else
+		{
+			return false;
+		}
+	}
+	void SetIsAllowToShowScore(bool isAllowToShowScoreBool)
+	{
+		if (this != NULL)
+			isAllowToShowScore = isAllowToShowScoreBool;
+	}
+	void StartTimingScore()
+	{
+		timing_score = (DWORD)GetTickCount64();
 	}
 
 };

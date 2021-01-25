@@ -23,14 +23,12 @@ void FIREBALL::GetBoundingBox(float& left, float& top, float& right, float& bott
 
 void FIREBALL::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
-	if (GetTickCount() - reset_start > FIREBALL_RESET_TIME)
+	if ((DWORD)GetTickCount64() - reset_start > FIREBALL_RESET_TIME)
 	{
 		state = FIREBALL_STATE_DIE;
 		reset_start = 0;
 	}
 	CGameObject::Update(dt, coObjects);
-	//if (state == KOOPAS_STATE_SHELLING)
-		//vy = 0;
 	vector<LPCOLLISIONEVENT> coEvents;
 	vector<LPCOLLISIONEVENT> coEventsResult;
 
@@ -42,8 +40,8 @@ void FIREBALL::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	else
 	{
 		isUsed = false;
-		x = 1000;
-		y = 1000;
+		x = STORING_LOCATION_X;
+		y = STORING_LOCATION_X;
 		SetState(FIREBALL_STATE_FLYING);
 	}
 	if (y <= upBoudary)
@@ -59,7 +57,7 @@ void FIREBALL::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				isUsed = true;
 				x = mario->x;
 				y = mario->y;
-				SetSpeed(mario->nx*0.1f, 0.1f);
+				SetSpeed(mario->nx* FIRE_BALL_SPEED_VX, FIRE_BALL_SPEED_VY);
 				mario->SetisAlreadyFired(true);
 				upBoudary = mario->y;
 				StartReset();
@@ -104,22 +102,34 @@ void FIREBALL::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			{
 				CGoomba* Goomba = dynamic_cast<CGoomba*>(e->obj);
 				Goomba->SetState(GOOMBA_STATE_DIE_2);
-				Goomba->SetSpeed(vx, -0.4);
+				Goomba->SetSpeed(vx, -GOOMBA_DIE_DEFLECT_SPEED);
+				CPlayScene* playscene = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene());
+				playscene->AddScore(this->x, this->y + SCORE_FIX_PST_Y, 100);
+				playscene->AddhitMng(this->x, this->y, HIT_EFFECT_FIRE_BULLET);
 				SetState(FIREBALL_STATE_DIE);
 			}
 			else if (dynamic_cast<CKoopas*>(e->obj)) // if e->obj is Koopas
 			{
 				CKoopas* Koopas = dynamic_cast<CKoopas*>(e->obj);
-				Koopas->SetState(KOOPAS_STATE_DIE);
-				Koopas->SetSpeed(vx, -0.4);
+				if (Koopas->GetType() == KOOPAS_XANH_FLY)
+					Koopas->SetType(KOOPAS_XANH_WALK);
+				Koopas->SetState(KOOPAS_STATE_DIE_2);
+				Koopas->SetSpeed(vx, KOOPAS_DEFLECT_SPEED_Y);
+				CPlayScene* playscene = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene());
+				playscene->AddScore(this->x, this->y + SCORE_FIX_PST_Y, 100);
+				playscene->AddhitMng(this->x, this->y, HIT_EFFECT_FIRE_BULLET);
 				if (vx > 0)
 					Koopas->nx = 1;
 				else Koopas->nx = -1;
 				SetState(FIREBALL_STATE_DIE);
 			}
-			else if (dynamic_cast<CMario*>(e->obj)) // if e->obj is Koopas
+			else if (dynamic_cast<CFlower*>(e->obj))
 			{
-				continue;
+				CFlower* Koopas = dynamic_cast<CFlower*>(e->obj);
+				Koopas->SetIsAlive(false);
+				CPlayScene* playscene = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene());
+				playscene->AddScore(this->x, this->y + SCORE_FIX_PST_Y, 100);
+				playscene->AddhitMng(this->x, this->y, HIT_EFFECT_FIRE_BULLET);
 			}
 			else //Colli with any thing else then Koopas will change direction
 			if (ny != 0 )
@@ -189,8 +199,8 @@ void FIREBALL::SetState(int state)
 	switch (state)
 	{
 	case FIREBALL_STATE_DIE:
-		vx = 0;
-		vy = 0;
+		vx = FIRE_BALL_STATE_DIE_VX;
+		vy = FIRE_BALLSTATE_DIE_VY;
 		break;
 
 	}

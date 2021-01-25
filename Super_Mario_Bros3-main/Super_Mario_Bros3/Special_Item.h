@@ -43,12 +43,12 @@ public:
 	void StartUpping()
 	{
 		if (upping_start == 0)
-			upping_start = GetTickCount();
+			upping_start = (DWORD)GetTickCount64();
 	}
 	void StartSwitchState()
 	{
 		if (switching_state_start == 0)
-			switching_state_start = GetTickCount();
+			switching_state_start = (DWORD)GetTickCount64();
 	}
 
 };

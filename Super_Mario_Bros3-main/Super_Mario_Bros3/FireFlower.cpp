@@ -85,7 +85,7 @@ void CFireFlower::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 	if (state == FIRE_FLOWER_STATE_UP)
 	{
-		if (GetTickCount() - upping_start >= 300)
+		if ((DWORD)GetTickCount64() - upping_start >= COIN_STATE_UP_TIME_UP)
 		{
 			SetState(FIRE_FLOWER_STATE_IDLE);
 		}
@@ -130,15 +130,15 @@ void CFireFlower::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				CMario* mario = dynamic_cast<CMario*>(e->obj);
 				if (mario->GetLevel() == MARIO_LEVEL_TAIL)
 				{
-					SetPosition(7000, 7000);
+					SetPosition(STORING_LOCATION_X, STORING_LOCATION_Y);
 				}
 				else if (mario->GetLevel() == MARIO_LEVEL_FIRE)
 				{
 					isAppear = false;
-					SetPosition(7000, 7000);
+					SetPosition(STORING_LOCATION_X, STORING_LOCATION_Y);
 				}
 				int id = CGame::GetInstance()->GetCurrentScene()->GetId();
-				if (id == 3 || id == 4)
+				if (id == SCENE_1_1_ID || id == SCENE_1_4_ID)
 				{
 					CPlayScene* playscene = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene());
 					playscene->AddScore(this->x, this->y + SCORE_FIX_PST_Y, 1000);
@@ -172,10 +172,10 @@ void CFireFlower::SetState(int state)
 	switch (state)
 	{
 	case MUSHROOM_STATE_IDLE:
-		vx = vy = 0;
+		vx = vy = COIN_STATE_IDLE_SPEED;
 		break;
 	case  FIRE_FLOWER_STATE_UP:
-		vy = -0.05f;
+		vy = -COIN_STATE_UP_SPEED;
 		break;
 	}
 }

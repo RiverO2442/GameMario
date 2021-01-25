@@ -3,7 +3,7 @@
 CGoomba::CGoomba(int ctype, int scene_id)
 {
 	SetisAlive(true);
-	nx = -1;
+	nx = -GOOMBA_NX;
 	isAppear = true;
 	SetState(GOOMBA_STATE_WALKING);
 	type = ctype;
@@ -79,7 +79,7 @@ void CGoomba::GetBoundingBox(float& left, float& top, float& right, float& botto
 
 	if (state == GOOMBA_STATE_DIE)
 	{
-		top = y + 7;
+		top = y + GOOMBA_STATE_DIE_BONUS_TOP;
 		right = x + GOOMBA_NORMAL_BBOX_WIDTH;
 		bottom = y + GOOMBA_NORMAL_BBOX_HEIGHT;
 	}
@@ -95,7 +95,7 @@ void CGoomba::GetBoundingBox(float& left, float& top, float& right, float& botto
 			right = x + GOOMBA_RED_FLY_BBOX_WIDTH;
 			if (state == GOOMBA_STATE_WALKING)
 			{
-				bottom = y + 19;
+				bottom = y + GOOMBA_STATE_WALKING_BONUS_BOTTOM;
 			}
 			else
 			{
@@ -105,7 +105,7 @@ void CGoomba::GetBoundingBox(float& left, float& top, float& right, float& botto
 	}
 	else if (state == GOOMBA_STATE_RED_LOSE_WINGS)
 	{
-		top = y + 7;
+		top = y + GOOMBA_STATE_RED_LOSE_WINGS_BONUS_TOP;
 		right = x + GOOMBA_RED_LOSE_WINGS_BBOX_WIDTH;
 		bottom = y + GOOMBA_NORMAL_BBOX_HEIGHT;
 	}
@@ -139,16 +139,16 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		StartTimeSwitchingState();
 		if (state == GOOMBA_STATE_WALKING)
 		{
-			if (GetTickCount() - time_switch_state >= 1000)
+			if ((DWORD)GetTickCount64() - time_switch_state >= GOOMBA_TIME_SWITCH_STATE)
 			{
 				SetState(GOOMBA_STATE_GEARING);
-				y -= 5;
+				y -= GOOMBA_SWITCH_STATE_MINUS_Y;
 				time_switch_state = 0;
 			}
 		}
 		else if (state == GOOMBA_STATE_GEARING)
 		{
-			if (GetTickCount() - time_switch_state >= 1000)
+			if ((DWORD)GetTickCount64() - time_switch_state >= GOOMBA_TIME_SWITCH_STATE)
 			{
 				SetState(GOOMBA_STATE_FLYING);
 				time_switch_state = 0;
@@ -156,7 +156,7 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		}
 		else if (state == GOOMBA_STATE_FLYING)
 		{
-			if (GetTickCount() - time_switch_state >= 1000)
+			if ((DWORD)GetTickCount64() - time_switch_state >= GOOMBA_TIME_SWITCH_STATE)
 			{
 				SetState(GOOMBA_STATE_WALKING);
 				time_switch_state = 0;
@@ -166,16 +166,16 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		if (state == GOOMBA_STATE_GEARING)
 		{
 			StartJumping();
-			if (GetTickCount() - jumpingStart >= 400)
+			if ((DWORD)GetTickCount64() - jumpingStart >= GOOMBA_STATE_GEARING_JUMPING_START)
 			{
 				jumpingStart = 0;
-				if (control_jump_time == 0)
+				if (control_jump_time == GOOMBA_CONTROL_JUMPTIME_FIRST)
 					control_jump_time++;
 			}
-			if (control_jump_time == 1)
+			if (control_jump_time == GOOMBA_CONTROL_JUMPTIME_SECOND)
 			{
-				vy = -0.2f;
-				control_jump_time = 0;
+				vy = -GOOMBA_JUMP_VY;
+				control_jump_time = GOOMBA_CONTROL_JUMPTIME_FIRST;
 			}
 		}
 
@@ -183,7 +183,7 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		{
 			if (!control_flying)
 			{
-				vy = -0.4f;
+				vy = -GOOMBA_FLYING_VY;
 				control_flying = true;
 			}
 		}
@@ -197,7 +197,7 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	{
 		if (dyingStart == 0)
 			StartDying();
-		if (GetTickCount() - dyingStart >= 500)
+		if ((DWORD)GetTickCount64() - dyingStart >= GOOMBA_DYING_TIME)
 			SetState(GOOMBA_STATE_DISAPPEAR);
 	}
 
@@ -232,7 +232,7 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		{
 			if (type == GOOMBA_RED_FLY && state != GOOMBA_STATE_DIE_2)
 			{
-				if (state == GOOMBA_STATE_FLYING && (GetTickCount() - time_switch_state >= 500))
+				if (state == GOOMBA_STATE_FLYING && ((DWORD)GetTickCount64() - time_switch_state >= GOOMBA_STATE_FLYING_SWITCHING_STATE_TIME))
 				{
 					SetState(GOOMBA_STATE_WALKING);
 					time_switch_state = 0;
@@ -247,21 +247,7 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		{
 			LPCOLLISIONEVENT e = coEventsResult[i];
 
-			if (dynamic_cast<CGoomba*>(e->obj)) // if e->obj is Goomba 
-			{
-				CGoomba* goomba = dynamic_cast<CGoomba*>(e->obj);
-				if (e->nx != 0)
-				{
-					if (goomba->GetState() != GOOMBA_STATE_DIE)
-					{
-						goomba->vx = -goomba->vx;
-						this->vx = -this->vx;
-						this->nx = -this->nx;
-					}
-
-				}
-			}
-			else // Collisions with other things  
+			 // Collisions with other things  
 			{
 				if (e->nx != 0 && ny == 0 && !dynamic_cast<CKoopas*>(e->obj))
 				{
@@ -285,6 +271,7 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		{
 			CPlayScene* playscene = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene());
 			playscene->AddScore(this->x, this->y + SCORE_FIX_PST_Y, 100);
+			playscene->AddhitMng(this->x, this->y, HIT_EFFECT_TURN_TAIL);
 			this->SetisAlive(false);
 		}
 	}

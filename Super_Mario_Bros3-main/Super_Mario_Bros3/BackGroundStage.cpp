@@ -29,7 +29,7 @@ void CBackGroundStage::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 	StartShowing();
 
-	if (GetTickCount() - time_showing >= 2000)
+	if ((DWORD)GetTickCount64() - time_showing >= BACKGROUND_STAGE_APPEAR_TIME_LIMIT)
 	{
 		if (type == BACKGROUND_STAGE_TYPE_COLOR)
 		{
@@ -38,7 +38,7 @@ void CBackGroundStage::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		}
 	}
 
-	if (GetTickCount() - time_showing >= 5000)
+	if ((DWORD)GetTickCount64() - time_showing >= BACKGROUND_STAGE_APPEAR_2_TIME_LIMIT)
 	{
 		if (type == BACKGROUND_STAGE_TYPE_FINAL)
 		{
@@ -46,26 +46,26 @@ void CBackGroundStage::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		}
 	}
 
-	if (GetTickCount() - time_showing >= 7000)
+	if ((DWORD)GetTickCount64() - time_showing >= BACKGROUND_STAGE_APPEAR_3_TIME_LIMIT)
 	{
 		((CIntroScence*)CGame::GetInstance()->GetCurrentScene())->SetMenuGame(true);
 	}
 
 	if (type == BACKGROUND_STAGE_TYPE_COLOR && isAppear)
 	{
-		if (GetTickCount() - time_down >= 500)
+		if ((DWORD)GetTickCount64() - time_down >= BACKGROUND_STAGE_SHAKE_TIME_LIMIT)
 		{
-			SetState(BACKGROUND_STAGE_STATE_IDLE);
+			SetState(BACKGROUND_STAGE_SHAKE_TIME_LIMIT);
 		}
 		else
 		{
 			SetState(BACKGROUND_STAGE_STATE_DOWN);
 		}
-		if (GetTickCount() - time_down >= 700)
+		if ((DWORD)GetTickCount64() - time_down >= BACKGROUND_STAGE_DOWN_TIME_LIMIT)
 		{
 			SetState(BACKGROUND_STAGE_STATE_SHAKE);
 		}
-		if (GetTickCount() - time_down >= 1400)
+		if ((DWORD)GetTickCount64() - time_down >= BACKGROUND_STAGE_IDLE_TIME_LIMIT)
 		{
 			SetState(BACKGROUND_STAGE_STATE_IDLE);
 		}
@@ -75,9 +75,9 @@ void CBackGroundStage::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	if (state == BACKGROUND_STAGE_STATE_SHAKE)
 	{
 		StartShake();
-		if (GetTickCount() - time_shake >= 25)
+		if ((DWORD)GetTickCount64() - time_shake >= BACKGROUND_STAGE_SHAKE_RAPID)
 		{
-			this->vy = 0.2f * shakeDirection;
+			this->vy = BACKGROUND_STAGE_SHAKE_SPEED_VY * shakeDirection;
 			shakeDirection = -shakeDirection;
 			time_shake = 0;
 		}
@@ -151,10 +151,10 @@ void CBackGroundStage::SetState(int state)
 	switch (state)
 	{
 	case  BACKGROUND_STAGE_STATE_IDLE:
-		vx = vy = 0;
+		vx = vy = BACKGROUND_STAGE_IDLE_SPEED;
 		break;
 	case  BACKGROUND_STAGE_STATE_DOWN:
-		vy = 0.1f;
+		vy = BACKGROUND_STAGE_DOWN_SPEED;
 		break;
 	}
 }

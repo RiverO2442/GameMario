@@ -81,7 +81,7 @@ void CPlayScene::_ParseSection_GRID(string line)
 	if (tokens.size() < 1) return;
 
 	wstring file_path = ToWSTR(tokens[0]);
-
+	if(grid == NULL)
 	grid = new CGrid(file_path.c_str());
 }
 
@@ -96,7 +96,7 @@ void CPlayScene::_ParseSection_ANIMATIONS(string line)
 	LPANIMATION ani = new CAnimation();
 
 	int ani_id = atoi(tokens[0].c_str());
-	for (int i = 1; i < tokens.size(); i += 2)	// why i+=2 ?  sprite_id | frame_time  
+	for (unsigned int i = 1; i < tokens.size(); i += 2)	// why i+=2 ?  sprite_id | frame_time  
 	{
 		int sprite_id = atoi(tokens[i].c_str());
 		int frame_time = atoi(tokens[i + 1].c_str());
@@ -118,7 +118,7 @@ void CPlayScene::_ParseSection_ANIMATION_SETS(string line)
 
 	CAnimations* animations = CAnimations::GetInstance();
 
-	for (int i = 1; i < tokens.size(); i++)
+	for (unsigned int i = 1; i < tokens.size(); i++)
 	{
 		int ani_id = atoi(tokens[i].c_str());
 
@@ -142,8 +142,8 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	if (tokens.size() < 4) return; // skip invalid lines - an object set must have at least id, x, y
 
 	int object_type = atoi(tokens[0].c_str());
-	float x = atof(tokens[1].c_str());
-	float y = atof(tokens[2].c_str());
+	float x = (float)atof(tokens[1].c_str());
+	float y = (float)atof(tokens[2].c_str());
 
 	int ani_set_id = atoi(tokens[3].c_str());
 
@@ -171,24 +171,23 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		break;
 	case OBJECT_TYPE_HIT_EFFECT_TURN_TAIL:
 		obj = new CHitEffect(HIT_EFFECT_TURN_TAIL);
-		hit_effects_turn_tail.push_back(obj);
 		break;
 	case OBJECT_TYPE_HIT_EFFECT_FIRE_BULLET:
 		obj = new CHitEffect(HIT_EFFECT_FIRE_BULLET);
-		hit_effects_fire_bullet.push_back(obj);
+		objects.push_back(obj);
 		break;
 	case OBJECT_TYPE_BOOMERANG_ENEMY:
 		obj = new CBoomerangEnemy();
 		break;
 	case OBJECT_TYPE_BOOMERANG:
 	{
-		int boomerang_id = atof(tokens[4].c_str());
+		int boomerang_id = (int)(int)atof(tokens[4].c_str());
 		obj = new CBoomerang(boomerang_id);
 	}
 	break;
 	case OBJECT_TYPE_MOVING_HORIZONTAL_RECTANGLE:
 	{
-		int moving_horizontal_rectangle_id = atof(tokens[4].c_str());
+		int moving_horizontal_rectangle_id = (int)(int)atof(tokens[4].c_str());
 		obj = new CMovingHorizontalRectangle(moving_horizontal_rectangle_id);
 	}
 	case OBJECT_TYPE_QUESTION_BRICK_HAVE_MULTIPLE_LIFE:
@@ -200,8 +199,8 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		break;
 	case OBJECT_TYPE_NEW_MAP_CAM:
 	{
-		float y_limit = atof(tokens[4].c_str());
-		float y_start = atof(tokens[5].c_str());
+		float y_limit = (float)atof(tokens[4].c_str());
+		float y_start = (float)atof(tokens[5].c_str());
 		new_map_cam = new CNewMapCam(ani_set_id, x, y, y_limit, y_start);
 		new_map_cams.push_back(new_map_cam);
 	}
@@ -280,13 +279,13 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		items.push_back(HUD_items);
 		HUD_items->SetPosition(x, y);
 		break;
-	/*case OBJECT_TYPE_PORTAL:
+	case OBJECT_TYPE_PORTAL:
 	{
-		float r = atof(tokens[4].c_str());
-		float b = atof(tokens[5].c_str());
-		int scene_id = atoi(tokens[6].c_str());
-		obj = new CPortal(x, y, r, b, scene_id);
-	}*/
+		int portal_id = (int)atof(tokens[4].c_str());
+		float arrive_position_x = (float)atof(tokens[5].c_str());
+		float arrive_position_y = (float)atof(tokens[6].c_str());
+		obj = new CPortal(portal_id, arrive_position_x, arrive_position_y);
+	}
 	break;
 	default:
 		DebugOut(L"[ERR] Invalid object type: %d\n", object_type);
@@ -372,9 +371,9 @@ bool CPlayScene::IsInUseArea(float Ox, float Oy)
 {
 	float CamX, CamY;
 
-	CamX = CGame::GetInstance()->GetCamX();
+	CamX = (float)CGame::GetInstance()->GetCamX();
 
-	CamY = CGame::GetInstance()->GetCamY();
+	CamY = (float)CGame::GetInstance()->GetCamY();
 
 	if (((CamX - CAM_X_BONUS < Ox) && (Ox < CamX + IN_USE_WIDTH)) && ((CamY < Oy) && (Oy < CamY + IN_USE_HEIGHT)))
 		return true;
@@ -402,7 +401,7 @@ void CPlayScene::Update(DWORD dt)
 	CGame* game = CGame::GetInstance();
 
 	if(game->GetCamX() == CAM_START && game->GetCamY() == CAM_START)
-	CGame::GetInstance()->SetCamPos(new_map_cams[cam_state - 1]->GetStartCamX(), new_map_cams[cam_state - 1]->GetYStart());
+	CGame::GetInstance()->SetCamPos((int)new_map_cams[cam_state - 1]->GetStartCamX(), (int)new_map_cams[cam_state - 1]->GetYStart());
 
 		lv_pre = player->GetLevel();
 
@@ -412,34 +411,34 @@ void CPlayScene::Update(DWORD dt)
 
 		player->GetPosition(cx, cy);
 
-		cam_x_pre = game->GetCamX();
-		cam_y_pre = game->GetCamY();
+		cam_x_pre = (float)game->GetCamX();
+		cam_y_pre = (float)game->GetCamY();
 
 		if (id == SCENE_1_1_ID)
 		{
 			cx -= game->GetScreenWidth() / 2;
 			if (player->x >= (game->GetScreenWidth() / 2 + new_map_cams[cam_state - 1]->GetStartCamX()))
 			{
-				if (CheckCamY())
+				if (CheckCamY() || player->GetIsAtTheTunnel())
 				{
 					cy -= game->GetScreenHeight() / 2;
 					CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
 				}
 				else
 				{
-					CGame::GetInstance()->SetCamPos((int)cx, new_map_cams[cam_state - 1]->GetYStart());
+					CGame::GetInstance()->SetCamPos((int)cx, (int)new_map_cams[cam_state - 1]->GetYStart());
 				}
 			}
 			else
 			{
-				if (CheckCamY())
+				if (CheckCamY() || player->GetIsAtTheTunnel())
 				{
 					cy -= game->GetScreenHeight() / 2;
 					CGame::GetInstance()->SetCamPos((int)cx, (int)cy);
 				}
 				else
 				{
-					CGame::GetInstance()->SetCamPos((int)new_map_cams[cam_state - 1]->GetStartCamX(), new_map_cams[cam_state - 1]->GetYStart());
+					CGame::GetInstance()->SetCamPos((int)new_map_cams[cam_state - 1]->GetStartCamX(), (int)new_map_cams[cam_state - 1]->GetYStart());
 				}
 			}
 		}
@@ -450,11 +449,11 @@ void CPlayScene::Update(DWORD dt)
 			StartTimeCamMove();
 			if (time_cam_move != 0)
 			{
-				if (GetTickCount() - time_cam_move >= 10)
+				if ((DWORD)GetTickCount64() - time_cam_move >= 10)
 				{
 					time_cam_move = 0;
 					float cam_x_update = UpdateCamMoveX(dt);
-					CGame::GetInstance()->SetCamPos(cam_x_update, 220);
+					CGame::GetInstance()->SetCamPos((int)cam_x_update, (int)new_map_cams[cam_state - 1]->GetYStart());
 				}
 			}
 		}
@@ -472,7 +471,7 @@ void CPlayScene::Update(DWORD dt)
 					}
 					else
 					{
-						CGame::GetInstance()->SetCamPos((int)cx, new_map_cams[cam_state - 1]->GetYStart());
+						CGame::GetInstance()->SetCamPos((int)cx, (int)new_map_cams[cam_state - 1]->GetYStart());
 					}
 				}
 				else
@@ -484,19 +483,19 @@ void CPlayScene::Update(DWORD dt)
 					}
 					else
 					{
-						CGame::GetInstance()->SetCamPos((int)new_map_cams[cam_state - 1]->GetStartCamX(), new_map_cams[cam_state - 1]->GetYStart());
+						CGame::GetInstance()->SetCamPos((int)new_map_cams[cam_state - 1]->GetStartCamX(), (int)new_map_cams[cam_state - 1]->GetYStart());
 					}
 				}
 			}
 		}
 		if (game->GetCamX() >= new_map_cams[cam_state - 1]->GetEndCamX())
 			game->SetCamX((int)new_map_cams[cam_state - 1]->GetEndCamX());
+		DebugOut1(L"%d \n", cam_state);
+		cx = (float)game->GetCamX();
 
-		cx = game->GetCamX();
-
-		cy = game->GetCamY();
-
-		grid->GetObjects(objects, cx, cy);
+		cy = (float)game->GetCamY();
+		
+		grid->GetObjects(objects, (int)cx, (int)cy);
 
 		for (size_t i = 0; i < objects.size(); i++)
 		{
@@ -508,9 +507,17 @@ void CPlayScene::Update(DWORD dt)
 				objects.erase(objects.begin() + i);
 			}
 		}
+			
+		DebugOut1(L"So Luong CooBJ %d \n", objects.size());
+		//DebugOut1(L"So Luong CooBJ %d \n", objects.size());
 
-		//DebugOut1(L"So Luong CooBJ %d \n", objects.size());
-		//DebugOut1(L"So Luong CooBJ %d \n", objects.size());
+		vector<LPGAMEOBJECT> coObjects;
+
+		//for (size_t i = 0; i < objects.size(); i++)
+		//{
+		//	if(!dynamic_cast<CBrick*>(objects[i]))
+		//	coObjects[i]->Update(dt, &objects);
+		//}
 
 		for (size_t i = 0; i < objects.size(); i++)
 		{
@@ -519,7 +526,7 @@ void CPlayScene::Update(DWORD dt)
 
 		//DebugOut1(L"So Luong CooBJ %d \n", objects.size());
 
-		if (GetTickCount() - time_counter >= 1000 && time_picker > 0 && player->GetControl() != LOSE_ALL_CONTROL)
+		if ((DWORD)GetTickCount64() - time_counter >= 1000 && time_picker > 0 && player->GetControl() != LOSE_ALL_CONTROL)
 		{
 			time_picker--;
 			time_counter = 0;
@@ -665,6 +672,8 @@ void CPlayScene::Unload()
 
 	player = NULL;
 
+	cam_state = 1;
+
 	delete map;
 
 	map = nullptr;
@@ -712,6 +721,7 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 			{
 				mario->SetState(MARIO_STATE_JUMP);
 				mario->SetIsJumping(true);
+				mario->Start_jumping_long();
 				mario->SetIsOnMovingHorizontalRectangle(false);
 				mario->SetMarioMovingHorizotalRecID(-1);
 				mario->SetControlMarioColliWithMovingRec(false);
@@ -736,18 +746,18 @@ void CPlayScenceKeyHandler::OnKeyDown(int KeyCode)
 float CPlayScene::UpdateCamMoveX(DWORD dt)
 {
 
-	float cam_x_end_temp = new_map_cams.at(cam_state - 1)->GetEndCamX();
+	int cam_x_end_temp = (int)new_map_cams.at(cam_state - 1)->GetEndCamX();
 
-	float cam_x_game = CGame::GetInstance()->GetCamX();
+	int cam_x_game = CGame::GetInstance()->GetCamX();
 
 	if (cam_x_game < cam_x_end_temp)
 	{
-		cam_x_game += MOVE_CAM_X_VX * dt;
-		return cam_x_game;
+		cam_x_game += (int)(MOVE_CAM_X_VX * dt);
+		return (float)cam_x_game;
 	}
 	else
 	{
-		return cam_x_end_temp;
+		return (float)cam_x_end_temp;
 	}
 
 
@@ -769,6 +779,10 @@ void CPlayScenceKeyHandler::OnKeyUp(int KeyCode)
 			mario->SetisAlreadyFired(false);
 			break;
 		case DIK_S:
+			mario->Setcanjumplong(false);
+			mario->Setmario_time_jumpt(0);
+			mario->Setjumping_long_start(0);
+			mario->main_jump = false;
 			mario->SetIsFlying(false);
 			mario->SetIsFalling(false);
 			break;
@@ -786,8 +800,16 @@ void CPlayScenceKeyHandler::KeyState(BYTE* states)
 		if (mario->GetState() == MARIO_STATE_DIE) return;
 		if (game->IsKeyDown(DIK_S))
 		{
+			if (mario->Getcanjumplong())
+			{
+				mario->main_jump = true;
+			}
 			if (mario->GetspeedLevel() == MARIO_MAX_SPEED_LEVEL)
 				mario->SetCanFly(true);
+			//else
+			//{
+			//	mario->Setjumping_long_start
+			//}
 			if (mario->GetLevel() == MARIO_LEVEL_TAIL && mario->GetCanFly())
 			{
 				mario->SetControl(0);

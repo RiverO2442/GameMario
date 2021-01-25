@@ -18,14 +18,6 @@ CIntroScence::~CIntroScence()
 {
 }
 
-
-#define SCENE_SECTION_UNKNOWN -1
-#define SCENE_SECTION_TEXTURES 2
-#define SCENE_SECTION_SPRITES 3
-#define SCENE_SECTION_ANIMATIONS 4
-#define SCENE_SECTION_ANIMATION_SETS	5
-#define SCENE_SECTION_OBJECTS	6
-
 #define OBJECT_TYPE_BRICK					1
 #define OBJECT_TYPE_NO_COLLISION_OBJECTS_NUMBER_THREE	4
 #define OBJECT_TYPE_BACKGROUND_STAGE_BLACK	6
@@ -36,7 +28,7 @@ CIntroScence::~CIntroScence()
 
 
 
-#define OBJECT_TYPE_PORTAL	50
+//#define OBJECT_TYPE_PORTAL	50
 
 
 #define MARIO_TIME_COUNT  1000
@@ -93,7 +85,7 @@ void CIntroScence::_ParseSection_ANIMATIONS(string line)
 	LPANIMATION ani = new CAnimation();
 
 	int ani_id = atoi(tokens[0].c_str());
-	for (int i = 1; i < tokens.size(); i += 2)	// why i+=2 ?  sprite_id | frame_time  
+	for (unsigned int i = 1; i < tokens.size(); i += 2)	// why i+=2 ?  sprite_id | frame_time  
 	{
 		int sprite_id = atoi(tokens[i].c_str());
 		int frame_time = atoi(tokens[i + 1].c_str());
@@ -115,7 +107,7 @@ void CIntroScence::_ParseSection_ANIMATION_SETS(string line)
 
 	CAnimations* animations = CAnimations::GetInstance();
 
-	for (int i = 1; i < tokens.size(); i++)
+	for (unsigned int i = 1; i < tokens.size(); i++)
 	{
 		int ani_id = atoi(tokens[i].c_str());
 
@@ -139,8 +131,8 @@ void CIntroScence::_ParseSection_OBJECTS(string line)
 	if (tokens.size() < 3) return; // skip invalid lines - an object set must have at least id, x, y
 
 	int object_type = atoi(tokens[0].c_str());
-	float x = atof(tokens[1].c_str());
-	float y = atof(tokens[2].c_str());
+	float x = (float)atof(tokens[1].c_str());
+	float y = (float)atof(tokens[2].c_str());
 	CNewMapCam* new_map_cam = NULL;
 	int ani_set_id = atoi(tokens[3].c_str());
 
@@ -152,8 +144,8 @@ void CIntroScence::_ParseSection_OBJECTS(string line)
 	{
 	case OBJECT_TYPE_NEW_MAP_CAM:
 	{
-		float y_limit = atof(tokens[4].c_str());
-		float y_start = atof(tokens[5].c_str());
+		float y_limit = (float)atof(tokens[4].c_str());
+		float y_start = (float)atof(tokens[5].c_str());
 		new_map_cam = new CNewMapCam(ani_set_id, x, y, y_limit, y_start);
 		new_map_cams.push_back(new_map_cam);
 	}
@@ -241,7 +233,7 @@ void CIntroScence::Update(DWORD dt)
 	CGame* game = CGame::GetInstance();
 
 	if (game->GetCamX() == CAM_START && game->GetCamY() == CAM_START)
-		CGame::GetInstance()->SetCamPos(new_map_cams[cam_state - 1]->GetStartCamX(), new_map_cams[cam_state - 1]->GetYStart());
+		CGame::GetInstance()->SetCamPos((int)new_map_cams[cam_state - 1]->GetStartCamX(), (int)new_map_cams[cam_state - 1]->GetYStart());
 
 	vector<LPGAMEOBJECT> coObjects;
 	for (size_t i = 0; i < objects.size(); i++)
@@ -262,7 +254,7 @@ void CIntroScence::Update(DWORD dt)
 
 void CIntroScence::Render()
 {
-	for (int i = 0; i < objects.size(); i++)
+	for (unsigned int i = 0; i < objects.size(); i++)
 		objects[i]->Render();
 }
 
@@ -271,7 +263,7 @@ void CIntroScence::Render()
 */
 void CIntroScence::Unload()
 {
-	for (int i = 0; i < objects.size(); i++)
+	for (unsigned int i = 0; i < objects.size(); i++)
 		delete objects[i];
 	for (size_t i = 0; i < new_map_cams.size(); i++)
 	{

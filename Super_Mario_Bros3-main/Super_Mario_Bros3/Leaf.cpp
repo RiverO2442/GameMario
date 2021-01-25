@@ -88,7 +88,7 @@ void CLeaf::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 	if (state == LEAF_STATE_UP)
 	{
-		if (GetTickCount() - upping_start >= 1500)
+		if ((DWORD)GetTickCount64() - upping_start >= LEAF_UPPING_START_TIME_2)
 		{
 			SetState(LEAF_STATE_DOWN);
 		}
@@ -101,7 +101,7 @@ void CLeaf::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		{
 			StartDowning();
 		}
-		if (GetTickCount() - downing_start >= 500)
+		if ((DWORD)GetTickCount64() - downing_start >= LEAF_UPPING_START_TIME_1)
 		{
 			vx = -vx;
 			downing_start = 0;
@@ -145,18 +145,18 @@ void CLeaf::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				{
 					mario->SetLevel(MARIO_LEVEL_BIG);
 					isAppear = false;
-					SetPosition(5000, 5000);
+					SetPosition(STORING_LOCATION_X, STORING_LOCATION_Y);
 				}
 				else if (mario->GetLevel() == MARIO_LEVEL_BIG)
 				{
 					mario->SetLevel(MARIO_LEVEL_TAIL);
 					isAppear = false;
-					SetPosition(5000, 5000);
+					SetPosition(STORING_LOCATION_X, STORING_LOCATION_Y);
 				}
 				else
 				{
 					isAppear = false;
-					SetPosition(5000, 5000);
+					SetPosition(STORING_LOCATION_X, STORING_LOCATION_Y);
 					//Cong diem
 				}
 			}
@@ -193,14 +193,14 @@ void CLeaf::SetState(int state)
 	switch (state)
 	{
 	case LEAF_STATE_IDLE:
-		vx = vy = 0;
+		vx = vy = LEAF_STATE_IDLE_SPEED;
 		break;
 	case LEAF_STATE_UP:
-		vy = -0.04f;
+		vy = -LEAF_STATE_UP_SPEED;
 		break;
 	case LEAF_STATE_DOWN:
-		vx = 0.04f;
-		vy = 0.04f;
+		vx = LEAF_STATE_DOWN_VX;
+		vy = LEAF_STATE_DOWN_VY;
 		break;
 	}
 }

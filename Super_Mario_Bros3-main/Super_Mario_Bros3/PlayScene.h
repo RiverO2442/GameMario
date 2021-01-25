@@ -48,8 +48,8 @@
 
 class CGrid
 {
-	int numRow, numCol;
-	int cellWidth;
+	unsigned int numRow, numCol;
+	unsigned int cellWidth;
 	int  cellHeight;
 	Cell** cells;
 
@@ -129,6 +129,7 @@ public:
 	virtual void Unload();
 
 	CMario* GetPlayer() { return player; }
+
 	void AddhitMng(float x, float y, int score)
 	{
 		ScoreManager* sm = new ScoreManager(x, y, score);
@@ -170,7 +171,7 @@ public:
 	void StartTimeCamMove()
 	{
 		if (time_cam_move == 0)
-			time_cam_move = GetTickCount();
+			time_cam_move = (DWORD)GetTickCount64();
 	}
 	void SetCamState(int camStateInt)
 	{
@@ -204,7 +205,7 @@ public:
 	void StartTimeCounter()
 	{
 		if (time_counter == 0)
-			time_counter = GetTickCount();
+			time_counter = (DWORD)GetTickCount64();
 	}
 
 	vector<CHUD*> GetTimers()

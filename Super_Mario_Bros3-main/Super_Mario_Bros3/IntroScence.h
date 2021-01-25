@@ -56,7 +56,7 @@ public:
 	void StartTimeCount()
 	{
 		if (time_count == 0)
-			time_count = GetTickCount();
+			time_count = (DWORD)GetTickCount64();
 	}
 	~CIntroScence();
 };

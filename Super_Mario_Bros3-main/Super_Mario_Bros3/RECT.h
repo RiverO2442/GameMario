@@ -2,9 +2,6 @@
 #include "GameObject.h"
 #include "PlayScene.h"
 
-#define RECTANGLE_BBOX_WIDTH  16
-#define RECTANGLE_BBOX_HEIGHT 16
-
 class CRECT : public CGameObject
 {
 	bool isAllowToSubBBoxWidth = false;

@@ -32,7 +32,7 @@ void CWorldMapObjects::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		if (state == GOLD_DIGGER_STATE_WALKING_RIGHT)
 		{
 			GoldDiggerStartWalking();
-			if (GetTickCount() - gold_digger_walk_start >= 1500)
+			if ((DWORD)GetTickCount64() - gold_digger_walk_start >= WORLDMAPOBJECTS_GOLD_DIGGER_WALK_TIME_LIMIT)
 			{
 				SetState(GOLD_DIGGER_STATE_WALKING_LEFT);
 				gold_digger_walk_start = 0;
@@ -41,7 +41,7 @@ void CWorldMapObjects::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		else
 		{
 			GoldDiggerStartWalking();
-			if (GetTickCount() - gold_digger_walk_start >= 1500)
+			if ((DWORD)GetTickCount64() - gold_digger_walk_start >= WORLDMAPOBJECTS_GOLD_DIGGER_WALK_TIME_LIMIT)
 			{
 				SetState(GOLD_DIGGER_STATE_WALKING_RIGHT);
 				gold_digger_walk_start = 0;
@@ -50,7 +50,7 @@ void CWorldMapObjects::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		break;
 	case WORLD_MAP_TYPE_HELP:
 		HelpAppearStart();
-		if (GetTickCount() - help_appear_start >= 1000)
+		if ((DWORD)GetTickCount64() - help_appear_start >= WORLDMAPOBJECTS_HELP_SHOW_TIME_LIMIT)
 		{
 			isHelpAppear = -isHelpAppear;
 			help_appear_start = 0;
@@ -60,7 +60,7 @@ void CWorldMapObjects::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		if (CGame::GetInstance()->GetSavedNodeID() != -1)
 		{
 			CWorldMap* world_map_scene = (CWorldMap*)CGame::GetInstance()->GetCurrentScene();
-			if (world_map_scene->GetNodes().size() > CGame::GetInstance()->GetSavedNodeID())
+			if (world_map_scene->GetNodes().size() > (unsigned int)CGame::GetInstance()->GetSavedNodeID())
 			{
 				Node* saved_node = world_map_scene->GetNodeById(CGame::GetInstance()->GetSavedNodeID());
 				SetPosition(saved_node->x, saved_node->y);
@@ -71,7 +71,7 @@ void CWorldMapObjects::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		if (state != MARIO_STATE_CANT_MOVE)
 		{
 			MarioMoveStart();
-			if (GetTickCount() - mario_move_start >= 200)
+			if ((DWORD)GetTickCount64() - mario_move_start >= WORLDMAPOBJECTS_MARIO_MOVE_TIME_LIMIT)
 			{
 				SetState(MARIO_STATE_CANT_MOVE);
 				mario_move_start = 0;
@@ -92,15 +92,15 @@ void CWorldMapObjects::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		if (isAllowToRenderClearStage)
 		{
 			StartClearingStage();
-			if (GetTickCount() - timing_clear >= 50)
+			if ((DWORD)GetTickCount64() - timing_clear >= WORLDMAPOBJECTS_RENDER_STAGE_OF_PROCESS_SHOW_TIME)
 			{
 				isRenderStageInProgress = true;
 			}
-			if (GetTickCount() - timing_clear >= 700)
+			if ((DWORD)GetTickCount64() - timing_clear >= WORLDMAPOBJECTS_RENDER_STAGE_OF_PROCESS_END_TIME)
 			{
 				isRenderStageInProgress = false;
 			}
-			if (GetTickCount() - timing_clear >= 1500)
+			if ((DWORD)GetTickCount64() - timing_clear >= WORLDMAPOBJECTS_RENDER_MARIO_TIME)
 			{
 				CGame::GetInstance()->SetControlMarioRenderWorldMap(false);
 			}
@@ -108,7 +108,7 @@ void CWorldMapObjects::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		else
 		{
 			StartClearingStage();
-			if (GetTickCount() - timing_clear >= 1500)
+			if ((DWORD)GetTickCount64() - timing_clear >= WORLDMAPOBJECTS_RENDER_MARIO_TIME)
 			{
 				CGame::GetInstance()->SetControlMarioRenderWorldMap(false);
 			}
@@ -123,15 +123,15 @@ void CWorldMapObjects::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		if (isAllowToRenderClearStage)
 		{
 			StartClearingStage();
-			if (GetTickCount() - timing_clear >= 50)
+			if ((DWORD)GetTickCount64() - timing_clear >= WORLDMAPOBJECTS_RENDER_STAGE_OF_PROCESS_SHOW_TIME)
 			{
 				isRenderStageInProgress = true;
 			}
-			if (GetTickCount() - timing_clear >= 700)
+			if ((DWORD)GetTickCount64() - timing_clear >= WORLDMAPOBJECTS_RENDER_STAGE_OF_PROCESS_END_TIME)
 			{
 				isRenderStageInProgress = false;
 			}
-			if (GetTickCount() - timing_clear >= 1500)
+			if ((DWORD)GetTickCount64() - timing_clear >= WORLDMAPOBJECTS_RENDER_MARIO_TIME)
 			{
 				CGame::GetInstance()->SetControlMarioRenderWorldMap(false);
 			}
@@ -139,7 +139,7 @@ void CWorldMapObjects::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		else
 		{
 			StartClearingStage();
-			if (GetTickCount() - timing_clear >= 1500)
+			if ((DWORD)GetTickCount64() - timing_clear >= WORLDMAPOBJECTS_RENDER_MARIO_TIME)
 			{
 				CGame::GetInstance()->SetControlMarioRenderWorldMap(false);
 			}

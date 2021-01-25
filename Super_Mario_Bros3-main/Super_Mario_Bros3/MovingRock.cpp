@@ -5,7 +5,7 @@
 CMovingRock::CMovingRock()
 {
 	SetState(MOVING_ROCK_STATE_IDLE);
-	SetPosition(12000, 12000);
+	SetPosition(STORING_LOCATION_X, STORING_LOCATION_Y);
 }
 
 
@@ -22,7 +22,7 @@ void CMovingRock::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 
 	if (isUsed)
-		if (GetTickCount() - timing_start >= 100)
+		if ((DWORD)GetTickCount64() - timing_start >= MOVING_ROCK_DELAY_TIME_GRAVITY)
 			vy += MOVING_ROCK_GRAVITY * dt;
 
 
@@ -43,7 +43,7 @@ void CMovingRock::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 					{
 						breakable_brick->Setcountup();
 						SetState(breakable_brick->Getcount());
-						this->SetPosition(breakable_brick->GetbreakX() + (breakable_brick->Getcount() % 2) * 8, breakable_brick->GetbreakY() + (breakable_brick->Getcount() / 3) * 8);
+						this->SetPosition(breakable_brick->GetbreakX() + (breakable_brick->Getcount() % 2) * MOVING_ROCK_PTS_FIX, breakable_brick->GetbreakY() + (breakable_brick->Getcount() / 3) * MOVING_ROCK_PTS_FIX);
 						isUsed = true;
 						StartTiming();
 					}
@@ -55,17 +55,17 @@ void CMovingRock::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 	if (isUsed)
 	{
-		if (GetTickCount() - timing_start >= 1200)
+		if ((DWORD)GetTickCount64() - timing_start >= MOVING_ROCK_DISAPEAR_TIME_LIMIT)
 		{
 			isUsed = false;
-			SetPosition(12000, 12000);
+			SetPosition(STORING_LOCATION_X, STORING_LOCATION_Y);
 			timing_start = 0;
 			state = MOVING_ROCK_STATE_IDLE;
 		}
 	}
 
 	if (isUsed)
-		if (GetTickCount() - timing_start >= 50)
+		if ((DWORD)GetTickCount64() - timing_start >= MOVING_ROCK_DELAY_TIME_MOVING)
 		{
 			x += dx;
 			y += dy;
@@ -86,27 +86,27 @@ void CMovingRock::Render()
 
 void CMovingRock::SetState(int state)
 {
-	vy = -0.04;
+	vy = (float)-0.04;
 	CGameObject::SetState(state);
 	switch (state)
 	{
 	case  MOVING_ROCK_STATE_IDLE:
-		vx = 0;
-		vy = 0;
+		vx = MOVING_ROCK_STATE_IDLE_VX;
+		vy = MOVING_ROCK_STATE_IDLE_VY;
 		break;
 	case MOVING_ROCK_STATE_TOP_RIGHT:
-		vx = 0.08;
-		vy = -0.08;
+		vx = MOVING_ROCK_VX;
+		vy = -MOVING_ROCK_VY;
 		break;
 	case MOVING_ROCK_STATE_TOP_LEFT:
-		vx = -0.08;
-		vy = -0.08;
+		vx = -MOVING_ROCK_VX;
+		vy = -MOVING_ROCK_VY;
 		break;
 	case MOVING_ROCK_STATE_BOTTOM_RIGHT:
-		vx = 0.08;
+		vx = MOVING_ROCK_VX;
 		break;
 	case MOVING_ROCK_STATE_BOTTOM_LEFT:
-		vx = -0.08;
+		vx = -MOVING_ROCK_VX;
 		break;
 	}
 }

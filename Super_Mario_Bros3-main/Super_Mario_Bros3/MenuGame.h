@@ -1,8 +1,7 @@
 #pragma once
 #include "GameObject.h"
+#include "define.h"
 
-#define MENU_GAME_ANI_1_PLAYER	0
-#define MENU_GAME_ANI_2_PLAYER	1
 
 class CMenuGame : public CGameObject
 {

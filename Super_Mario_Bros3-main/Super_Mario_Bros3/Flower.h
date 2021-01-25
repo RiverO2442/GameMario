@@ -1,6 +1,7 @@
 #pragma once
 #include "GameObject.h"
 #include "algorithm"
+#include "define.h"
 
 class CFlower : public CGameObject
 {
@@ -27,7 +28,7 @@ public:
 	virtual void SetState(int state);
 	void StartShowing()
 	{
-		time_showing = GetTickCount();
+		time_showing = (DWORD)GetTickCount64();
 	}
 	int GetIsShootingUp()
 	{
@@ -85,7 +86,7 @@ public:
 	}
 	void StartTimingScore()
 	{
-		timing_score = GetTickCount();
+		timing_score = (DWORD)GetTickCount64();
 	}
 	bool GetIsAllowFlowerToUpdate()
 	{

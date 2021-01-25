@@ -4,16 +4,16 @@ CQuestionBrick::CQuestionBrick(int ctype)
 {
 	type = ctype;
 	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
-	if (id == 4)
+	if (id == SCENE_1_4_ID)
 	{
 		if (type == QUESTION_BRICK_HAVE_COIN_MULTIPLE_LIFE)
-			life = 10;
+			life = QUESTION_BRICK_MAX_LIFE;
 		else
-			life = 0;
+			life = QUESTION_BRICK_MIN_LIFE;
 	}
 	else
 	{
-		life = 0;
+		life = QUESTION_BRICK_MIN_LIFE;
 	}
 }
 
@@ -69,58 +69,58 @@ void CQuestionBrick::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 
 	int id = CGame::GetInstance()->GetCurrentScene()->GetId();
-	if (id != 1)
+	if (id != INTRO_SCENE_ID)
 	{
 		CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
 		if (mario->GetIsSpining())
 		{
-				if (mario->HitByTail(this, NO_STATE, false))
+			if (mario->HitByTail(this, NO_STATE, false))
+			{
+				int id = CGame::GetInstance()->GetCurrentScene()->GetId();
+				if (id == SCENE_1_1_ID)
 				{
-					int id = CGame::GetInstance()->GetCurrentScene()->GetId();
-					if (id == 3)
+					if (this->GetIsAlive())
 					{
-						if (this->GetIsAlive())
+						if (!this->GetIsAllowQuestionBrickSlide())
+						{
+							this->SetIsUp(true);
+							this->SetIsAlive(false);
+							mario->SetMushRoomCheckPosition(this->x);
+							this->SetIsAllowToShowScore(true);
+							this->SetIsAllowQuestionBrickSlide(true);
+						}
+					}
+				}
+				else if (id == SCENE_1_4_ID)
+				{
+					if (this->GetIsAlive())
+					{
+						if (this->GetType() == QUESTION_BRICK_HAVE_COIN_MULTIPLE_LIFE)
+						{
+							if (!this->GetIsAllowQuestionBrickSlide())
+							{
+								this->SetIsUp(true);
+								this->SetIsAllowToShowScore(true);
+								this->SetLifeDown();
+								this->SetIsAllowQuestionBrickSlide(true);
+								this->SetIsAllowToShowMultipleCoin(true);
+								this->SetControlMultipleCoin(false);
+							}
+						}
+						else
 						{
 							if (!this->GetIsAllowQuestionBrickSlide())
 							{
 								this->SetIsUp(true);
 								this->SetIsAlive(false);
-								mario->SetMushRoomCheckPosition(mario->x);
+								mario->SetMushRoomCheckPosition(this->x);
 								this->SetIsAllowToShowScore(true);
 								this->SetIsAllowQuestionBrickSlide(true);
 							}
 						}
 					}
-					else if (id == 4)
-					{
-						if (this->GetIsAlive())
-						{
-							if (this->GetType() == QUESTION_BRICK_HAVE_COIN_MULTIPLE_LIFE)
-							{
-								if (!this->GetIsAllowQuestionBrickSlide())
-								{
-									this->SetIsUp(true);
-									this->SetIsAllowToShowScore(true);
-									this->SetLifeDown();
-									this->SetIsAllowQuestionBrickSlide(true);
-									this->SetIsAllowToShowMultipleCoin(true);
-									this->SetControlMultipleCoin(false);
-								}
-							}
-							else
-							{
-								if (!this->GetIsAllowQuestionBrickSlide())
-								{
-									this->SetIsUp(true);
-									this->SetIsAlive(false);
-									mario->SetMushRoomCheckPosition(mario->x);
-									this->SetIsAllowToShowScore(true);
-									this->SetIsAllowQuestionBrickSlide(true);
-								}
-							}
-						}
-					}
 				}
+			}
 		}
 	}
 
@@ -128,7 +128,7 @@ void CQuestionBrick::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 
 
-	if (life < 0)
+	if (life < QUESTION_BRICK_MIN_LIFE)
 	{
 		isAlive = false;
 		isAllowToShowMultipleCoin = false;
@@ -143,28 +143,28 @@ void CQuestionBrick::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	{
 		if (isUp)
 		{
-			if (time_Y_Up > 4)
+			if (time_Y_Up > QUESTION_BRICK_SLIDE_MAX_TIME)
 			{
 				time_Y_Up = 0;
 				isUp = false;
 			}
 			else
 			{
-				y -= 2;
+				y -= QUESTION_BRICK_SLIDE_RANGE;
 				time_Y_Up++;
 			}
 		}
 		else
 		{
-			if (time_Y_Up > 4)
+			if (time_Y_Up > QUESTION_BRICK_SLIDE_MAX_TIME)
 			{
-				vy = 0;
+				vy = QUESTION_BRICK_STATE_IDLE_VY;
 				isAllowQuestionBrickSlide = false;
 				time_Y_Up = 0;
 			}
 			else
 			{
-				y += 2;
+				y += QUESTION_BRICK_SLIDE_RANGE;
 				time_Y_Up++;
 			}
 		}
@@ -218,14 +218,14 @@ void CQuestionBrick::Render()
 	if (isAlive)
 	{
 		int id = CGame::GetInstance()->GetCurrentScene()->GetId();
-		if (id == 3)
+		if (id == SCENE_1_1_ID)
 		{
 			if (type == QUESTION_BRICK_JUST_HAVE_MUSHROOM)
 				ani = QUESTION_BRICK_ANI_NEW_TYPE;
 			else
 				ani = QUESTION_BRICK_ANI_ALIVE;
 		}
-		else if (id == 4)
+		else if (id == SCENE_1_4_ID)
 		{
 			ani = QUESTION_BRICK_ANI_NEW_TYPE;
 		}

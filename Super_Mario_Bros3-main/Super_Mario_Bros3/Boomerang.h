@@ -3,6 +3,7 @@
 #include "Mario.h"
 #include "PlayScene.h"
 #include "Scene.h"
+#include "define.h"
 #include <algorithm>
 
 #define BOOMERANG_BBOX_WIDTH  16
@@ -83,7 +84,7 @@ public:
 	{
 		if (time_switch_state == 0)
 		{
-			time_switch_state = GetTickCount();
+			time_switch_state = (DWORD)GetTickCount64();
 		}
 	}
 	DWORD GetTimeSwitchingState()

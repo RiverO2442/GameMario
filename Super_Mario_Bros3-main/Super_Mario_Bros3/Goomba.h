@@ -41,11 +41,11 @@ public:
 	virtual void SetState(int state);
 	void StartDying()
 	{
-		dyingStart = GetTickCount();
+		dyingStart = (DWORD)GetTickCount64();
 	}
 	void StartRunning()
 	{
-		runningStart = GetTickCount();
+		runningStart = (DWORD)GetTickCount64();
 	}
 	int GetPointPara()
 	{
@@ -72,20 +72,20 @@ public:
 	}
 	void StartTimingScore()
 	{
-		timing_score = GetTickCount();
+		timing_score = (DWORD)GetTickCount64();
 	}
 	void StartTimeSwitchingState()
 	{
 		if (time_switch_state == 0)
 		{
-			time_switch_state = GetTickCount();
+			time_switch_state = (DWORD)GetTickCount64();
 		}
 	}
 	void StartJumping()
 	{
 		if (jumpingStart == 0)
 		{
-			jumpingStart = GetTickCount();
+			jumpingStart = (DWORD)GetTickCount64();
 		}
 	}
 };

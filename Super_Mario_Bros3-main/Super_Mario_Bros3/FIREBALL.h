@@ -10,7 +10,7 @@ class FIREBALL : public CGameObject
 	virtual void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects);
 	virtual void Render();
 	void CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents);
-	void StartReset() { reset_start = GetTickCount(); }
+	void StartReset() { reset_start = (DWORD)GetTickCount64(); }
 
 public:
 	float upBoudary;

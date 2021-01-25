@@ -22,11 +22,11 @@ void CHUD::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	if (id == SCENE_1_1_ID || id == SCENE_1_4_ID)
 	{
 
-		float cam_x = CGame::GetInstance()->GetCamX();
-		float cam_y = CGame::GetInstance()->GetCamY();
+		int cam_x = CGame::GetInstance()->GetCamX();
+		int cam_y = CGame::GetInstance()->GetCamY();
 
-		float cam_x_pre = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetCamXPre();
-		float cam_y_pre = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetCamYPre();
+		int cam_x_pre = (int)((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetCamXPre();
+		int cam_y_pre = (int)((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetCamYPre();
 
 
 		this->x += cam_x - cam_x_pre;
@@ -102,11 +102,6 @@ void CHUD::Render()
 
 void CHUD::SetState(int state)
 {
-	CGameObject::SetState(state);
-	switch (state)
-	{
-
-	}
 }
 
 void CHUD::Render(int id)

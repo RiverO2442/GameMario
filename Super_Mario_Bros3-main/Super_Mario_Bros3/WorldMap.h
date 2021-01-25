@@ -9,6 +9,8 @@
 #include <vector>
 #include "HUD.h"
 #include"NewMapCam.h"
+#include"define.h"
+
 using namespace std;
 
 class CWorldMap : public  CScene
@@ -17,9 +19,9 @@ class CWorldMap : public  CScene
 protected:
 
 	vector<LPGAMEOBJECT> objects;
-	Map* map;
+	Map* map = nullptr;
 
-	Node* current_node;
+	Node* current_node = nullptr;
 
 	vector<Node*> Nodes;
 

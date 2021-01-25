@@ -139,7 +139,11 @@ public:
 	void GetPosition(float& x, float& y) { x = this->x; y = this->y; }
 	void GetSpeed(float& vx, float& vy) { vx = this->vx; vy = this->vy; }
 
-	int GetState() { return this->state; }
+	int GetState() {if(this != NULL) return this->state;		else
+	{
+		return 0;
+	}
+	}
 
 	void RenderBoundingBox();
 

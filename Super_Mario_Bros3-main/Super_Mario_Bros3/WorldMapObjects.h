@@ -70,17 +70,17 @@ public:
 	void GoldDiggerStartWalking()
 	{
 		if (gold_digger_walk_start == 0)
-			gold_digger_walk_start = GetTickCount();
+			gold_digger_walk_start = (DWORD)GetTickCount64();
 	}
 	void HelpAppearStart()
 	{
 		if (help_appear_start == 0)
-			help_appear_start = GetTickCount();
+			help_appear_start = (DWORD)GetTickCount64();
 	}
 	void MarioMoveStart()
 	{
 		if (mario_move_start == 0)
-			mario_move_start = GetTickCount();
+			mario_move_start = (DWORD)GetTickCount64();
 	}
 	bool GetMarioMoveControl()
 	{
@@ -91,7 +91,7 @@ public:
 	{
 		if (timing_clear == 0)
 		{
-			timing_clear = GetTickCount();
+			timing_clear = (DWORD)GetTickCount64();
 		}
 	}
 };

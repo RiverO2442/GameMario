@@ -4,23 +4,12 @@
 #include "algorithm"
 #include "Mario.h"
 #include "PlayScene.h"
-
-
-
-#define HIT_EFFECT_STATE_IDLE	0
-
-
-
-
-#define HIT_EFFECT_TURN_TAIL			100
-#define HIT_EFFECT_FIRE_BULLET			200	
+#include "define.h"
 
 
 
 
-#define HIT_EFFECT_TURN_TAIL_ANI_RIGHT			0
-#define HIT_EFFECT_TURN_TAIL_ANI_LEFT			1
-#define HIT_EFFECT_ANI_FIRE_BULLET				2
+
 
 
 class CHitEffect : public CGameObject
@@ -45,7 +34,7 @@ public:
 	void StartTiming()
 	{
 		if (timing_start == 0)
-			timing_start = GetTickCount();
+			timing_start = (DWORD)GetTickCount64();
 	}
 	void SetIsUsed(bool isUsedBool)
 	{

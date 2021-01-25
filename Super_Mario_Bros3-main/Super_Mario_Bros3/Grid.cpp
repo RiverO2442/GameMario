@@ -18,7 +18,7 @@ void CGrid::_ParseSection_SETTINGS(string line)
 	numRow = atoi(tokens[3].c_str());
 
 	cells = new LPCELL[numCol];
-	for (int i = 0; i < numCol; i++)
+	for (unsigned int i = 0; i < numCol; i++)
 	{
 		cells[i] = new Cell[numRow];
 	}
@@ -54,56 +54,57 @@ void CGrid::_ParseSection_OBJECTS(string line)
 		break;
 	case OBJECT_TYPE_BOOMERANG:
 	{
-		int boomerang_id = atof(tokens[7].c_str());
+		int boomerang_id = (int)atof(tokens[7].c_str());
 		obj = new CBoomerang(boomerang_id);
 	}
 	break;
 	case OBJECT_TYPE_MOVING_HORIZONTAL_RECTANGLE:
 	{
-		int moving_horizontal_rectangle_id = atof(tokens[7].c_str());
+		int moving_horizontal_rectangle_id = (int)atof(tokens[7].c_str());
 		obj = new CMovingHorizontalRectangle(moving_horizontal_rectangle_id);
 	}break;
 	case OBJECT_TYPE_QUESTION_BRICK_HAVE_MULTIPLE_LIFE:
 		obj = new CQuestionBrick(QUESTION_BRICK_HAVE_COIN_MULTIPLE_LIFE);
 		break;
-	case OBJECT_TYPE_GOOMBA_NORMAL: obj = new CGoomba(888, 3); break;
-	case OBJECT_TYPE_GOOMBA_RED_FLY: obj = new CGoomba(999, 3); break;
+	case OBJECT_TYPE_GOOMBA_NORMAL: obj = new CGoomba(GOOMBA_NORMAL, 3); break;
+	case OBJECT_TYPE_GOOMBA_RED_FLY: obj = new CGoomba(GOOMBA_RED_FLY, 3); break;
 	case OBJECT_TYPE_BRICK: obj = new CBrick(); break;
-	case OBJECT_TYPE_KOOPAS_XANH_WALK: obj = new CKoopas(111, 3); break;
+	case OBJECT_TYPE_KOOPAS_XANH_WALK: obj = new CKoopas(KOOPAS_XANH_WALK, 3); break;
+	case OBJECT_TYPE_KOOPAS_RED_FLY: obj = new CKoopas(KOOPAS_RED_FLY, 4); break;
 	case OBJECT_TYPE_RECTANGLE: obj = new CRECT(); break;
-	case OBJECT_TYPE_COIN_NORMAL: obj = new CCoin(222); break;
-	case OBJECT_TYPE_COIN_CAN_MOVE: obj = new CCoin(333); break;
-	case OBJECT_TYPE_PIPE: obj = new PIPE(100); break;
-	case OBJECT_TYPE_PIPE_DOWN: obj = new PIPE(200); break;
-	case OBJECT_TYPE_PIPE_UP: obj = new PIPE(300); break;
+	case OBJECT_TYPE_COIN_NORMAL: obj = new CCoin(COIN_NORMAL); break;
+	case OBJECT_TYPE_COIN_CAN_MOVE: obj = new CCoin(COIN_CAN_MOVE); break;
+	case OBJECT_TYPE_PIPE: obj = new PIPE(PIPE_TYPE_NORMAL); break;
+	case OBJECT_TYPE_PIPE_DOWN: obj = new PIPE(PIPE_TYPE_DOWN); break;
+	case OBJECT_TYPE_PIPE_UP: obj = new PIPE(PIPE_TYPE_UP); break;
 	case OBJECT_TYPE_NO_COLLISION_OBJECTS:obj = new CNoCollisionObject(3, 1); break;
-	case OBJECT_TYPE_KOOPAS_XANH_BAY: obj = new CKoopas(222, 3); break;
-	case OBJECT_TYPE_KOOPAS_RED_WALK: obj = new CKoopas(333, 3); break;
+	case OBJECT_TYPE_KOOPAS_XANH_BAY: obj = new CKoopas(KOOPAS_XANH_FLY, 3); break;
+	case OBJECT_TYPE_KOOPAS_RED_WALK: obj = new CKoopas(KOOPAS_RED_WALK, 3); break;
 	case OBJECT_TYPE_FIREBALL:     obj = new FIREBALL(); break;
-	case OBJECT_TYPE_FLOWER_RED:	  obj = new CFlower(100); break;
-	case OBJECT_TYPE_FLOWER_GREEN:	  obj = new CFlower(200); break;
-	case OBJECT_TYPE_FLOWER_GREEN_CAN_SHOOT:   obj = new CFlower(300); break;
+	case OBJECT_TYPE_FLOWER_RED:	  obj = new CFlower(FLOWER_RED); break;
+	case OBJECT_TYPE_FLOWER_GREEN:	  obj = new CFlower(FLOWER_GREEN); break;
+	case OBJECT_TYPE_FLOWER_GREEN_CAN_SHOOT:   obj = new CFlower(FLOWER_GREEN_CAN_SHOOT); break;
 	case OBJECT_TYPE_FLOWER_BULLET:	   obj = new CFlowerBullet(); break;
-	case OBJECT_TYPE_QUESTION_BRICK: obj = new CQuestionBrick(777); break;
-	case OBJECT_TYPE_QUESTION_BRICK_HAVE_ITEM: obj = new CQuestionBrick(888); break;
+	case OBJECT_TYPE_QUESTION_BRICK: obj = new CQuestionBrick(QUESTION_BRICK_HAVE_LEAF); break;
+	case OBJECT_TYPE_QUESTION_BRICK_HAVE_ITEM: obj = new CQuestionBrick(QUESTION_BRICK_JUST_HAVE_MUSHROOM); break;
 	case OBJECT_TYPE_LEAF:	           obj = new CLeaf(); break;
-	case OBJECT_TYPE_MUSHROOM_RED:	   obj = new CMushRoom(567); break;
-	case OBJECT_TYPE_MUSHROOM_GREEN:   obj = new CMushRoom(678); break;
+	case OBJECT_TYPE_MUSHROOM_RED:	   obj = new CMushRoom(MUSHROOM_RED); break;
+	case OBJECT_TYPE_MUSHROOM_GREEN:   obj = new CMushRoom(MUSHROOM_GREEN); break;
 	case OBJECT_TYPE_BREAKABLE_BRICK: obj = new CBreakableBrick(); break;
 	case OBJECT_TYPE_BELL: obj = new CBell(); break;
-	case OBJECT_TYPE_BLACK_BLACK: obj = new CHUD(1000); break;
+	case OBJECT_TYPE_BLACK_BLACK: obj = new CHUD(HUD_TYPE_BLACK_BLACK); break;
 	case OBJECT_TYPE_SPECIAL_ITEM: obj = new CSpecial_Item(); break;
-	case OBJECT_TYPE_WORDS_END_SCENE_COURSE_CLEAR: obj = new CWordsEndScene(111); break;
-	case OBJECT_TYPE_WORDS_END_SCENE_YOU_GOT_A_CARD: obj = new CWordsEndScene(222); break;
-	case OBJECT_TYPE_WORDS_END_SCENE_ITEM: obj = new CWordsEndScene(333); break;
+	case OBJECT_TYPE_WORDS_END_SCENE_COURSE_CLEAR: obj = new CWordsEndScene(WORDS_END_SCENE_TYPE_COURSE_CLEAR); break;
+	case OBJECT_TYPE_WORDS_END_SCENE_YOU_GOT_A_CARD: obj = new CWordsEndScene(WORDS_END_SCENE_TYPE_YOU_GOT_A_CARD); break;
+	case OBJECT_TYPE_WORDS_END_SCENE_ITEM: obj = new CWordsEndScene(WORDS_END_SCENE_TYPE_ITEM); break;
 	case OBJECT_TYPE_MOVING_ROCK: obj = new CMovingRock(); break;
-	/*case OBJECT_TYPE_PORTAL:
-	{
-		float r = atof(tokens[4].c_str());
-		float b = atof(tokens[5].c_str());
-		int scene_id = atoi(tokens[6].c_str());
-		obj = new CPortal(x, y, r, b, scene_id);
-	}*/
+	//case OBJECT_TYPE_PORTAL:
+	//{
+	//	float r = atof(tokens[4].c_str());
+	//	float b = atof(tokens[5].c_str());
+	//	int scene_id = atoi(tokens[6].c_str());
+	//	obj = new CPortal(x, y, r, b, scene_id);
+	//}
 	break;
 	default:
 		DebugOut(L"[ERR] Invalid object type: %d\n", type);
@@ -115,9 +116,9 @@ void CGrid::_ParseSection_OBJECTS(string line)
 	if (obj != NULL)
 	{
 		int add = 0;
-		obj->SetPosition(x, y);
+		obj->SetPosition((float)x, (float)y);
 		obj->SetAnimationSet(ani_set);
-		obj->SetOrigin(x, y, obj->GetState());
+		obj->SetOrigin((float)x, (float)y, obj->GetState());
 		obj->SetrenderLayer(renderLayer);
 		cells[cellX][cellY].Add(obj);
 	}
@@ -132,7 +133,7 @@ void CGrid::Load(LPCWSTR filePath)
 	f.open(filePath);
 
 	// current resource section flag
-	int section;
+	int section = 0;
 
 	char str[MAX_GRID_LINE];
 	while (f.getline(str, MAX_GRID_LINE))
@@ -166,8 +167,8 @@ void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int CamX, int CamY)
 {
 	//listObject.clear();
 
-	int left, top, right, bottom;
-	int i, j, k;
+	unsigned int  left, top, right, bottom;
+	unsigned int i, j, k;
 
 	left = ((CamX) / cellWidth);
 
@@ -177,7 +178,7 @@ void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int CamX, int CamY)
 
 	bottom = (CamY + IN_USE_HEIGHT) / cellHeight;
 
-	LPGAMEOBJECT obj;
+	LPGAMEOBJECT obj = NULL;
 
 	if (right < 0 || left > numCol || bottom < 0 && top > numRow)
 	{
@@ -213,7 +214,7 @@ void CGrid::GetObjects(vector<LPGAMEOBJECT>& listObject, int CamX, int CamY)
 					{
 						float Ox, Oy;
 						cells[i][j].GetListObjects().at(k)->GetOriginLocation(Ox, Oy);
-						if (!((CPlayScene*)(CGame::GetInstance()->GetCurrentScene()))->IsInUseArea(Ox, Oy) && cells[i][j].GetListObjects().at(k)->GetisAlive())
+						if (!((CPlayScene*)(CGame::GetInstance()->GetCurrentScene()))->IsInUseArea(Ox, Oy) /*&& cells[i][j].GetListObjects().at(k)->GetisAlive()*/)
 								cells[i][j].GetListObjects().at(k)->reset();
 						listObject.push_back(cells[i][j].GetListObjects().at(k));
 						cells[i][j].GetListObjects().at(k)->SetActive(true);
@@ -229,9 +230,9 @@ void CGrid::Unload()
 	if(this != nullptr)
 	if (cells)
 	{
-		for (int i = 0; i < numCol; i++)
+		for (unsigned int i = 0; i < numCol; i++)
 		{
-			for (int j = 0; j < numRow; j++)
+			for (unsigned int j = 0; j < numRow; j++)
 			{
 				cells[i][j].Unload();
 			}

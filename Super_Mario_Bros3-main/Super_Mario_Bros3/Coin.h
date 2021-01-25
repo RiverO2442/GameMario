@@ -6,8 +6,6 @@
 #include "PlayScene.h"
 #include "define.h"
 
-
-
 class CCoin : public CGameObject
 {
 	bool isAppear;
@@ -23,7 +21,7 @@ public:
 	virtual void SetState(int state);
 	void StartTiming()
 	{
-		timing_start = GetTickCount();
+		timing_start = (DWORD)GetTickCount64();
 	}
 	void SetIsAppear(bool isAppearBool)
 	{

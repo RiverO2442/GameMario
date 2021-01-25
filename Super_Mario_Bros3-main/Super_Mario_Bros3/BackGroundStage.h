@@ -3,21 +3,7 @@
 #include "algorithm"
 #include "Mario.h"
 #include "PlayScene.h"
-
-
-#define BACKGROUND_STAGE_STATE_IDLE		0
-#define BACKGROUND_STAGE_STATE_DOWN		100
-#define BACKGROUND_STAGE_STATE_SHAKE	200
-
-
-#define BACKGROUND_STAGE_TYPE_BLACK_ANI		0	
-#define BACKGROUND_STAGE_TYPE_COLOR_ANI		1
-#define BACKGROUND_STAGE_TYPE_FINAL_ANI		2
-
-
-#define BACKGROUND_STAGE_TYPE_BLACK		111
-#define BACKGROUND_STAGE_TYPE_COLOR		222
-#define BACKGROUND_STAGE_TYPE_FINAL		333
+#include "define.h"
 
 class CBackGroundStage : public CGameObject
 {
@@ -46,17 +32,17 @@ public:
 	void StartShowing()
 	{
 		if (time_showing == 0)
-			time_showing = GetTickCount();
+			time_showing = (DWORD)GetTickCount64();
 	}
 	void StartDown()
 	{
 		if (time_down == 0)
-			time_down = GetTickCount();
+			time_down = (DWORD)GetTickCount64();
 	}
 	void StartShake()
 	{
 		if (time_shake == 0)
-			time_shake = GetTickCount();
+			time_shake = (DWORD)GetTickCount64();
 	}
 	bool GetIsAppear()
 	{

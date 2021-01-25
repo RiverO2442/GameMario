@@ -60,7 +60,7 @@ void CSpecial_Item::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	if (vy != 0)
 	{
 		StartUpping();
-		if (GetTickCount() - upping_start >= 1400)
+		if ((DWORD)GetTickCount64() - upping_start >= 1400)
 		{
 			isAppear = false;
 		}
@@ -68,7 +68,7 @@ void CSpecial_Item::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	else
 	{
 		StartSwitchState();
-		if (GetTickCount() - switching_state_start >= 250)
+		if ((DWORD)GetTickCount64() - switching_state_start >= 250)
 		{
 			switch (state)
 			{
@@ -166,12 +166,12 @@ void CSpecial_Item::SetState(int state)
 	case SPECIAL_ITEM_STATE_FLOWER_IDLE:
 	case SPECIAL_ITEM_STATE_MUSHROOM_IDLE:
 	case SPECIAL_ITEM_STATE_STAR_IDLE:
-		vx = vy = 0;
+		vx = vy = SPECIAL_ITEM_STATE_STAR_IDLE_SPEED;
 		break;
 	case SPECIAL_ITEM_STATE_FLOWER_UP:
 	case SPECIAL_ITEM_STATE_MUSHROOM_UP:
 	case SPECIAL_ITEM_STATE_STAR_UP:
-		vy = -0.09f;
+		vy = -SPECIAL_ITEM_STATE_STAR_UP_SPEED;
 		break;
 	}
 }

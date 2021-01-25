@@ -34,6 +34,8 @@ class CKoopas : public CGameObject
 	bool isAllowToSubRecWidth = false;
 	DWORD timingSubRecWidth = 0;
 	bool isControlSubRecWidth = false;
+	DWORD switching_state_time = 0;
+	bool isDown = true;
 	
 
 public:
@@ -45,6 +47,13 @@ public:
 	CKoopas(int ctype, int scene_id);
 	void SetisBeingHold(bool value) { isBeingHold = value; }
 	bool GetisBeingHold() { return isBeingHold; }
+	void StartSwitchingState()
+	{
+		if (switching_state_time == 0)
+		{
+			switching_state_time = GetTickCount();
+		}
+	}
 	bool GetIsAllowToSubRecWidth()
 	{
 		return isAllowToSubRecWidth;
@@ -56,7 +65,7 @@ public:
 	void StartTimingSubRecWidth()
 	{
 		if (timingSubRecWidth == 0)
-			timingSubRecWidth = GetTickCount();
+			timingSubRecWidth = (DWORD)GetTickCount64();
 	}
 	int GetType()
 	{
@@ -84,7 +93,7 @@ public:
 	}
 	void StartRevive()
 	{
-		reviveStart = GetTickCount();
+		reviveStart = (DWORD)GetTickCount64();
 	}
 	DWORD GetReviveStart()
 	{

@@ -20,28 +20,28 @@ void CWordsEndScene::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
 	CGameObject::Update(dt);
 	CMario* mario = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetPlayer();
-	DebugOut(L"gia tri la %d \n", GetTickCount() - this->timing_recog_start);
+
 	if (mario->GetIsAllowToShowWordsEndScene())
 	{
 		StartTimeRecog();
-		//DebugOut(L"gia tri la %d \n", GetTickCount() - this->timing_recog_start);
+		//DebugOut(L"gia tri la %d \n", (DWORD)GetTickCount64() - this->timing_recog_start);
 		if (type == WORDS_END_SCENE_TYPE_COURSE_CLEAR)
 		{
-			if (GetTickCount() - timing_recog_start >= 1000)
+			if ((DWORD)GetTickCount64() - timing_recog_start >= WORDSENDSCENE_CLEAR_SHOW_TIME)
 			{
 				this->isAppear = true;
 			}
 		}
 		else if (type == WORDS_END_SCENE_TYPE_YOU_GOT_A_CARD)
 		{
-			if (GetTickCount() - timing_recog_start >= 1500)
+			if ((DWORD)GetTickCount64() - timing_recog_start >= WORDSENDSCENE_GOT_A_CARD_SHOW_TIME)
 			{
 				this->isAppear = true;
 			}
 		}
 		else if (type == WORDS_END_SCENE_TYPE_ITEM)
 		{
-			if (GetTickCount() - timing_recog_start >= 2000)
+			if ((DWORD)GetTickCount64() - timing_recog_start >= WORDSENDSCENE_ITEM_SHOW_TIME)
 			{
 				this->isAppear = true;
 			}

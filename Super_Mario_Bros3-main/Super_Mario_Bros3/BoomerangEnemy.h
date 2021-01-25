@@ -3,25 +3,10 @@
 #include "algorithm"
 #include "Mario.h"
 #include "PlayScene.h"
+#include "define.h"
 
 
-#define  BOOMERANG_ENEMY_BBOX_WIDTH		16
-#define  BOOMERANG_ENEMY_BBOX_HEIGHT	24
 
-#define  BOOMERANG_ENEMY_STATE_IDLE				0
-#define  BOOMERANG_ENEMY_STATE_MOVE_FORWARD		100
-#define  BOOMERANG_ENEMY_STATE_MOVE_BACKWARD    200
-#define	 BOOMERANG_ENEMY_STATE_DIE				300
-
-#define BOOMERANG_ENEMY_GRAVITY		0.002f
-
-
-#define BOOMERANG_ENEMY_ANI_NORMAL_RIGHT				0
-#define BOOMERANG_ENEMY_ANI_THROW_BOOMERANG_RIGHT		1
-#define BOOMERANG_ENEMY_ANI_DIE_RIGHT					2
-#define BOOMERANG_ENEMY_ANI_DIE_LEFT					3
-#define BOOMERANG_ENEMY_ANI_NORMAL_LEFT					4	
-#define BOOMERANG_ENEMY_ANI_THROW_BOOMERANG_LEFT		5
 
 class CBoomerangEnemy : public CGameObject
 {
@@ -52,14 +37,14 @@ public:
 	{
 		if (time_switch_state == 0)
 		{
-			time_switch_state = GetTickCount();
+			time_switch_state = (DWORD)GetTickCount64();
 		}
 	}
 	void StartTimeRenderingThrowAni()
 	{
 		if (time_rendering_throw_ani == 0)
 		{
-			time_rendering_throw_ani = GetTickCount();
+			time_rendering_throw_ani = (DWORD)GetTickCount64();
 		}
 	}
 	bool GetIsAlive()
@@ -86,7 +71,7 @@ public:
 	}
 	void StartTimingScore()
 	{
-		timing_score = GetTickCount();
+		timing_score = (DWORD)GetTickCount64();
 	}
 	bool GetIsAllowToHaveBBox()
 	{

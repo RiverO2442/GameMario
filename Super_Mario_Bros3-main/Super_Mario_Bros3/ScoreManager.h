@@ -4,9 +4,7 @@ class ScoreManager
 	float x, y;
 	int score;
 public:
-	ScoreManager() {
 
-	}
 	ScoreManager(float x, float y, int score)
 	{
 		this->x = x;

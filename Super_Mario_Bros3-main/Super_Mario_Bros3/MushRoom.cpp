@@ -1,5 +1,4 @@
 #include "MushRoom.h"
-#include "BackGroundStage.h"
 
 CMushRoom::CMushRoom(int ctype)
 {
@@ -12,7 +11,10 @@ void CMushRoom::CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<
 	for (UINT i = 0; i < coObjects->size(); i++)
 	{
 		LPCOLLISIONEVENT e = SweptAABBEx(coObjects->at(i));
-
+		if (dynamic_cast<CFlowerBullet*>(coObjects->at(i)) || dynamic_cast<FIREBALL*>(coObjects->at(i)))
+		{
+			continue;
+		}
 		if (e->t > 0 && e->t <= 1.0f)
 		{
 			coEvents.push_back(e);
@@ -31,7 +33,7 @@ void CMushRoom::GetBoundingBox(float& l, float& t, float& r, float& b)
 		t = y;
 		r = x + MUSHROOM_BBOX_WIDTH;
 		b = y + MUSHROOM_BBOX_HEIGHT;
-		DebugOut(L"[INFO] lay bounding box nam \n");
+
 	}
 	else
 	{
@@ -77,7 +79,7 @@ void CMushRoom::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 								isAppear = true;
 								StartUpping();
 								question_brick->SetIsUsed(true);
-
+								moveDirection = 1;
 							}
 						}
 					}
@@ -103,7 +105,6 @@ void CMushRoom::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			if (background_stage->GetType() == BACKGROUND_STAGE_TYPE_FINAL && background_stage->GetIsAppear())
 			{
 				isAppear = true;
-				DebugOut(L"[INFO] Hien hinh mushroom \n");
 				haveGravity = true;
 			}
 		}
@@ -111,12 +112,15 @@ void CMushRoom::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 	if (state == MUSHROOM_STATE_UP)
 	{
-		if (GetTickCount() - upping_start >= 300)
+		if ((DWORD)GetTickCount64() - upping_start >= MUSHROOM_UP_TIME)
 		{
 			SetState(MUSHROOM_STATE_MOVE);
 			haveGravity = true;
 		}
 	}
+
+
+
 
 
 	// No collision occured, proceed normally
@@ -127,7 +131,7 @@ void CMushRoom::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	}
 	else
 	{
-
+		//vector<LPGAMEOBJECT> scores_panel = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene())->GetScoresPanel();
 		float min_tx, min_ty, nx = 0, ny;
 		float rdx = 0;
 		float rdy = 0;
@@ -155,28 +159,49 @@ void CMushRoom::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			if (dynamic_cast<CMario*>(e->obj))
 			{
 				CMario* mario = dynamic_cast<CMario*>(e->obj);
+				int id = CGame::GetInstance()->GetCurrentScene()->GetId();
 				if (type == MUSHROOM_RED)
 				{
 					if (mario->GetLevel() == MARIO_LEVEL_SMALL)
 					{
+						mario->StartIsTransform();
 						mario->SetLevel(MARIO_LEVEL_BIG);
+						CPlayScene* playscene = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene());
+						playscene->AddScore(this->x, this->y + SCORE_FIX_PST_Y, 1000);
 						isAppear = false;
-						SetPosition(6000, 6000);
+						SetPosition(STORING_LOCATION_X, STORING_LOCATION_Y);
 					}
 					else
 					{
+						mario->SetIsTransform(true);
+						CPlayScene* playscene = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene());
+						playscene->AddScore(this->x, this->y + SCORE_FIX_PST_Y, 1000);
 						isAppear = false;
-						SetPosition(6000, 6000);
-						//Cong diem
+						SetPosition(STORING_LOCATION_X, STORING_LOCATION_Y);
 					}
-
+					int id = CGame::GetInstance()->GetCurrentScene()->GetId();
+					if (id == SCENE_1_1_ID || id == SCENE_1_4_ID)
+					{
+						CPlayScene* playscene = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene());
+						playscene->AddScore(this->x, this->y + SCORE_FIX_PST_Y, 1000);
+						CGame::GetInstance()->ScoreUp(1000);
+					}
 				}
 				else
 				{
 					isAppear = false;
-					SetPosition(6000, 6000);
-					//Cong diem
+					SetPosition(STORING_LOCATION_X, STORING_LOCATION_Y);
+					CGame::GetInstance()->SetLifeUp();
+					CPlayScene* playscene = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene());
+					playscene->AddScore(this->x, this->y + SCORE_FIX_PST_Y, 0);
+					int id = CGame::GetInstance()->GetCurrentScene()->GetId();
+					if (id == SCENE_1_1_ID || id == SCENE_1_4_ID)
+					{
+						CPlayScene* playscene = ((CPlayScene*)CGame::GetInstance()->GetCurrentScene());
+						playscene->AddScore(this->x, this->y + SCORE_FIX_PST_Y, ONE_LV_UP);
+					}
 				}
+
 			}
 			else  // Collisions with other things  
 			{
@@ -219,16 +244,16 @@ void CMushRoom::SetState(int state)
 	switch (state)
 	{
 	case MUSHROOM_STATE_IDLE:
-		vx = vy = 0;
+		vx = vy = MUSHROOM_STATE_IDLE_SPEED;
 		break;
 	case MUSHROOM_STATE_MOVE:
-		vx = 0.04f;
+		vx = MUSHROOM_STATE_MOVE_SPEED_VX * moveDirection;
 		break;
 	case MUSHROOM_STATE_MOVE_LEFT:
-		vx = -0.04f;
+		vx = -MUSHROOM_STATE_MOVE_SPEED_VX;
 		break;
 	case MUSHROOM_STATE_UP:
-		vy = -0.08f;
+		vy = -MUSHROOM_STATE_MOVE_SPEED_VY;
 		break;
 	}
 }

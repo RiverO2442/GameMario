@@ -29,7 +29,7 @@ Map::~Map()
 void Map::Render(int CamX, int CamY)
 {
 	int left, top, right, bottom;
-	int i, j, k;
+	int i = 0, j = 0, k = 0;
 
 	left = (CamX) / TILE_WIDTH;
 	right = (CamX + IN_USE_WIDTH) / TILE_WIDTH;
@@ -64,7 +64,7 @@ void Map::Render(int CamX, int CamY)
 	for (int r = top; r < bottom; r++)
 		for (int c = left; c < right; c++)
 		{
-			Tiles[TileMap[r][c] - 1]->Draw(c * TILE_WIDTH, r * TILE_HEIGHT, 255); //(x,y,alpha)
+			Tiles[TileMap[r][c] - 1]->Draw((float)(c * TILE_WIDTH), (float)(r * TILE_HEIGHT), 255); //(x,y,alpha)
 		}
 }
 
@@ -73,7 +73,7 @@ void Map::Render()
 	for (int r = 0; r < TotalRowsOfMap; r++)
 		for (int c = 0; c < TotalColumnsOfMap; c++)
 		{
-			Tiles[TileMap[r][c] - 1]->Draw(c * TILE_WIDTH, r * TILE_HEIGHT, 255); //(x,y,alpha)
+			Tiles[TileMap[r][c] - 1]->Draw(float(c * TILE_WIDTH), float(r * TILE_HEIGHT), 255); //(x,y,alpha)
 		}
 }
 

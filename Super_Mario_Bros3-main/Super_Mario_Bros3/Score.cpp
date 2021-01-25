@@ -32,10 +32,10 @@ void CScore::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 	if (state == SCORE_STATE_UP)
 	{
-		if (GetTickCount() - timing_start >= 600)
+		if ((DWORD)GetTickCount64() - timing_start >= SCORE_APPEAR_TIME)
 		{
 			isUsed = false;
-			SetPosition(6000, 6000);
+			SetPosition(STORING_LOCATION_X, STORING_LOCATION_Y);
 			SetState(SCORE_STATE_IDLE);
 			timing_start = 0;
 			if(value != 0)
@@ -55,7 +55,7 @@ void CScore::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 void CScore::Render()
 {
 	int ani = -1;
-	if (isUsed && value != 0)
+	if (isUsed)
 	{
 		switch (value)
 		{
@@ -100,10 +100,10 @@ void CScore::SetState(int state)
 	switch (state)
 	{
 	case  SCORE_STATE_IDLE:
-		vx = vy = 0;
+		vx = vy = SCORE_STATE_IDLE_SPEED;
 		break;
 	case  SCORE_STATE_UP:
-		vy = -0.08f;
+		vy = -SCORE_STATE_UP_SPEED;
 		break;
 	}
 }

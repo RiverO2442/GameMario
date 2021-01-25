@@ -1,17 +1,22 @@
 #pragma once
 
 #include "GameObject.h"
+#include "Playscene.h"
 
 /*
 	Object that triggers scene switching
 */
 class CPortal : public CGameObject
 {
-	float x, y;
-	int width;
-	int height;
-	CPortal(float x, float y);
+	int portal_id;	// target scene to switch to 
+
+	float	arrive_position_x;
+	float   arrive_position_y;
+
+public:
+	CPortal(int portal_id, float arrive_position_x, float arrive_position_y);
 	virtual void Render();
-	//virtual void Update();
 	virtual void GetBoundingBox(float& l, float& t, float& r, float& b);
+	virtual void Update(DWORD dt, vector<LPGAMEOBJECT>* colliable_objects = NULL);
+	int GetPortalId() { return portal_id; }
 };

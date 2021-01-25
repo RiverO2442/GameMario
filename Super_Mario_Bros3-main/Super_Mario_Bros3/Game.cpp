@@ -58,7 +58,7 @@ void CGame::Init(HWND hWnd)
 	// Initialize sprite helper from Direct3DX helper library
 	D3DXCreateSprite(d3ddv, &spriteHandler);
 
-	cam_x = cam_y = 0.0f;
+	cam_x = cam_y = 0;
 
 	OutputDebugString(L"[INFO] InitGame done;\n");
 }

@@ -79,17 +79,17 @@ void CBoomerang::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 
 	if (pre_get_tick_count == 0)
-		pre_get_tick_count = GetTickCount();
+		pre_get_tick_count = (DWORD)GetTickCount64();
 	else
 	{
-		if (GetTickCount() - pre_get_tick_count <= 50)
+		if ((DWORD)GetTickCount64() - pre_get_tick_count <= SAFE_TIME)
 		{
-			pre_get_tick_count = GetTickCount();
+			pre_get_tick_count = (DWORD)GetTickCount64();
 		}
 		else
 		{
-			sub_time = GetTickCount() - pre_get_tick_count;
-			pre_get_tick_count = GetTickCount();
+			sub_time = (DWORD)GetTickCount64() - pre_get_tick_count;
+			pre_get_tick_count = (DWORD)GetTickCount64();
 		}
 	}
 
@@ -124,17 +124,17 @@ void CBoomerang::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 	if (isInState_1)
 	{
-		if (GetTickCount() - time_switch_state >= 500 + sub_time)
+		if ((DWORD)GetTickCount64() - time_switch_state >= STATE_1_DURATION + sub_time)
 		{
 			isInState_2 = true;
 			isInState_1 = false;
 		}
 		else
 		{
-			if (GetTickCount() - time_switch_state >= 50)
+			if ((DWORD)GetTickCount64() - time_switch_state >= SAFE_TIME)
 			{
-				vx = 0.1f * boomerangDirection;
-				vy += -0.00006f * dt;
+				vx = BOOMERANG_VX_1 * boomerangDirection;
+				vy += -BOOMERANG_VY_1 * dt;
 
 			}
 			else
@@ -142,45 +142,45 @@ void CBoomerang::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				vy = vx = 0;
 			}
 		}
-		if (GetTickCount() - time_switch_state >= 250)
+		if ((DWORD)GetTickCount64() - time_switch_state >= ALLOW_TO_SHOT_TIME)
 		{
 			isAllowToColliWithBoomerangEnemy = true;
 		}
 	}
 	else if (isInState_2)
 	{
-		if (GetTickCount() - time_switch_state >= 1200 + sub_time)
+		if ((DWORD)GetTickCount64() - time_switch_state >= STATE_2_DURATION + sub_time)
 		{
 			isInState_2 = false;
 			isInState_3 = true;
 		}
 		else
 		{
-			vx = 0.1f * boomerangDirection;
-			vy += 0.00015f * dt;
+			vx = BOOMERANG_VX_1 * boomerangDirection;
+			vy += BOOMERANG_VY_2 * dt;
 		}
 	}
 	else if (isInState_3)
 	{
-		if (GetTickCount() - time_switch_state >= 1600 + sub_time)
+		if ((DWORD)GetTickCount64() - time_switch_state >= STATE_3_DURATION + sub_time)
 		{
 			isInState_3 = false;
 			isInState_4 = true;
 		}
 		else
 		{
-			vx = -0.1f * boomerangDirection;
-			vy += 0.00006f * dt;
+			vx = -BOOMERANG_VX_1 * boomerangDirection;
+			vy += BOOMERANG_VY_1 * dt;
 
 		}
 	}
 	else if (isInState_4)
 	{
-		if (GetTickCount() - time_switch_state >= 4000 + sub_time)
+		if ((DWORD)GetTickCount64() - time_switch_state >= STATE_4_DURATION + sub_time)
 		{
 			isInState_4 = false;
 			time_switch_state = 0;
-			SetPosition(33000, 33000);
+			SetPosition(STORING_LOCATION_X, STORING_LOCATION_Y);
 			isAllowToSetPosition = true;
 			isAllowToThrowBoomerang = false;
 			isAllowToColliWithBoomerangEnemy = false;
@@ -188,13 +188,13 @@ void CBoomerang::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		}
 		else
 		{
-			vx = -0.1f * boomerangDirection;
+			vx = -BOOMERANG_VX_1 * boomerangDirection;
 			vy = 0;
 		}
 	}
 
 
-	//DebugOut(L"gia tri thoi gian la: %d \n",GetTickCount()-time_switch_state);
+	//DebugOut(L"gia tri thoi gian la: %d \n",(DWORD)GetTickCount64()-time_switch_state);
 	//DebugOut(L"gia tri state 3 la %d \n",isInState_3);
 
 	// No collision occured, proceed normally
@@ -227,7 +227,7 @@ void CBoomerang::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			{
 				CBoomerangEnemy* boomerang_enemy = dynamic_cast<CBoomerangEnemy*>(e->obj);
 				this->isAllowToThrowBoomerang = false;
-				SetPosition(33000, 33000);
+				SetPosition(STORING_LOCATION_X, STORING_LOCATION_Y);
 				isAllowToSetPosition = true;
 				isAllowToColliWithBoomerangEnemy = false;
 				sub_time = 0;

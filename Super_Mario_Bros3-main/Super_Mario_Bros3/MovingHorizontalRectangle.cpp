@@ -16,7 +16,7 @@ void CMovingHorizontalRectangle::CalcPotentialCollisions(vector<LPGAMEOBJECT>* c
 		{
 			continue;
 		}
-
+//
 		if (e->t > 0 && e->t <= 1.0f)
 		{
 			coEvents.push_back(e);
@@ -57,11 +57,11 @@ void CMovingHorizontalRectangle::Update(DWORD dt, vector<LPGAMEOBJECT>* coObject
 		{
 			if (mario->GetLevel() != MARIO_LEVEL_SMALL)
 			{
-				mario->y = this->y - 27;
+				mario->y = this->y - MOVING_HORIZONTAL_RECTANGLE_FIX_Y_SMALL;
 			}
 			else
 			{
-				mario->y = this->y - 15;
+				mario->y = this->y - MOVING_HORIZONTAL_RECTANGLE_FIX_Y;
 			}
 		}
 	}
